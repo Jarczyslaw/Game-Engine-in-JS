@@ -122,45 +122,49 @@ function MouseInput(canvas) {
 
 function Input(canvas) {
 	
-	var that = this;
-	
 	var defaultRepeat = true;
 	
-	this.keys = {};
-	this.keys[KEY_UP] = new KeyInput(defaultRepeat);
-	this.keys[KEY_DOWN] = new KeyInput(defaultRepeat);
-	this.keys[KEY_LEFT] = new KeyInput(defaultRepeat);
-	this.keys[KEY_RIGHT] = new KeyInput(defaultRepeat);
+	var keys = {};
+	keys[KEY_UP] = new KeyInput(defaultRepeat);
+	keys[KEY_DOWN] = new KeyInput(defaultRepeat);
+	keys[KEY_LEFT] = new KeyInput(defaultRepeat);
+	keys[KEY_RIGHT] = new KeyInput(defaultRepeat);
 	
-	this.mouse = new MouseInput(canvas);
+	var mouse = new MouseInput(canvas);
 	
 	window.addEventListener('keydown', function(event) {
-		var kc = event.keyCode;
-		if(kc in that.keys)
-			that.keys[kc].downEvent();
+		if(event.keyCode in keys)
+			keys[event.keyCode].downEvent();
 	}, false);
 	
 	window.addEventListener('keyup', function(event) {
-		var kc = event.keyCode;
-		if(kc in that.keys)
-			that.keys[kc].upEvent();
+		if(event.keyCode in keys)
+			keys[event.keyCode].upEvent();
 	}, false);
 	
 	canvas.addEventListener('mousedown', function(event) {
-		that.mouse.mouseDown(event);
+		mouse.mouseDown(event);
 	}, false);
 	
 	canvas.addEventListener('mouseup', function(event) {
-		that.mouse.mouseUp(event);
+		mouse.mouseUp(event);
 	}, false);
 	
 	canvas.addEventListener('mousemove', function(event) {
-		that.mouse.mouseMove(event);
+		mouse.mouseMove(event);
 	}, false);
 	
+	this.getMouse = function() {
+		return mouse;
+	};
+	
+	this.getKey = function(keyCode) {
+		return keys[keyCode];
+	};
+	
 	this.clearInput = function(){
-		for(key in this.keys)
-			this.keys[key].clear();
-		this.mouse.clear();
+		for(key in keys)
+			keys[key].clear();
+		mouse.clear();
 	};
 }
