@@ -56,7 +56,8 @@ function Graphics(canvas) {
 	};
 	
 	this.drawTime = function(time) {
-		var fpsText = 'FPS: ' + time.fps;
+		var fpsText = 'FPS: ' + time.fps.current.toFixed();
+		var meanFpsText = 'Mean FPS: ' + time.fps.mean.toFixed();
 		var timeText = 'Time: ' + time.timeSinceStart.toFixed(2) + ' s';
 		var framesText = 'Frames: ' + time.framesCounter;
 		var deltaText = 'Delta: ' + time.delta.toFixed(3) + ' s';
@@ -67,10 +68,11 @@ function Graphics(canvas) {
 		this.ctx.font = 'bold ' + fontSize + 'px Arial';
 		this.ctx.fillStyle = 'white';
 		this.ctx.fillText(fpsText, 0, fontSize);
-		this.ctx.fillText(timeText, 0, 2 * fontSize);
-		this.ctx.fillText(framesText, 0, 3 * fontSize);
-		this.ctx.fillText(deltaText, 0, 4 * fontSize);
-		this.ctx.fillText(updateText, 0, 5 * fontSize);
-		this.ctx.fillText(renderText, 0, 6 * fontSize);
+		this.ctx.fillText(meanFpsText, 0, 2* fontSize);
+		this.ctx.fillText(timeText, 0, 3 * fontSize);
+		this.ctx.fillText(framesText, 0, 4 * fontSize);
+		this.ctx.fillText(deltaText, 0, 5 * fontSize);
+		this.ctx.fillText(updateText, 0, 6 * fontSize);
+		this.ctx.fillText(renderText, 0, 7 * fontSize);
 	};
 }

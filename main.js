@@ -101,17 +101,17 @@ function RectWorld() {
 		for(let i = 0;i < rects.length;i++)
 			rects[i].update(time.delta);
 		
-		if(input.getKey(KEY_UP).getDown()) {
+		if(input.getKey(keyMap.UP).getDown()) {
 			addRects(countStep, this);
 		}
-		if(input.getKey(KEY_DOWN).getDown()){
+		if(input.getKey(keyMap.DOWN).getDown()){
 			removeRects(countStep);
 		}
-		if(input.getKey(KEY_LEFT).getDown()) {
+		if(input.getKey(keyMap.LEFT).getDown()) {
 			if(this.speed - speedStep > 0)
 				this.speed -= speedStep;
 		}
-		if(input.getKey(KEY_RIGHT).getDown()) {
+		if(input.getKey(keyMap.RIGHT).getDown()) {
 			this.speed += speedStep;
 		}
 		
@@ -216,7 +216,7 @@ function Fountain() {
 	};
 	
 	this.update = function(input, time) {
-		if (input.getKey(KEY_UP).getDown()) {
+		if (input.getKey(keyMap.UP).getDown()) {
 			var particle = getParticle();
 			particle.fire(this.width, this.height);
 		}
@@ -233,7 +233,7 @@ function Fountain() {
 	}
 }
 
-function InputTest() {
+function KeyTest(inputTest) {
 	
 	var that = this;
 	
@@ -242,20 +242,7 @@ function InputTest() {
 	
 	var size = 20;
 	
-	var pressedPoints = [];
-	var movePoints = [];
-	
-	var lastPoint = { x: -1, y: -1};
-	var lines = [];
-	var linePtr = 0;
-	
-	var upPoints = [];
-	
-	var mouseMovePosition = { x : -1, y : -1 };
-	var mouseDown = false;
-	
-	var mousePressed = false;
-	var mousePressedPosition = { x: -1, y : -1};
+	var keyStates = [];
 	
 	this.start = function(graphics) {
 		this.width = graphics.width;
@@ -265,18 +252,19 @@ function InputTest() {
 		pos.y = this.height / 2 - size / 2;	
 	};
 	
-	var keyTest = function(input, time) {		
+	this.update = function(input, time) {
+		// rectangle
 		var accelDelta = new Vector();
 		var delta = time.delta * 20;
 		var drag = 0.1;
-		
-		if(input.getKey(KEY_LEFT).getDown())
+	
+		if(input.getKey(keyMap.LEFT).getDown())
 			accelDelta.x = -delta;
-		if(input.getKey(KEY_RIGHT).getDown())
+		if(input.getKey(keyMap.RIGHT).getDown())
 			accelDelta.x = delta;
-		if(input.getKey(KEY_UP).getDown())
+		if(input.getKey(keyMap.UP).getDown())
 			accelDelta.y = -delta;
-		if(input.getKey(KEY_DOWN).getDown())
+		if(input.getKey(keyMap.DOWN).getDown())
 			accelDelta.y = delta;
 		
 		accelDelta.x -= drag * speed.x;
@@ -293,65 +281,100 @@ function InputTest() {
 			pos.y -= (that.height + size);
 		else if (pos.y + size < 0)
 			pos.y += that.height+ size;
-	};
+		
+		// key states
+		keyStates = [];
+		input.getKeys(function(keyCode, keyInput) {
+			keyStates.push({ 
+				title: keyMap.getKeyName(keyCode), 
+				value: (keyInput.getDown() ? 'down' : 'up') 
+			});
+		});
+	}
 	
-	var drawKeyTest = function(graphics) {
-		graphics.ctx.fillStyle = 'red';
+	this.render = function(graphics) {
+		graphics.ctx.fillStyle = 'cyan';
 		graphics.ctx.fillRect(pos.x, pos.y, size, size);
+		
+		graphics.ctx.font = 'bold 15px Arial';
+		graphics.ctx.fillStyle = 'red';
+		
+		inputTest.drawTextBlock(graphics.ctx, keyStates, 300, 15);
+	}
+}
+
+function MouseTest(inputTest) {
+	
+	var pressedPoints = [];
+	var upPoints = [];
+	var movePoints = 0;
+	var lines = [];
+	var linesPoints = 0;
+	
+	var lastPoint = { x: -1, y: -1};
+	
+	var mouseMovePosition = { x : -1, y : -1 };
+	var mouseDown = false;
+	
+	var mousePressedPosition = { x: -1, y : -1};
+	
+	this.start = function(graphics) {
+		this.width = graphics.width;
+		this.height = graphics.height;
 	};
 	
-	var mouseTest = function(input, time) {
+	this.update = function(input, time) {
 		mouseMovePosition = input.getMouse().getMovePosition();
 		
-		mousePressed = false;
 		if(input.getMouse().getPressed()) {
-			mousePressed = true;
-			mousePressedPosition = input.getMouse().getPosition();
+			var mousePos = input.getMouse().getPosition();
 			
-			pressedPoints.push(input.getMouse().getPosition());
+			mousePressedPosition = mousePos;
 			
-			linePtr++;
+			pressedPoints.push(mousePos);
+			
+			var newLine = [];
+			newLine.push(mousePos);
+			lines.push(newLine);
+			
+			lastPoint.x = mousePos.x;
+			lastPoint.y = mousePos.y;
 		}
 		
 		if (input.getMouse().getDown()) {
+			var mousePos = input.getMouse().getPosition();
+			
 			mouseDown = true;
 			
-			var newPos = input.getMouse().getPosition();
-			if (newPos.x != lastPoint.x || newPos.y != lastPoint.y) {
-				movePoints.push(newPos);
-				
-				if(linePtr > 2) {
-					lines.push({ 
-						start: { x: lastPoint.x, y: lastPoint.y }, 
-						end: { x: newPos.x, y: newPos.y } 
-					});
-				}
-				if (lines.length > 20)
-					var xxx = 10;
-				linePtr++;
-				
-				lastPoint.x = newPos.x;
-				lastPoint.y = newPos.y;	
+			movePoints++;
+			
+			if (mousePos.x != lastPoint.x || mousePos.y != lastPoint.y) {
+				var lastLine = lines[lines.length - 1];
+				lastLine.push(mousePos);
+
+				lastPoint.x = mousePos.x;
+				lastPoint.y = mousePos.y;	
 			}	
 		}
 		
 		if (input.getMouse().getUp()) {
+			var mousePos = input.getMouse().getPosition();
+			
 			mouseDown = false;
 			
-			upPoints.push(input.getMouse().getPosition());
+			upPoints.push(mousePos);
 			
-			linePtr = 0;
+			var lastLine = lines[lines.length - 1];
+			lastLine.push(mousePos);
 		}
-	};
+		
+		linesPoints = 0;
+		for(let i = 0;i < lines.length;i++)
+			for(let j = 0;j < lines[i].length;j++)
+				linesPoints++;
+	}
 	
-	var drawTextBlock = function(context, infos, startY, fontSize) {
-		for(let i = 0;i < infos.length;i++) {
-			var info = infos[i];
-			context.fillText(info.title + ': ' + info.value, 0, startY + i * fontSize);
-		}
-	};
-	
-	var drawMouseTest = function(graphics) {
+	this.render = function(graphics) {
 		graphics.ctx.font = 'bold 15px Arial';
 		graphics.ctx.fillStyle = 'red';
 		
@@ -360,10 +383,11 @@ function InputTest() {
 		mouseInfo.push({ title: 'Last click position', value: '[' + mousePressedPosition.x + ', ' + mousePressedPosition.y + ']' });
 		mouseInfo.push({ title: 'Mouse state', value: (mouseDown ? 'down' : 'up') });
 		mouseInfo.push({ title: 'MousePress points', value: pressedPoints.length });
-		mouseInfo.push({ title: 'Move points', value: movePoints.length });
+		mouseInfo.push({ title: 'Move points', value: movePoints });
 		mouseInfo.push({ title: 'Lines', value: lines.length });
+		mouseInfo.push({ title: 'Lines points', value: linesPoints });
 		mouseInfo.push({ title: 'MouseUp points', value: upPoints.length });
-		drawTextBlock(graphics.ctx, mouseInfo, 100, 15);
+		inputTest.drawTextBlock(graphics.ctx, mouseInfo, 150, 15);
 		
 		// pressed points
 		for(let i = 0;i < pressedPoints.length;i++) {
@@ -371,31 +395,54 @@ function InputTest() {
 			graphics.ctx.fillRect(pressedPoints[i].x - 3, pressedPoints[i].y - 3, 7, 7);
 		}
 		
-		// lines
-		for(let i = 0;i < movePoints.length;i++) {
-			graphics.ctx.fillStyle = 'white';
-			graphics.ctx.fillRect(movePoints[i].x - 1, movePoints[i].y - 1, 3, 3);
-		}
-		for(let i = 0;i < lines.length;i++) {
-			var line = lines[i];
-			graphics.setLine(line.start.x, line.start.y, line.end.x, line.end.y, 1, 'white');
-		}
-		
 		// up points		
 		for(let i = 0;i < upPoints.length;i++) {
 			graphics.ctx.fillStyle = 'red';
 			graphics.ctx.fillRect(upPoints[i].x - 3, upPoints[i].y - 3, 7, 7);
 		}
+		
+		// lines
+		for (let i = 0;i < lines.length;i++) {
+			var line = lines[i];
+			for (let j = 1;j < line.length;j++) {
+				graphics.setLine(line[j - 1].x, line[j - 1].y, 
+					line[j].x, line[j].y, 1, 'white');
+			}
+			
+			for (let j = 0;j < line.length;j++) {
+				graphics.ctx.fillStyle = 'white';
+				graphics.ctx.fillRect(line[j].x - 1, line[j].y - 1, 3, 3);
+			}
+		}
+	}
+}
+
+function InputTest() {
+	
+	var mouseTest = new MouseTest(this);
+	var keyTest = new KeyTest(this);
+	
+	this.drawTextBlock = function(context, infos, startY, fontSize) {
+		for(let i = 0;i < infos.length;i++) {
+			var info = infos[i];
+			context.fillText(info.title + ': ' + info.value, 0, startY + i * fontSize);
+		}
+	};
+	
+	this.start = function(graphics) {
+		mouseTest.start(graphics);
+		keyTest.start(graphics);
 	};
 	
 	this.update = function(input, time) {
-		keyTest(input, time);
-		mouseTest(input, time);
+		mouseTest.update(input, time);
+		keyTest.update(input, time);
 	}
 	
 	this.render = function(graphics) {
-		drawKeyTest(graphics);
-		drawMouseTest(graphics);
+		mouseTest.render(graphics);
+		keyTest.render(graphics);
+		sleep(100);
 	}
 }
 
@@ -416,9 +463,9 @@ function EmptyWorld() {
 }
 
 window.onload = function() {
-	//var game = new Game('canvas', new InputTest());
+	var game = new Game('canvas', new InputTest());
 	//var game = new Game('canvas', new RectWorld());
-	var game = new Game('canvas', new Fountain());
+	//var game = new Game('canvas', new Fountain());
 	game.start();
 };
 

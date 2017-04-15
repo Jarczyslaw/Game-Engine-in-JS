@@ -1,15 +1,33 @@
-const KEY_W = 87;
-const KEY_A = 65;
-const KEY_S = 83;
-const KEY_D = 68;
+function KeyMap() {
+	
+	var keyNames = {};
+	
+	this.W = 87;
+	this.A = 65;
+	this.S = 83;
+	this.D = 68;
+	
+	this.ENTER = 13;
+	this.SPACE = 32;
+	
+	this.LEFT = 37;
+	this.UP = 38;
+	this.RIGHT = 39;
+	this.DOWN = 40;
 
-const KEY_ENTER = 13;
-const KEY_SPACE = 32;
+	for(var key in this) {
+		keyNames[this[key]] = key;
+	}
 
-const KEY_LEFT = 37;
-const KEY_UP = 38;
-const KEY_RIGHT = 39;
-const KEY_DOWN = 40;
+	this.getKeyName = function(keyCode) {
+		if (keyCode in keyNames)
+			return keyNames[keyCode]
+		else
+			return undefined;
+	};
+};
+var keyMap = new KeyMap();
+
 
 function KeyInput(repeat) {
 	
@@ -20,7 +38,7 @@ function KeyInput(repeat) {
 	var down = false;
 	var up = false;
 	
-	this.downEvent = function() {
+	this.keyDown = function() {
 		if(this.repeat) {
 			pressed = true;
 			down = true;
@@ -33,7 +51,7 @@ function KeyInput(repeat) {
 		}
 	};
 	
-	this.upEvent = function() {
+	this.keyUp = function() {
 		down = false;
 		up = true;
 		if(!this.repeat)
@@ -52,7 +70,7 @@ function KeyInput(repeat) {
 		return up;
 	};
 	
-	this.clear = function() {
+	this.frameClear = function() {
 		pressed = false;
 		up = false;
 	};
@@ -114,7 +132,7 @@ function MouseInput(canvas) {
 		return movePosition;
 	};
 	
-	this.clear = function() {
+	this.frameClear = function() {
 		pressed = false;
 		up = false;
 	};
@@ -125,21 +143,17 @@ function Input(canvas) {
 	var defaultRepeat = true;
 	
 	var keys = {};
-	keys[KEY_UP] = new KeyInput(defaultRepeat);
-	keys[KEY_DOWN] = new KeyInput(defaultRepeat);
-	keys[KEY_LEFT] = new KeyInput(defaultRepeat);
-	keys[KEY_RIGHT] = new KeyInput(defaultRepeat);
 	
 	var mouse = new MouseInput(canvas);
 	
 	window.addEventListener('keydown', function(event) {
 		if(event.keyCode in keys)
-			keys[event.keyCode].downEvent();
+			keys[event.keyCode].keyDown();
 	}, false);
 	
 	window.addEventListener('keyup', function(event) {
 		if(event.keyCode in keys)
-			keys[event.keyCode].upEvent();
+			keys[event.keyCode].keyUp();
 	}, false);
 	
 	canvas.addEventListener('mousedown', function(event) {
@@ -158,13 +172,31 @@ function Input(canvas) {
 		return mouse;
 	};
 	
+	this.addKey = function(keyCode, repeating) {
+		if (keyCode in keys)
+			throw 'KeyCode ' + keyCode + ' already assigned';
+		else
+			keys[keyCode] = new KeyInput(repeating);
+	}
+	
 	this.getKey = function(keyCode) {
 		return keys[keyCode];
 	};
 	
-	this.clearInput = function(){
+	this.getKeys = function(keyCallback) {
 		for(key in keys)
-			keys[key].clear();
-		mouse.clear();
+			keyCallback(key, keys[key]);
 	};
+	
+	this.frameClear = function(){
+		for(key in keys)
+			keys[key].frameClear();
+		mouse.frameClear();
+	};
+	
+	// must be after addKey definition
+	this.addKey(keyMap.UP, defaultRepeat);
+	this.addKey(keyMap.DOWN, defaultRepeat);
+	this.addKey(keyMap.LEFT, defaultRepeat);
+	this.addKey(keyMap.RIGHT, defaultRepeat);
 }

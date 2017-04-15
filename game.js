@@ -8,8 +8,8 @@ function Game(canvasId, gameWorld) {
 	
 	this.start = function() {
 		console.log('game start...');
-		gameWorld.start(graphics);
 		time.start();
+		gameWorld.start(graphics);
 		gameLoop();
 	};
 	
@@ -20,7 +20,7 @@ function Game(canvasId, gameWorld) {
 		gameWorld.update(input, time);
 		time.updateTime = time.tock();
 		
-		input.clearInput();
+		input.frameClear();
 		
 		time.tick();
 		graphics.fill(0,0,0);
