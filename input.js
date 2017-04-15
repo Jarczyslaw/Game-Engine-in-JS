@@ -31,63 +31,124 @@ var keyMap = new KeyMap();
 
 function KeyInput(repeat) {
 	
-	this.repeat = repeat;
+	function Key() {
+		
+		this.repeat = repeat;
 	
-	var blocked = false;
-	var pressed = false;
-	var down = false;
-	var up = false;
-	
-	this.keyDown = function() {
-		if(this.repeat) {
-			pressed = true;
-			down = true;
-		} else {
-			if(!blocked) {
+		var blocked = false;
+		var pressed = false;
+		var down = false;
+		var up = false;
+		
+		this.keyDown = function() {
+			if(this.repeat) {
 				pressed = true;
 				down = true;
-				blocked = true;
+			} else {
+				if(!blocked) {
+					pressed = true;
+					down = true;
+					blocked = true;
+				}
 			}
-		}
+		};
+		
+		this.keyUp = function() {
+			down = false;
+			up = true;
+			if(!this.repeat)
+				blocked = false;
+		};
+		
+		this.isPressed = function() {
+			return pressed;
+		};
+		
+		this.isDown = function(){
+			return pressed || down;
+		};
+		
+		this.isUp = function() {
+			return up;
+		};
+		
+		this.onFrameClear = function() {
+			pressed = false;
+			up = false;
+		};
+	}
+	
+	var defaultRepeat = true;
+	
+	var keys = {};
+	
+	this.addKey = function(keyCode, repeating) {
+		if (keyCode in keys)
+			throw 'KeyCode ' + keyCode + ' already assigned';
+		else
+			keys[keyCode] = new Key(repeating);
+	}
+	
+	this.getKey = function(keyCode) {
+		if (keyCode in keys)
+			return keys[keyCode];
+		else
+			throw 'KeyCode ' + keyCode + ' not registered';
 	};
 	
-	this.keyUp = function() {
-		down = false;
-		up = true;
-		if(!this.repeat)
-			blocked = false;
+	this.getKeys = function() {
+		return keys;
 	};
 	
-	this.getPressed = function() {
-		return pressed;
-	};
+	this.setRepeating = function(enabled) {
+		for(key in keys)
+			keys[key].repeat = enabled;
+	}
 	
-	this.getDown = function(){
-		return pressed || down;
-	};
+	this.onFrameClear = function() {
+		for(key in keys)
+			keys[key].onFrameClear();
+	}
 	
-	this.getUp = function() {
-		return up;
-	};
+	// must be after addKey definition
+	this.addKey(keyMap.UP, defaultRepeat);
+	this.addKey(keyMap.DOWN, defaultRepeat);
+	this.addKey(keyMap.LEFT, defaultRepeat);
+	this.addKey(keyMap.RIGHT, defaultRepeat);
 	
-	this.frameClear = function() {
-		pressed = false;
-		up = false;
-	};
+	this.addKey(keyMap.W, defaultRepeat);
+	this.addKey(keyMap.A, defaultRepeat);
+	this.addKey(keyMap.S, defaultRepeat);
+	this.addKey(keyMap.D, defaultRepeat);
 }
 
 function MouseInput(canvas) {
 	
+	var that = this;
+	
 	var getMousePosition = function(event) {
 		var rect = canvas.getBoundingClientRect();
-		return {
+		var mousePos = {
 			x: event.clientX - rect.left,
 			y: event.clientY - rect.top
 		};
+		if (that.canvasClamp) {
+			if (mousePos.x > canvas.width)
+				mousePos.x = canvas.width;
+			else if (mousePos.x < 0)
+				mousePos.x = 0;
+			
+			if (mousePos.y > canvas.height)
+				mousePos.y = canvas.height;
+			else if (mousePos.y < 0)
+				mousePos.y = 0;
+		}
+		return mousePos;
 	};
 	
+	this.canvasClamp = true;
+	
 	var position = { x : -1, y : -1};
-	var movePosition = { x : -1, y : -1};
 	
 	var pressed = false;
 	var down = false;
@@ -96,6 +157,10 @@ function MouseInput(canvas) {
 	this.mouseDown = function(evt) {
 		pressed = true;
 		down = true;
+		position = getMousePosition(evt);;
+	};
+	
+	this.mouseMove = function(evt) { 
 		position = getMousePosition(evt);
 	};
 	
@@ -105,22 +170,15 @@ function MouseInput(canvas) {
 		position = getMousePosition(evt);
 	};
 	
-	this.mouseMove = function(evt) {
-		var pos = getMousePosition(evt);
-		if(down)
-			position = pos;
-		movePosition = pos;
-	};
-	
-	this.getPressed = function() {
+	this.isPressed = function() {
 		return pressed;
 	};
 	
-	this.getDown = function() {
+	this.isDown = function() {
 		return pressed || down;
 	};
 	
-	this.getUp = function() {
+	this.isUp = function() {
 		return up;
 	};
 	
@@ -128,11 +186,7 @@ function MouseInput(canvas) {
 		return position;
 	};
 	
-	this.getMovePosition = function() {
-		return movePosition;
-	};
-	
-	this.frameClear = function() {
+	this.onFrameClear = function() {
 		pressed = false;
 		up = false;
 	};
@@ -140,63 +194,44 @@ function MouseInput(canvas) {
 
 function Input(canvas) {
 	
-	var defaultRepeat = true;
+	var mouseInput = new MouseInput(canvas);
 	
-	var keys = {};
-	
-	var mouse = new MouseInput(canvas);
+	var keyInput = new KeyInput();
 	
 	window.addEventListener('keydown', function(event) {
-		if(event.keyCode in keys)
-			keys[event.keyCode].keyDown();
+		var k = keyInput.getKeys();
+		if(event.keyCode in k)
+			keyInput.getKey(event.keyCode).keyDown();
 	}, false);
 	
 	window.addEventListener('keyup', function(event) {
-		if(event.keyCode in keys)
-			keys[event.keyCode].keyUp();
+		var k = keyInput.getKeys();
+		if(event.keyCode in k)
+			keyInput.getKey(event.keyCode).keyUp();
 	}, false);
 	
-	canvas.addEventListener('mousedown', function(event) {
-		mouse.mouseDown(event);
+	window.addEventListener('mousedown', function(event) {
+		mouseInput.mouseDown(event);
 	}, false);
 	
-	canvas.addEventListener('mouseup', function(event) {
-		mouse.mouseUp(event);
+	window.addEventListener('mouseup', function(event) {
+		mouseInput.mouseUp(event);
 	}, false);
 	
-	canvas.addEventListener('mousemove', function(event) {
-		mouse.mouseMove(event);
+	window.addEventListener('mousemove', function(event) {
+		mouseInput.mouseMove(event);
 	}, false);
 	
 	this.getMouse = function() {
-		return mouse;
+		return mouseInput;
 	};
 	
-	this.addKey = function(keyCode, repeating) {
-		if (keyCode in keys)
-			throw 'KeyCode ' + keyCode + ' already assigned';
-		else
-			keys[keyCode] = new KeyInput(repeating);
-	}
-	
-	this.getKey = function(keyCode) {
-		return keys[keyCode];
+	this.getKeys = function() {
+		return keyInput;
 	};
 	
-	this.getKeys = function(keyCallback) {
-		for(key in keys)
-			keyCallback(key, keys[key]);
+	this.onFrameClear = function(){
+		keyInput.onFrameClear();
+		mouseInput.onFrameClear();
 	};
-	
-	this.frameClear = function(){
-		for(key in keys)
-			keys[key].frameClear();
-		mouse.frameClear();
-	};
-	
-	// must be after addKey definition
-	this.addKey(keyMap.UP, defaultRepeat);
-	this.addKey(keyMap.DOWN, defaultRepeat);
-	this.addKey(keyMap.LEFT, defaultRepeat);
-	this.addKey(keyMap.RIGHT, defaultRepeat);
 }

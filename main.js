@@ -98,20 +98,22 @@ function RectWorld() {
 	};
 	
 	this.update = function(input, time) {
+		var keys = input.getKeys();
+		
 		for(let i = 0;i < rects.length;i++)
 			rects[i].update(time.delta);
 		
-		if(input.getKey(keyMap.UP).getDown()) {
+		if(keys.getKey(keyMap.UP).isDown()) {
 			addRects(countStep, this);
 		}
-		if(input.getKey(keyMap.DOWN).getDown()){
+		if(keys.getKey(keyMap.DOWN).isDown()){
 			removeRects(countStep);
 		}
-		if(input.getKey(keyMap.LEFT).getDown()) {
+		if(keys.getKey(keyMap.LEFT).isDown()) {
 			if(this.speed - speedStep > 0)
 				this.speed -= speedStep;
 		}
-		if(input.getKey(keyMap.RIGHT).getDown()) {
+		if(keys.getKey(keyMap.RIGHT).isDown()) {
 			this.speed += speedStep;
 		}
 		
@@ -216,7 +218,9 @@ function Fountain() {
 	};
 	
 	this.update = function(input, time) {
-		if (input.getKey(keyMap.UP).getDown()) {
+		var keys = input.getKeys();
+		
+		if (keys.getKey(keyMap.UP).isDown()) {
 			var particle = getParticle();
 			particle.fire(this.width, this.height);
 		}
@@ -231,7 +235,7 @@ function Fountain() {
 		
 		drawCount(graphics.ctx);
 	}
-}
+} 
 
 function KeyTest(inputTest) {
 	
@@ -253,18 +257,20 @@ function KeyTest(inputTest) {
 	};
 	
 	this.update = function(input, time) {
+		var keys = input.getKeys();
+		
 		// rectangle
 		var accelDelta = new Vector();
 		var delta = time.delta * 20;
 		var drag = 0.1;
 	
-		if(input.getKey(keyMap.LEFT).getDown())
+		if(keys.getKey(keyMap.LEFT).isDown() || keys.getKey(keyMap.A).isDown())
 			accelDelta.x = -delta;
-		if(input.getKey(keyMap.RIGHT).getDown())
+		if(keys.getKey(keyMap.RIGHT).isDown() || keys.getKey(keyMap.D).isDown())
 			accelDelta.x = delta;
-		if(input.getKey(keyMap.UP).getDown())
+		if(keys.getKey(keyMap.UP).isDown() || keys.getKey(keyMap.W).isDown())
 			accelDelta.y = -delta;
-		if(input.getKey(keyMap.DOWN).getDown())
+		if(keys.getKey(keyMap.DOWN).isDown() || keys.getKey(keyMap.S).isDown())
 			accelDelta.y = delta;
 		
 		accelDelta.x -= drag * speed.x;
@@ -284,12 +290,13 @@ function KeyTest(inputTest) {
 		
 		// key states
 		keyStates = [];
-		input.getKeys(function(keyCode, keyInput) {
+		var k = keys.getKeys();
+		for(key in k) {
 			keyStates.push({ 
-				title: keyMap.getKeyName(keyCode), 
-				value: (keyInput.getDown() ? 'down' : 'up') 
+				title: keyMap.getKeyName(key), 
+				value: (k[key].isDown() ? 'down' : 'up') 
 			});
-		});
+		}
 	}
 	
 	this.render = function(graphics) {
@@ -305,18 +312,15 @@ function KeyTest(inputTest) {
 
 function MouseTest(inputTest) {
 	
+	var mouse;
+	
 	var pressedPoints = [];
 	var upPoints = [];
 	var movePoints = 0;
 	var lines = [];
 	var linesPoints = 0;
 	
-	var lastPoint = { x: -1, y: -1};
-	
-	var mouseMovePosition = { x : -1, y : -1 };
-	var mouseDown = false;
-	
-	var mousePressedPosition = { x: -1, y : -1};
+	var lastDown = { x: -1, y : -1};
 	
 	this.start = function(graphics) {
 		this.width = graphics.width;
@@ -324,44 +328,31 @@ function MouseTest(inputTest) {
 	};
 	
 	this.update = function(input, time) {
-		mouseMovePosition = input.getMouse().getMovePosition();
+		mouse = input.getMouse();
+		var mousePos = mouse.getPosition();
 		
-		if(input.getMouse().getPressed()) {
-			var mousePos = input.getMouse().getPosition();
-			
-			mousePressedPosition = mousePos;
-			
+		if(mouse.isPressed()) {						
 			pressedPoints.push(mousePos);
 			
 			var newLine = [];
 			newLine.push(mousePos);
 			lines.push(newLine);
 			
-			lastPoint.x = mousePos.x;
-			lastPoint.y = mousePos.y;
+			lastDown = mousePos;
 		}
 		
-		if (input.getMouse().getDown()) {
-			var mousePos = input.getMouse().getPosition();
-			
-			mouseDown = true;
-			
+		if (mouse.isDown()) {
 			movePoints++;
 			
-			if (mousePos.x != lastPoint.x || mousePos.y != lastPoint.y) {
+			if (mousePos.x != lastDown.x || mousePos.y != lastDown.y) {
 				var lastLine = lines[lines.length - 1];
 				lastLine.push(mousePos);
 
-				lastPoint.x = mousePos.x;
-				lastPoint.y = mousePos.y;	
+				lastDown = mousePos;	
 			}	
 		}
 		
-		if (input.getMouse().getUp()) {
-			var mousePos = input.getMouse().getPosition();
-			
-			mouseDown = false;
-			
+		if (mouse.isUp()) {
 			upPoints.push(mousePos);
 			
 			var lastLine = lines[lines.length - 1];
@@ -375,30 +366,16 @@ function MouseTest(inputTest) {
 	}
 	
 	this.render = function(graphics) {
-		graphics.ctx.font = 'bold 15px Arial';
-		graphics.ctx.fillStyle = 'red';
-		
-		var mouseInfo = [];
-		mouseInfo.push({ title: 'Move position', value: '[' + mouseMovePosition.x + ', ' + mouseMovePosition.y + ']' });
-		mouseInfo.push({ title: 'Last click position', value: '[' + mousePressedPosition.x + ', ' + mousePressedPosition.y + ']' });
-		mouseInfo.push({ title: 'Mouse state', value: (mouseDown ? 'down' : 'up') });
-		mouseInfo.push({ title: 'MousePress points', value: pressedPoints.length });
-		mouseInfo.push({ title: 'Move points', value: movePoints });
-		mouseInfo.push({ title: 'Lines', value: lines.length });
-		mouseInfo.push({ title: 'Lines points', value: linesPoints });
-		mouseInfo.push({ title: 'MouseUp points', value: upPoints.length });
-		inputTest.drawTextBlock(graphics.ctx, mouseInfo, 150, 15);
-		
 		// pressed points
 		for(let i = 0;i < pressedPoints.length;i++) {
 			graphics.ctx.fillStyle = 'green';
-			graphics.ctx.fillRect(pressedPoints[i].x - 3, pressedPoints[i].y - 3, 7, 7);
+			graphics.ctx.fillRect(pressedPoints[i].x - 5, pressedPoints[i].y - 5, 9, 9);
 		}
 		
 		// up points		
 		for(let i = 0;i < upPoints.length;i++) {
 			graphics.ctx.fillStyle = 'red';
-			graphics.ctx.fillRect(upPoints[i].x - 3, upPoints[i].y - 3, 7, 7);
+			graphics.ctx.fillRect(upPoints[i].x - 5, upPoints[i].y - 5, 9, 9);
 		}
 		
 		// lines
@@ -411,9 +388,25 @@ function MouseTest(inputTest) {
 			
 			for (let j = 0;j < line.length;j++) {
 				graphics.ctx.fillStyle = 'white';
-				graphics.ctx.fillRect(line[j].x - 1, line[j].y - 1, 3, 3);
+				graphics.ctx.fillRect(line[j].x - 3, line[j].y - 3, 5, 5);
 			}
 		}
+		
+		// mouse info
+		graphics.ctx.font = 'bold 15px Arial';
+		graphics.ctx.fillStyle = 'red';
+		
+		var mouseInfo = [];
+		var pos = mouse.getPosition();
+		mouseInfo.push({ title: 'Move position', value: '[' + pos.x + ', ' + pos.y + ']' });
+		mouseInfo.push({ title: 'Move down position', value: '[' + lastDown.x + ', ' + lastDown.y + ']' });
+		mouseInfo.push({ title: 'Mouse state', value: (mouse.isDown() ? 'down' : 'up') });
+		mouseInfo.push({ title: 'MousePress points', value: pressedPoints.length });
+		mouseInfo.push({ title: 'Move points', value: movePoints });
+		mouseInfo.push({ title: 'Lines', value: lines.length });
+		mouseInfo.push({ title: 'Lines points', value: linesPoints });
+		mouseInfo.push({ title: 'MouseUp points', value: upPoints.length });
+		inputTest.drawTextBlock(graphics.ctx, mouseInfo, 150, 15);
 	}
 }
 

@@ -20,7 +20,7 @@ function Game(canvasId, gameWorld) {
 		gameWorld.update(input, time);
 		time.updateTime = time.tock();
 		
-		input.frameClear();
+		input.onFrameClear();
 		
 		time.tick();
 		graphics.fill(0,0,0);
