@@ -1,6 +1,6 @@
 define(function() {
 	
-	var Log = function(logContainerId) {
+	function Log(logContainerId) {
 		
 		var logContainer = document.getElementById(logContainerId);
 		

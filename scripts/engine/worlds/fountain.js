@@ -1,63 +1,63 @@
-define(['vector'], function(){
+define(['vector'], function(Vector){
 	
-	this.World = function() {
+	function Particle() {
 		
-		function Particle() {
+		this.size = 10;
+		
+		this.position = new Vector();
+		this.velocity = new Vector();
+		this.drag = 0;
+		this.gravity = new Vector(0, 300);
+		
+		this.enabled = true;
+		
+		this.setRandomSize = function() {
+			this.size = Math.random() * 10 + 5;
+		};
+		
+		this.fire = function(width, height) {
+			this.setRandomSize();
+			this.position.x = width / 2;
+			this.position.y = height;
 			
-			this.size = 10;
-			
-			this.position = new Vector();
-			this.velocity = new Vector();
-			this.drag = 0;
-			this.gravity = new Vector(0, 300);
-			
-			this.enabled = true;
-			
-			this.setRandomSize = function() {
-				this.size = Math.random() * 10 + 5;
-			};
-			
-			this.fire = function(width, height) {
-				this.setRandomSize();
-				this.position.x = width / 2;
-				this.position.y = height;
+			this.velocity.setMagnitude(Math.random() * 100 + 500);
+			var range = Math.radians(30); 
+			this.velocity.setAngle(-Math.PI / 2 + Math.random() * range - range / 2);
+		};
+		
+		this.update = function(time, width, height) {
+			if(this.enabled) {
+				var accel = new Vector();
+				accel.x = -this.drag * this.velocity.x + this.gravity.x;
+				accel.y = -this.drag * this.velocity.y + this.gravity.y;
 				
-				this.velocity.setMagnitude(Math.random() * 100 + 500);
-				var range = Math.radians(30); 
-				this.velocity.setAngle(-Math.PI / 2 + Math.random() * range - range / 2);
-			};
-			
-			this.update = function(time, width, height) {
-				if(this.enabled) {
-					var accel = new Vector();
-					accel.x = -this.drag * this.velocity.x + this.gravity.x;
-					accel.y = -this.drag * this.velocity.y + this.gravity.y;
-					
-					this.position.x = this.position.x + time.delta * this.velocity.x;
-					this.position.y = this.position.y + time.delta * this.velocity.y;
-					
-					this.velocity.x = this.velocity.x + time.delta * accel.x;
-					this.velocity.y = this.velocity.y + time.delta * accel.y;
-					
-					if(this.position.x - this.size > width)
-						this.enabled = false;
-					if(this.position.x + this.size < 0)
-						this.enabled = false;
-					if(this.position.y - this.size > height)
-						this.enabled = false;
+				this.position.x = this.position.x + time.delta * this.velocity.x;
+				this.position.y = this.position.y + time.delta * this.velocity.y;
+				
+				this.velocity.x = this.velocity.x + time.delta * accel.x;
+				this.velocity.y = this.velocity.y + time.delta * accel.y;
+				
+				if(this.position.x - this.size > width)
+					this.enabled = false;
+				if(this.position.x + this.size < 0)
+					this.enabled = false;
+				if(this.position.y - this.size > height)
+					this.enabled = false;
 
-				}
-			};
-			
-			this.draw = function(graphics) {
-				if(this.enabled) {
-					graphics.ctx.beginPath();
-					graphics.ctx.arc(this.position.x, this.position.y, this.size, 2 * Math.PI, false);
-					graphics.ctx.fillStyle = 'white';
-					graphics.ctx.fill();
-				}
-			};
-		}
+			}
+		};
+		
+		this.draw = function(graphics) {
+			if(this.enabled) {
+				graphics.ctx.beginPath();
+				graphics.ctx.arc(this.position.x, this.position.y, this.size, 2 * Math.PI, false);
+				graphics.ctx.fillStyle = 'white';
+				graphics.ctx.fill();
+			}
+		};
+	}
+	
+	function World() {
 		
 		var that = this;
 		
@@ -108,5 +108,7 @@ define(['vector'], function(){
 			drawCount(graphics.ctx);
 		}
 	} 
+	
+	return World;
 })
 

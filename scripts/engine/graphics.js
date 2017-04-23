@@ -1,20 +1,21 @@
 define(function() {
 	
-	this.Graphics = function(canvas) {
+	function Graphics(canvas) {
 		
 		this.width = canvas.width;
 		this.height = canvas.height;
 		
 		this.ctx = canvas.getContext("2d");
 		this.ctx.imageSmoothingEnabled = false;
-		this.pixel = this.ctx.createImageData(1,1);
+		
+		var pixel = this.ctx.createImageData(1,1);
 		
 		this.setPixel2 = function(x, y, r, g, b, a = 255) {
-			this.pixel.data[0] = r;
-			this.pixel.data[1] = g;
-			this.pixel.data[2] = b;
-			this.pixel.data[3] = a;
-			this.ctx.putImageData(this.pixel, x, y);
+			pixel.data[0] = r;
+			pixel.data[1] = g;
+			pixel.data[2] = b;
+			pixel.data[3] = a;
+			ctx.putImageData(this.pixel, x, y);
 		};
 		
 		this.setPixel = function(x, y, color) {
@@ -78,5 +79,7 @@ define(function() {
 			this.ctx.fillText(renderText, 0, 7 * fontSize);
 		};
 	}
+	
+	return Graphics;
 })
 

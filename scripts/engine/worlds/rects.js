@@ -1,51 +1,51 @@
 define(function() {
 	
-	this.World = function() {
-	
-		function Rect(gameWorld) {
+	function Rect(gameWorld) {
 		
-			var xLimit = gameWorld.width;
-			var yLimit = gameWorld.height;
+		var xLimit = gameWorld.width;
+		var yLimit = gameWorld.height;
+		
+		var size = 30;
+		var pos = { x : 0, y : 0};
+		var tempPos = { x : 0, y : 0 };
+		var speedDir = { x : 0, y : 0};
+		var color;
+		
+		this.init = function() {
+			pos.x = Math.random() * (xLimit - size);
+			pos.y = Math.random() * (yLimit - size);
 			
-			var size = 30;
-			var pos = { x : 0, y : 0};
-			var tempPos = { x : 0, y : 0 };
-			var speedDir = { x : 0, y : 0};
-			var color;
+			var angle = Math.random() * 2 * Math.PI;
+			speedDir.x = Math.cos(angle);
+			speedDir.y = Math.sin(angle);
 			
-			this.init = function() {
-				pos.x = Math.random() * (xLimit - size);
-				pos.y = Math.random() * (yLimit - size);
-				
-				var angle = Math.random() * 2 * Math.PI;
-				speedDir.x = Math.cos(angle);
-				speedDir.y = Math.sin(angle);
-				
-				color = getRandomColor();
-			};
+			color = getRandomColor();
+		};
+		
+		this.update = function(delta) {
+			tempPos.x = pos.x + delta * speedDir.x * gameWorld.speed;
+			tempPos.y = pos.y + delta * speedDir.y * gameWorld.speed;
 			
-			this.update = function(delta) {
-				tempPos.x = pos.x + delta * speedDir.x * gameWorld.speed;
-				tempPos.y = pos.y + delta * speedDir.y * gameWorld.speed;
-				
-				if((tempPos.x + size) > xLimit || tempPos.x < 0)
-					speedDir.x = -speedDir.x;
-				if ((tempPos.y + size) > yLimit || tempPos.y < 0)
-					speedDir.y = -speedDir.y;
-				
-				pos.x += delta * speedDir.x * gameWorld.speed;
-				pos.y += delta * speedDir.y * gameWorld.speed;
-			};
+			if((tempPos.x + size) > xLimit || tempPos.x < 0)
+				speedDir.x = -speedDir.x;
+			if ((tempPos.y + size) > yLimit || tempPos.y < 0)
+				speedDir.y = -speedDir.y;
 			
-			this.draw = function(graphics) {
-				graphics.ctx.fillStyle = color;
-				graphics.ctx.fillRect(pos.x, pos.y, size, size);
-			};
-			
-			this.setSpeed = function(speed) {
-				speedValue = speed;
-			};
-		}
+			pos.x += delta * speedDir.x * gameWorld.speed;
+			pos.y += delta * speedDir.y * gameWorld.speed;
+		};
+		
+		this.draw = function(graphics) {
+			graphics.ctx.fillStyle = color;
+			graphics.ctx.fillRect(pos.x, pos.y, size, size);
+		};
+		
+		this.setSpeed = function(speed) {
+			speedValue = speed;
+		};
+	}
+	
+	function World() {
 		
 		var that = this;
 		
@@ -129,4 +129,6 @@ define(function() {
 			drawCount(graphics);
 		};
 	}
+	
+	return World;
 })

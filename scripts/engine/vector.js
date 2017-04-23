@@ -1,6 +1,6 @@
 define(function() {
 	
-	this.Vector = function(x = 0, y = 0) {
+	function Vector(x = 0, y = 0) {
 	
 		this.x = x;
 		this.y = y;
@@ -51,5 +51,7 @@ define(function() {
 			return new Vector(this.x / value, this.y / value);
 		};
 	}
+	
+	return Vector;
 })
 

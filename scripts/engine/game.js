@@ -1,6 +1,6 @@
-define(['time', 'input', 'graphics', 'utils', 'log'], function() {
+define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 	
-	this.Game = function(canvasId, gameWorld) {
+	function Game(canvasId, gameWorld) {
 		
 		var canvas = document.getElementById(canvasId);
 		
@@ -34,5 +34,7 @@ define(['time', 'input', 'graphics', 'utils', 'log'], function() {
 			requestAnimationFrame(gameLoop);
 		};
 	}
+	
+	return Game;
 })
 	

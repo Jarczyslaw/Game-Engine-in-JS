@@ -1,4 +1,4 @@
-define(['vector'], function() {
+define(['vector'], function(Vector) {
 	
 	function KeyTest(inputTest) {
 	
@@ -173,7 +173,7 @@ define(['vector'], function() {
 		}
 	}
 
-	this.World = function() {
+	function World() {
 		
 		var mouseTest = new MouseTest(this);
 		var keyTest = new KeyTest(this);
@@ -201,4 +201,6 @@ define(['vector'], function() {
 			sleep(100);
 		}
 	}
+	
+	return World;
 })

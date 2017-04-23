@@ -1,6 +1,6 @@
 define(function(){
 	
-	this.World = function() {
+	function World() {
 	
 		var that = this;
 		
@@ -15,5 +15,7 @@ define(function(){
 		this.render = function(graphics) {
 		}
 	}
+	
+	return World;
 })
 
