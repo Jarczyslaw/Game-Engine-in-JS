@@ -2,22 +2,30 @@
 <html>
 <head>
 	<title></title>
-	<script type="text/javascript" src="vector.js"></script>
-	<script type="text/javascript" src="game.js"></script>
-	<script type="text/javascript" src="input.js"></script>
-	<script type="text/javascript" src="time.js"></script>
-	<script type="text/javascript" src="graphics.js"></script>
-	<script type="text/javascript" src="utils.js"></script>
-	<script type="text/javascript" src="main.js"></script>
+	<script data-main="scripts/main" src="scripts/require.js"></script>
 	<style type="text/css">
 	html, body {
 		margin: 0px;
 		background-color: #EEEEEE;
 	}
 	
+	#container {
+		margin: 0px auto;
+		width: 800px;
+	}
+	
+	#log {
+		margin: 0;
+		width: 796px;
+		height: 300px;
+		background-color: #BDBDBD;
+		overflow: scroll;
+		border: 2px solid #616161;
+	}
+	
 	canvas {
 		display: block;
-		margin: 0 auto;
+		margin: 0;
 		
 		image-rendering: optimizeSpeed;             /* Older versions of FF          */
 		image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
@@ -29,6 +37,10 @@
 	</style>
 </head>
 <body>
-	<canvas id="canvas" width="800" height="600">No canvas support</canvas>
+	<div id="container">
+		<canvas id="game_canvas" width="800" height="600">No canvas support</canvas>
+		<div id="log">
+		</div>
+	</div>
 </body>
 </html>
