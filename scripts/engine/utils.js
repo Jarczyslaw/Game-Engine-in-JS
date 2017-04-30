@@ -43,6 +43,11 @@ define(function() {
 			color += letters[Math.floor(Math.random() * 16)];
 		}
 		return color;
+	};
+	
+	this.randomInRange = function(min, max) {
+		var range = max - min;
+		return Math.random() * range + min;
 	}
 
 	this.Math.radians = function(degrees) {

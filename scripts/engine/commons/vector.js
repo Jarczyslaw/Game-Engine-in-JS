@@ -10,6 +10,14 @@ define(function() {
 			this.y = y;
 		};
 		
+		this.zero = function() {
+			this.set(0, 0);
+		};
+		
+		this.one = function() {
+			this.set(1, 1);
+		};
+		
 		this.normalize = function(vector) {
 			var mag = this.magnitude();
 			return new Vector(this.x / mag, this.y / mag);
