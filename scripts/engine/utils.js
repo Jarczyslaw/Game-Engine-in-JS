@@ -57,5 +57,21 @@ define(function() {
 	this.Math.degrees = function(radians) {
 		return radians * 180 / Math.PI;
 	};
+	
+	this.Math.clamp = function(value, min, max) {
+		if (value > max)
+			return max;
+		else if (value < min)
+			return min;
+		return value;
+	}
+
+	this.Math.clamp01 = function(value) {
+		return clamp(value, 0, 1);
+	}
+
+	this.Math.lerp = function(t, a, b) {
+		return clamp((b - a) * t + a, a, b);
+	}
 })
 

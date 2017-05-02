@@ -25,11 +25,11 @@ define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 			input.onFrameClear();
 			
 			time.tick();
-			graphics.fill(0,0,0);
+			graphics.startDrawing();
 			gameWorld.render(graphics);
 			time.renderTime = time.tock();
 			
-			graphics.drawTime(time);
+			graphics.finishDrawing(time);
 			
 			requestAnimationFrame(gameLoop);
 		};

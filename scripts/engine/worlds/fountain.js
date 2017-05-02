@@ -1,4 +1,4 @@
-define(['vector'], function(Vector){
+define(['commons/vector'], function(Vector){
 	
 	function Particle() {
 		

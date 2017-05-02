@@ -2,6 +2,8 @@ define(function() {
 	
 	function Graphics(canvas) {
 		
+		var that = this;
+		
 		this.width = canvas.width;
 		this.height = canvas.height;
 		
@@ -58,25 +60,35 @@ define(function() {
 			};
 		};
 		
-		this.drawTime = function(time) {
-			var fpsText = 'FPS: ' + time.fps.current.toFixed();
-			var meanFpsText = 'Mean FPS: ' + time.fps.mean.toFixed();
-			var timeText = 'Time: ' + time.timeSinceStart.toFixed(2) + ' s';
-			var framesText = 'Frames: ' + time.framesCounter;
-			var deltaText = 'Delta: ' + time.delta.toFixed(3) + ' s';
-			var updateText = 'Update time: ' + (time.updateTime * 1000).toFixed() + ' ms';
-			var renderText = 'Render: ' + (time.renderTime * 1000).toFixed() + ' ms';
-			
+		this.startDrawing = function() {
+			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+			this.fill(0,0,0);
+		}
+		
+		this.finishDrawing = function(time) {
+			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+			drawTime(time);
+		}
+		
+		var drawTime = function(time) {
 			var fontSize = 12;
-			this.ctx.font = 'bold ' + fontSize + 'px Arial';
-			this.ctx.fillStyle = 'white';
-			this.ctx.fillText(fpsText, 0, fontSize);
-			this.ctx.fillText(meanFpsText, 0, 2* fontSize);
-			this.ctx.fillText(timeText, 0, 3 * fontSize);
-			this.ctx.fillText(framesText, 0, 4 * fontSize);
-			this.ctx.fillText(deltaText, 0, 5 * fontSize);
-			this.ctx.fillText(updateText, 0, 6 * fontSize);
-			this.ctx.fillText(renderText, 0, 7 * fontSize);
+			
+			var lines = [];
+			lines.push('FPS: ' + time.fps.current.toFixed());
+			lines.push('Mean FPS: ' + time.fps.mean.toFixed());
+			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
+			lines.push('Frames: ' + time.framesCounter);
+			lines.push('Delta: ' + time.delta.toFixed(3) + ' s');
+			lines.push('Update time: ' + (time.updateTime * 1000).toFixed() + ' ms');
+			lines.push('Render: ' + (time.renderTime * 1000).toFixed() + ' ms');
+			
+			that.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+			that.ctx.fillRect(0, 0, 120, lines.length * fontSize + 3);
+			
+			that.ctx.font = 'bold ' + fontSize + 'px Arial';
+			that.ctx.fillStyle = 'white';
+			for (let i = 0;i < lines.length;i++)
+				that.ctx.fillText(lines[i], 0, (i + 1) * fontSize);
 		};
 	}
 	
