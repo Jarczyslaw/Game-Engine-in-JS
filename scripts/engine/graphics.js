@@ -60,30 +60,37 @@ define(function() {
 			};
 		};
 		
+		this.contextCenter = function() {
+			var center = this.getCenter();
+			this.ctx.translate(center.x, center.y);
+		}
+		
 		this.startDrawing = function() {
 			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 			this.fill(0,0,0);
 		}
 		
-		this.finishDrawing = function(time) {
+		this.finishDrawing = function(game, time) {
 			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-			drawTime(time);
+			drawStatus(game, time);
 		}
 		
-		var drawTime = function(time) {
-			var fontSize = 12;
+		var drawStatus = function(gameInfo, time) {
+			var fontSize = 10;
 			
 			var lines = [];
+			lines.push('Paused: ' + (gameInfo.paused ? 'true' : 'false'));
 			lines.push('FPS: ' + time.fps.current.toFixed());
 			lines.push('Mean FPS: ' + time.fps.mean.toFixed());
 			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
+			lines.push('Real time: ' + time.realTimeSinceStart.toFixed(2) + ' s');
 			lines.push('Frames: ' + time.framesCounter);
 			lines.push('Delta: ' + time.delta.toFixed(3) + ' s');
 			lines.push('Update time: ' + (time.updateTime * 1000).toFixed() + ' ms');
 			lines.push('Render: ' + (time.renderTime * 1000).toFixed() + ' ms');
 			
 			that.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-			that.ctx.fillRect(0, 0, 120, lines.length * fontSize + 3);
+			that.ctx.fillRect(0, 0, 100, lines.length * fontSize + 3);
 			
 			that.ctx.font = 'bold ' + fontSize + 'px Arial';
 			that.ctx.fillStyle = 'white';

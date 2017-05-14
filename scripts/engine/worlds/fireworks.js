@@ -71,12 +71,12 @@ define(['commons/vector', 'commons/particle', 'commons/pooler'], function(Vector
 				visibleObjects = visibleObjects + 1;
 		}
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
 		};
 		
-		this.update = function(input, time) {
+		this.update = function(gameInfo, input, time) {
 			var keys = input.getKeys();
 			var mouse = input.getMouse();
 			

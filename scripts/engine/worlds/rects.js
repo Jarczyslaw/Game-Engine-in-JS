@@ -92,33 +92,34 @@ define(function() {
 			graphics.ctx.fillText(txt, graphics.width - txtSize.width, graphics.height - 20);
 		}
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
 			
 			addRects(startCount, this);
 		};
 		
-		this.update = function(input, time) {
-			var keys = input.getKeys();
+		this.update = function(gameInfo, input, time) {
+			if (!gameInfo.paused) {
+				var keys = input.getKeys();
 			
-			for(let i = 0;i < rects.length;i++)
-				rects[i].update(time.delta);
-			
-			if(keys.getKey(keyMap.UP).isDown()) {
-				addRects(countStep, this);
+				for(let i = 0;i < rects.length;i++)
+					rects[i].update(time.delta);
+				
+				if(keys.getKey(keyMap.UP).isDown()) {
+					addRects(countStep, this);
+				}
+				if(keys.getKey(keyMap.DOWN).isDown()){
+					removeRects(countStep);
+				}
+				if(keys.getKey(keyMap.LEFT).isDown()) {
+					if(this.speed - speedStep > 0)
+						this.speed -= speedStep;
+				}
+				if(keys.getKey(keyMap.RIGHT).isDown()) {
+					this.speed += speedStep;
+				}
 			}
-			if(keys.getKey(keyMap.DOWN).isDown()){
-				removeRects(countStep);
-			}
-			if(keys.getKey(keyMap.LEFT).isDown()) {
-				if(this.speed - speedStep > 0)
-					this.speed -= speedStep;
-			}
-			if(keys.getKey(keyMap.RIGHT).isDown()) {
-				this.speed += speedStep;
-			}
-			
 		};
 		
 		this.render = function(graphics) {

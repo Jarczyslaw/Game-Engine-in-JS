@@ -84,12 +84,12 @@ define(['commons/vector'], function(Vector){
 			ctx.fillText('Count: ' + particles.length, 0, 150);
 		}
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
 		};
 		
-		this.update = function(input, time) {
+		this.update = function(gameInfo, input, time) {
 			var keys = input.getKeys();
 			
 			if (keys.getKey(keyMap.UP).isDown()) {

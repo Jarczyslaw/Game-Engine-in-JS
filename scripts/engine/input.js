@@ -91,6 +91,8 @@ define(function() {
 		this.addKey(keyMap.A, defaultRepeat);
 		this.addKey(keyMap.S, defaultRepeat);
 		this.addKey(keyMap.D, defaultRepeat);
+		
+		this.addKey(keyMap.P, false); // press P to pause
 	}
 
 	function MouseInput(canvas) {

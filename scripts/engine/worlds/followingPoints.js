@@ -42,12 +42,12 @@ define(['commons/primitives'], function(Primitives) {
 		
 		var followingPoints = new FollowingPoints(pointsNumber);
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
 		};
 		
-		this.update = function(input, time) {
+		this.update = function(gameInfo, input, time) {
 			var mouse = input.getMouse();
 			followingPoints.update(mouse.getPosition(), time.delta);
 		}

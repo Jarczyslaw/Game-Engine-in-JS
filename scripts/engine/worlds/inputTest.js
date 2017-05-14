@@ -11,9 +11,9 @@ define(['commons/vector'], function(Vector) {
 		
 		var keyStates = [];
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(width, height) {
+			this.width = width;
+			this.height = height;
 			
 			pos.x = this.width / 2 - size / 2;
 			pos.y = this.height / 2 - size / 2;	
@@ -85,9 +85,9 @@ define(['commons/vector'], function(Vector) {
 		
 		var lastDown = { x: -1, y : -1};
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(width, height) {
+			this.width = width;
+			this.height = height;
 		};
 		
 		this.update = function(input, time) {
@@ -185,12 +185,15 @@ define(['commons/vector'], function(Vector) {
 			}
 		};
 		
-		this.start = function(graphics) {
-			mouseTest.start(graphics);
-			keyTest.start(graphics);
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
+
+			mouseTest.start(this.width, this.height);
+			keyTest.start(this.width, this.height);
 		};
 		
-		this.update = function(input, time) {
+		this.update = function(gameInfo, input, time) {
 			mouseTest.update(input, time);
 			keyTest.update(input, time);
 		}

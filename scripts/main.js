@@ -2,7 +2,7 @@ requirejs.config({
     baseUrl: 'scripts/engine',
 });
 
-require(['../domReady!', 'game', 'worlds/followingPoints', 
+require(['../domReady!', 'game', 'worlds/inputTest', 
 	'utils', 'keyMap', 'log'], 
 	function(dom, Game, World) {
 		console.log('all modules loaded');

@@ -4,14 +4,17 @@ define(function(){
 	
 		var that = this;
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		// called once at game start
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
 		};
 		
-		this.update = function(input, time) {
+		// called once every frame before render
+		this.update = function(gameInfo, input, time) {
 		}
 		
+		// called once per frame
 		this.render = function(graphics) {
 		}
 	}

@@ -23,12 +23,12 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 			squares.push(newSquare);
 		}
 		
-		this.start = function(graphics) {
-			this.width = graphics.width;
-			this.height = graphics.height;
+		this.start = function(gameInfo) {
+			this.width = gameInfo.getWidth();
+			this.height = gameInfo.getHeight();
 		};
 		
-		this.update = function(input, time) {
+		this.update = function(gameInfo, input, time) {
 			for(let i = 0;i < squares.length;i++) {
 				var s = squares[i];
 				s.z -= time.delta * 2000;

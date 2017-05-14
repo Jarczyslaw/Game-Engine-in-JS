@@ -58,6 +58,10 @@ define(function() {
 		this.divide = function(value) {
 			return new Vector(this.x / value, this.y / value);
 		};
+
+		this.toString = function() {
+			return '[' + this.x.toFixed(2) + ', ' + this.y.toFixed(2)  +']';
+		}
 	}
 	
 	return Vector;

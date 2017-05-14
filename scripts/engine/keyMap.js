@@ -16,6 +16,8 @@ define(function() {
 		this.UP = 38;
 		this.RIGHT = 39;
 		this.DOWN = 40;
+		
+		this.P = 80;
 
 		for(var key in this) {
 			keyNames[this[key]] = key;
