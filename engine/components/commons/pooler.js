@@ -19,8 +19,10 @@ define(function() {
 			if(this.capacity <= 0) 
 				createNew = true;
 			else 
+			{
 				if(this.capacity > objects.length) 
 					createNew = true;
+			}
 				
 			if (createNew) {
 				var newObj = new poolableObject();

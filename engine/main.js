@@ -1,8 +1,8 @@
 requirejs.config({
-    baseUrl: 'scripts/engine',
+    baseUrl: 'engine/components',
 });
 
-require(['../domReady!', 'game', 'worlds/inputTest', 
+require(['../domReady!', 'game', '../scenes/asteroids', 
 	'utils', 'keyMap', 'log'], 
 	function(dom, Game, World) {
 		console.log('all modules loaded');

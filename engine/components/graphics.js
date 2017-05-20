@@ -39,7 +39,7 @@ define(function() {
 			this.ctx.fillRect(0, 0, this.width, this.height);
 		};
 		
-		this.fill = function(r,g,b,a = 255) {
+		this.fill = function(r, g, b, a = 255) {
 			this.ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 			this.ctx.fillRect(0, 0, this.width, this.height);
 		};
@@ -60,18 +60,22 @@ define(function() {
 			};
 		};
 		
-		this.contextCenter = function() {
+		this.resetToCenter = function() {
 			var center = this.getCenter();
-			this.ctx.translate(center.x, center.y);
+			this.ctx.setTransform(1, 0, 0, 1, center.x, center.y);
+		}
+
+		this.resetTransform = function() {
+			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 		}
 		
 		this.startDrawing = function() {
-			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+			this.resetTransform();
 			this.fill(0,0,0);
 		}
-		
+
 		this.finishDrawing = function(game, time) {
-			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+			this.resetTransform();
 			drawStatus(game, time);
 		}
 		
