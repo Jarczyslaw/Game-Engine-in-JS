@@ -97,7 +97,7 @@ define(function() {
 		this.addKey(keyMap.P, false); // press P to pause
 	}
 
-	function MouseInput(canvas) {
+	function MouseInput(canvas, gameInfo) {
 		
 		var that = this;
 		
@@ -120,7 +120,7 @@ define(function() {
 			}
 			return mousePos;
 		};
-		
+
 		this.canvasClamp = true;
 		
 		var position = { x : -1, y : -1};
@@ -160,6 +160,13 @@ define(function() {
 		this.getPosition = function() {
 			return position;
 		};
+
+		this.getInGamePosition = function() {
+			var pos = { x : -1, y : -1 };
+			pos.x = position.x - gameInfo.originX;
+			pos.y = position.y - gameInfo.originY;
+			return pos;
+		}
 		
 		this.onFrameClear = function() {
 			pressed = false;
@@ -167,9 +174,9 @@ define(function() {
 		};
 	}
 
-	function Input(canvas) {
+	function Input(canvas, gameInfo) {
 		
-		var mouseInput = new MouseInput(canvas);
+		var mouseInput = new MouseInput(canvas, gameInfo);
 		var keyInput = new KeyInput();
 		
 		window.addEventListener('keydown', function(event) {

@@ -1,11 +1,12 @@
 define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 	
 	function Rect3D() {
-		this.rect = new Primitives.Rectangle();
+		this.rect = new Primitives.Square();
+		this.position;
 		this.z = 0;
 		
 		this.randomize = function() {
-			this.rect.position = new Vector(randomInRange(-500, 500), randomInRange(-500, 500));
+			this.position = new Vector(randomInRange(-500, 500), randomInRange(-500, 500));
 			this.z = randomInRange(0, 10000);
 			this.rect.size = randomInRange(40, 80);
 		}
@@ -26,6 +27,7 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 		this.start = function(gameInfo) {
 			this.width = gameInfo.getWidth();
 			this.height = gameInfo.getHeight();
+			gameInfo.setOriginToCenter();
 		};
 		
 		this.update = function(gameInfo, input, time) {
@@ -39,18 +41,17 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 		}
 		
 		this.render = function(graphics) {
-			var center = graphics.getCenter();
-			graphics.ctx.translate(center.x, center.y);
-			
+			graphics.resetTransformToOrigin();
+		
 			for(let i = 0;i < squares.length;i++) {
 				var s = squares[i];
 				var perspective = focalLength / (focalLength + s.z);
 				
 				graphics.ctx.save();
-				graphics.ctx.translate(s.rect.x * perspective, s.rect.y * perspective);
+				graphics.ctx.translate(s.position.x * perspective, s.position.y * perspective);
 				graphics.ctx.scale(perspective, perspective);
 				
-				s.rect.draw(graphics.ctx);
+				s.rect.draw(graphics, new Vector(0, 0), 0);
 				
 				graphics.ctx.restore();
 			}

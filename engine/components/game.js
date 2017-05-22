@@ -1,20 +1,33 @@
 define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 	
-	function GameInfo(width, height) {
+	function GameInfo() {
+
 		this.paused = false;
-		var gameWidth = width;
-		var gameHeight = height; 
+		var width = 0;
+		var height = 0; 
+		this.originX = 0;
+		this.originY = 0;
+
+		this.init = function(gameWidth, gameHeight) {
+			width = gameWidth;
+			height = gameHeight; 
+		}
 
 		this.togglePaused = function() {
 			this.paused = !this.paused;
 		}
 
 		this.getWidth = function() {
-			return gameWidth;
+			return width;
 		}
 
 		this.getHeight = function() {
-			return gameHeight;
+			return height;
+		}
+
+		this.setOriginToCenter = function() {
+			this.originX = width / 2;
+			this.originY = height / 2;
 		}
 	}
 
@@ -22,10 +35,11 @@ define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 
 		var canvas = document.getElementById(canvasId);
 		
+		var gameInfo = new GameInfo();
 		var time = new Time();
-		var input = new Input(canvas);
-		var graphics = new Graphics(canvas);
-		var gameInfo = new GameInfo(graphics.width, graphics.height);
+		var input = new Input(canvas, gameInfo);
+		var graphics = new Graphics(canvas, gameInfo);
+		gameInfo.init(graphics.getWidth(), graphics.getHeight());
 		
 		this.start = function() {
 			time.start();

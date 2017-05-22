@@ -1,4 +1,13 @@
-define(['commons/primitives'], function(Primitives) {
+define(['commons/primitives', 'commons/vector'], function(Primitives, Vector) {
+	
+	function Point() {
+		this.body = new Primitives.Circle();
+		this.position = new Vector(0, 0);
+
+		this.draw = function(graphics) {
+			this.body.draw(graphics, this.position, 0);
+		}
+	}
 	
 	function FollowingPoints(pointsNumber) {
 		
@@ -8,9 +17,8 @@ define(['commons/primitives'], function(Primitives) {
 		var startSize = 10;
 		var sizeDelta = startSize / pointsNumber;
 		for (let i = 0;i < pointsNumber;i++) {
-			var newPoint = new Primitives.Circle();
-			newPoint.size = startSize - i * sizeDelta;
-			newPoint.position.zero();
+			var newPoint = new Point();
+			newPoint.body.size = startSize - i * sizeDelta;
 			points.push(newPoint);
 		}
 		
@@ -29,9 +37,11 @@ define(['commons/primitives'], function(Primitives) {
 			}
 		}
 		
-		this.draw = function(context) {
-			for (let i = 0;i < pointsNumber;i++)
-				points[i].draw(context);
+		this.draw = function(graphics) {
+			for (let i = 0;i < pointsNumber;i++) {
+				graphics.resetTransform();
+				points[i].draw(graphics);
+			}	
 		}
 	};
 	
@@ -53,7 +63,7 @@ define(['commons/primitives'], function(Primitives) {
 		}
 		
 		this.render = function(graphics) {
-			followingPoints.draw(graphics.ctx);
+			followingPoints.draw(graphics);
 		}
 	}
 

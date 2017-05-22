@@ -71,7 +71,8 @@ define(function() {
 	}
 
 	this.Math.lerp = function(t, a, b) {
-		return clamp((b - a) * t + a, a, b);
+		var value = (b - a) * t + a;
+		return Math.clamp(value, Math.min(a, b), Math.max(a, b));
 	}
 })
 

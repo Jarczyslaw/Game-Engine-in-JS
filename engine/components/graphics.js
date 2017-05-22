@@ -1,52 +1,80 @@
 define(function() {
 	
-	function Graphics(canvas) {
-		
-		var that = this;
-		
-		this.width = canvas.width;
-		this.height = canvas.height;
-		
-		this.ctx = canvas.getContext("2d");
-		this.ctx.imageSmoothingEnabled = false;
-		
-		var pixel = this.ctx.createImageData(1,1);
+	function Drawing(context) {
+
+		var pixel = context.createImageData(1,1);
 		
 		this.setPixel2 = function(x, y, r, g, b, a = 255) {
 			pixel.data[0] = r;
 			pixel.data[1] = g;
 			pixel.data[2] = b;
 			pixel.data[3] = a;
-			ctx.putImageData(this.pixel, x, y);
+			context.putImageData(this.pixel, x, y);
 		};
 		
 		this.setPixel = function(x, y, color) {
-			this.ctx.fillStyle = color;
-			this.ctx.fillRect(x, y, 1, 1);
+			context.fillStyle = color;
+			context.fillRect(x, y, 1, 1);
 		};
+
+		this.getPixel = function(x, y) {
+			var p = context.getImageData(x, y).data;
+			// TODO implement later
+		}
 		
-		this.setLine = function(xStart, yStart, xEnd, yEnd, width, color) {
-			this.ctx.beginPath();
-			this.ctx.moveTo(xStart, yStart);
-			this.ctx.lineTo(xEnd, yEnd);
-			this.ctx.lineWidth = width;
-			this.ctx.strokeStyle = color;
-			this.ctx.stroke();
+		this.drawLine = function(startX, startY, endX, endY, width, color) {
+			context.beginPath();
+			context.moveTo(startX, startY);
+			context.lineTo(endX, endY);
+			context.lineWidth = width;
+			context.strokeStyle = color;
+			context.stroke();
 		};
+
+		this.drawCircle = function(centerX, centerY, size, color) {
+			context.beginPath();
+			context.arc(centerX, centerY, size, 2 * Math.PI, false);
+			context.fillStyle = color;
+			context.fill();
+		}
+
+		this.drawSquare = function(centerX, centerY, size, color) {
+			var halfSize = size / 2;
+			context.fillStyle = color;
+			context.fillRect(centerX - halfSize, centerY - halfSize, size, size);
+		}
+
+		this.drawRectangle = function(centerX, centerY, width, height, color) {
+			context.fillStyle = color;
+			context.fillRect(centerX - width / 2, centerY - height / 2, width, height);
+		}
+	}
+
+	function Graphics(canvas, gameInfo) {
+		
+		var that = this;
+
+		this.ctx = canvas.getContext("2d");
+		this.ctx.imageSmoothingEnabled = false;
+		
+		var width = canvas.width;
+		var height = canvas.height;
+		
+		this.drawing = new Drawing(this.ctx);
 		
 		this.clear = function() {
 			this.ctx.fillStyle = 'white';
-			this.ctx.fillRect(0, 0, this.width, this.height);
+			this.ctx.fillRect(0, 0, width, height);
 		};
 		
 		this.fill = function(r, g, b, a = 255) {
 			this.ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
-			this.ctx.fillRect(0, 0, this.width, this.height);
+			this.ctx.fillRect(0, 0, width, height);
 		};
 		
 		this.getRandomPos = function() {
-			var randX = Math.random() * this.width;
-			var randY = Math.random() * this.height;
+			var randX = Math.random() * width;
+			var randY = Math.random() * height;
 			return {
 				x : randX,
 				y : randY
@@ -55,14 +83,14 @@ define(function() {
 		
 		this.getCenter = function() {
 			return {
-				x : this.width / 2,
-				y : this.height / 2
+				x : width / 2,
+				y : height / 2
 			};
 		};
-		
-		this.resetToCenter = function() {
-			var center = this.getCenter();
-			this.ctx.setTransform(1, 0, 0, 1, center.x, center.y);
+
+		this.resetTransformToOrigin = function() {
+			this.ctx.setTransform(1, 0, 0,
+				1, gameInfo.originX, gameInfo.originY);
 		}
 
 		this.resetTransform = function() {
@@ -101,6 +129,14 @@ define(function() {
 			for (let i = 0;i < lines.length;i++)
 				that.ctx.fillText(lines[i], 0, (i + 1) * fontSize);
 		};
+
+		this.getWidth = function() {
+			return width;
+		}
+
+		this.getHeight = function() {
+			return height;
+		}
 	}
 	
 	return Graphics;

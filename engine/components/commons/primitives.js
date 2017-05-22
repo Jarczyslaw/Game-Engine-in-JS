@@ -4,31 +4,42 @@ define(['commons/vector'], function(Vector) {
 		
 		this.size = 10;
 		this.color = 'white';
-		this.position = new Vector();
 		
-		this.draw = function(context) {
-			context.beginPath();
-			context.arc(this.position.x, this.position.y, this.size, 2 * Math.PI, false);
-			context.fillStyle = this.color;
-			context.fill();
+		this.draw = function(graphics, position, rotation) {
+			graphics.ctx.translate(position.x, position.y);
+			graphics.ctx.rotate(rotation);
+			graphics.drawing.drawCircle(0, 0, this.size, this.color);
 		}
 	};
 	
-	function Rectangle() {
+	function Square() {
 		
 		this.size = 10;
 		this.color = 'white';
-		this.position = new Vector();
-		
-		this.draw = function(context) {
-			context.fillStyle = this.color;
-			var halfSize = this.size / 2;
-			context.fillRect(this.position.x - halfSize, this.position.y - halfSize, this.size, this.size);
+
+		this.draw = function(graphics, position, rotation) {
+			graphics.ctx.translate(position.x, position.y);
+			graphics.ctx.rotate(rotation);
+			graphics.drawing.drawSquare(0, 0, this.size, this.color);
 		}
 	};
+
+	function Rectangle() {
+
+		this.width = 20;
+		this.height = 10;
+		this.color = 'white';
+
+		this.draw = function(graphics, position, rotation) {
+			graphics.ctx.translate(position.x, position.y);
+			graphics.ctx.rotate(rotation);
+			graphics.drawing.drawSquare(0, 0, this.width, this.height, this.color);
+		}
+	}
 	
 	return {
 		Circle : Circle,
+		Square : Square,
 		Rectangle : Rectangle
 	};
 });

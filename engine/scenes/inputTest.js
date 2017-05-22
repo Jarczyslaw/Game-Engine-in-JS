@@ -145,7 +145,7 @@ define(['commons/vector'], function(Vector) {
 			for (let i = 0;i < lines.length;i++) {
 				var line = lines[i];
 				for (let j = 1;j < line.length;j++) {
-					graphics.setLine(line[j - 1].x, line[j - 1].y, 
+					graphics.drawing.drawLine(line[j - 1].x, line[j - 1].y, 
 						line[j].x, line[j].y, 1, 'white');
 				}
 				

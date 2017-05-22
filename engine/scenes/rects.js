@@ -80,7 +80,7 @@ define(function() {
 			graphics.ctx.font = 'bold 20px Arial';
 			graphics.ctx.fillStyle = 'red';
 			var txtSize = graphics.ctx.measureText(txt);
-			graphics.ctx.fillText(txt, graphics.width - txtSize.width, graphics.height);
+			graphics.ctx.fillText(txt, graphics.getWidth() - txtSize.width, graphics.getHeight());
 		};
 		
 		var drawSpeed = function(graphics) {
@@ -89,7 +89,7 @@ define(function() {
 			graphics.ctx.font = 'bold 20px Arial';
 			graphics.ctx.fillStyle = 'red';
 			var txtSize = graphics.ctx.measureText(txt);
-			graphics.ctx.fillText(txt, graphics.width - txtSize.width, graphics.height - 20);
+			graphics.ctx.fillText(txt, graphics.getWidth() - txtSize.width, graphics.getHeight() - 20);
 		}
 		
 		this.start = function(gameInfo) {

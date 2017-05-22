@@ -1,4 +1,4 @@
-define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
+define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler){
 	
 	function Propulsion() {
 
@@ -133,7 +133,6 @@ define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
 
 		this.draw = function(graphics) {
 			if (this.enabled) {
-				graphics.resetToCenter();
 				var context = graphics.ctx;
 				context.translate(position.x, position.y);
 				context.rotate(Math.radians(direction));
@@ -165,6 +164,7 @@ define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
 
 		this.draw = function(graphics) {
 			pool.forEach(function(projectile) {
+				graphics.resetTransformToOrigin();
 				projectile.draw(graphics);
 			});
 		}
@@ -222,7 +222,6 @@ define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
 		}
 
 		var drawBody = function(graphics) {
-			graphics.resetToCenter();
 			var ctx = graphics.ctx;
 			ctx.translate(physics.position.x, physics.position.y);
 			ctx.rotate(Math.radians(physics.rotation));
@@ -249,6 +248,7 @@ define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
 		var screenDisabler = null;
 		
 		this.start = function(gameInfo) {
+			gameInfo.setOriginToCenter();
 			this.width = gameInfo.getWidth();
 			this.height = gameInfo.getHeight();
 			var halfWidth = this.width / 2;
@@ -258,6 +258,8 @@ define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
 			screenDisabler = new ScreenDisabler(-halfWidth, halfWidth, -halfHeight, halfHeight);
 		};
 		
+		var spark = new Particles.Spark();
+
 		this.update = function(gameInfo, input, time) {
 			if (!gameInfo.paused) {
 				ship.update(input, time);
@@ -266,11 +268,24 @@ define(['commons/vector', 'commons/pooler'], function(Vector, Pooler){
 				projectiles.update(time);
 				projectiles.disable(screenDisabler);
 			}
+
+			if (input.getMouse().isPressed()) {
+				var position = input.getMouse().getInGamePosition(gameInfo);
+				log.info("emit: ["+ position.x + ", " + position.y + "]");
+				spark.emit(new Vector(position.x, position.y), new Vector(100,0), 45, 90, 20, 2);
+			}
+
+			spark.update(time);
 		}
 		
 		this.render = function(graphics) {
+			graphics.resetTransformToOrigin();
 			ship.draw(graphics);
+
 			projectiles.draw(graphics);
+
+			graphics.resetTransformToOrigin();
+			spark.draw(graphics);
 		}
 	}
 	
