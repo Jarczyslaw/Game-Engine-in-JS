@@ -48,7 +48,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			
 			var startVelocity = new Vector();
 			var range = Math.radians(30); 
-			startVelocity.setMagnitude(Math.random() * 100 + 550);
+			startVelocity.setMagnitude(Math.random() * 100 + 700);
 			startVelocity.setAngle(-Math.PI / 2 + Math.random() * range - range / 2);
 			
 			particle.velocity = startVelocity;
@@ -73,13 +73,13 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 				visibleObjects = visibleObjects + 1;
 		}
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
 		};
 		
-		this.update = function(gameInfo, input, time) {
-			if (!gameInfo.paused) {
+		this.update = function(gameStatus, camera, input, time) {
+			if (!gameStatus.paused) {
 				var keys = input.getKeys();
 				var mouse = input.getMouse();
 				
@@ -97,7 +97,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			}
 		}
 		
-		this.render = function(graphics) {
+		this.render = function(graphics, camera) {
 			pooler.forEach(function(particle) {
 				graphics.resetTransform();
 				particle.draw(graphics);

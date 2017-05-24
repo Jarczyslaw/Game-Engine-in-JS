@@ -84,12 +84,12 @@ define(['commons/vector'], function(Vector){
 			ctx.fillText('Count: ' + particles.length, 0, 150);
 		}
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
 		};
 		
-		this.update = function(gameInfo, input, time) {
+		this.update = function(gameStatus, camera, input, time) {
 			var keys = input.getKeys();
 			
 			if (keys.getKey(keyMap.UP).isDown()) {
@@ -101,7 +101,7 @@ define(['commons/vector'], function(Vector){
 				particles[i].update(time, this.width, this.height);
 		}
 		
-		this.render = function(graphics) {
+		this.render = function(graphics, camera) {
 			for(let i = 0;i < particles.length;i++) 
 				particles[i].draw(graphics);
 			

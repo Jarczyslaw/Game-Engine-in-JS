@@ -17,6 +17,7 @@ define(function() {
 		this.RIGHT = 39;
 		this.DOWN = 40;
 		
+		this.I = 73;
 		this.P = 80;
 
 		for(var key in this) {

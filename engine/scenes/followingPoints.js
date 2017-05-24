@@ -52,17 +52,17 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector) {
 		
 		var followingPoints = new FollowingPoints(pointsNumber);
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
 		};
 		
-		this.update = function(gameInfo, input, time) {
+		this.update = function(gameStatus, camera, input, time) {
 			var mouse = input.getMouse();
 			followingPoints.update(mouse.getPosition(), time.delta);
 		}
 		
-		this.render = function(graphics) {
+		this.render = function(graphics, camera) {
 			followingPoints.draw(graphics);
 		}
 	}

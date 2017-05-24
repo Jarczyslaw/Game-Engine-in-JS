@@ -1,13 +1,12 @@
-define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
+define(['time', 'input', 'graphics', 'camera'], function(Time, Input, Graphics, Camera) {
 	
-	function GameInfo() {
+	function GameStatus() {
 
 		this.paused = false;
+		this.drawStatus = true;
 		var width = 0;
 		var height = 0; 
-		this.originX = 0;
-		this.originY = 0;
-
+		
 		this.init = function(gameWidth, gameHeight) {
 			width = gameWidth;
 			height = gameHeight; 
@@ -17,6 +16,10 @@ define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 			this.paused = !this.paused;
 		}
 
+		this.toggleDrawStatus = function() {
+			this.drawStatus = !this.drawStatus;
+		}
+
 		this.getWidth = function() {
 			return width;
 		}
@@ -24,32 +27,28 @@ define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 		this.getHeight = function() {
 			return height;
 		}
-
-		this.setOriginToCenter = function() {
-			this.originX = width / 2;
-			this.originY = height / 2;
-		}
 	}
 
 	function Game(canvasId, gameWorld) {
 
 		var canvas = document.getElementById(canvasId);
 		
-		var gameInfo = new GameInfo();
+		var gameStatus = new GameStatus();
 		var time = new Time();
-		var input = new Input(canvas, gameInfo);
-		var graphics = new Graphics(canvas, gameInfo);
-		gameInfo.init(graphics.getWidth(), graphics.getHeight());
-		
+		var input = new Input(canvas, gameStatus);
+		var graphics = new Graphics(canvas, camera);
+		var camera = new Camera(graphics.getWidth(), graphics.getHeight());
+		gameStatus.init(graphics.getWidth(), graphics.getHeight());
+
 		this.start = function() {
 			time.start();
-			gameWorld.start(gameInfo);
+			gameWorld.start(gameStatus, camera, input);
 			gameLoop();
 			log.info('game start...');
 		};
 		
 		var gameLoop = function() {
-			checkPause();
+			checkGameStatus();
 			update();
 			input.onFrameClear();
 			render();
@@ -57,25 +56,30 @@ define(['time', 'input', 'graphics'], function(Time, Input, Graphics) {
 			requestAnimationFrame(gameLoop);
 		};
 
-		var checkPause = function() {
-			if (input.getKeys().getKey(keyMap.P).isPressed()) {
-				gameInfo.togglePaused();
-				time.enabled = !gameInfo.paused;
+		var checkGameStatus = function() {
+			var keys = input.getKeys();
+			if (keys.getKey(keyMap.P).isPressed()) {
+				gameStatus.togglePaused();
+				time.enabled = !gameStatus.paused;
 			}	
+
+			if (keys.getKey(keyMap.I).isPressed()) {
+				gameStatus.toggleDrawStatus();
+			}
 		}
 
 		var update = function() {
 			time.nextFrame();
 			time.tick();
-			gameWorld.update(gameInfo, input, time);
+			gameWorld.update(gameStatus, camera, input, time);
 			time.updateTime = time.tock();
 		}
 
 		var render = function() {
 			time.tick();
 			graphics.startDrawing();
-			gameWorld.render(graphics);
-			graphics.finishDrawing(gameInfo, time);
+			gameWorld.render(graphics, camera);
+			graphics.finishDrawing(gameStatus, time);
 			time.renderTime = time.tock();
 		}
 	}

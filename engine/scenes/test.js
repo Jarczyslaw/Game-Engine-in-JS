@@ -4,17 +4,17 @@ define(function(){
 	
 		var that = this;
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
-			gameInfo.setOriginToCenter();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
+			camera.setPointOfViewToCenter();
 		};
 		
-		this.update = function(gameInfo, input, time) {
+		this.update = function(gameStatus, camera, input, time) {
 		}
 
-		this.render = function(graphics) {
-			graphics.resetTransformToOrigin();
+		this.render = function(graphics, camera) {
+			graphics.resetTransformToCamera(camera);
 			graphics.drawing.drawCircle(0, 0, 10, 'white');
 		}
 	}

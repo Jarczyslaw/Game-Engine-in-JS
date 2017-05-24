@@ -24,13 +24,13 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 			squares.push(newSquare);
 		}
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
-			gameInfo.setOriginToCenter();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
+			camera.setPointOfViewToCenter();
 		};
 		
-		this.update = function(gameInfo, input, time) {
+		this.update = function(gameStatus, camera, input, time) {
 			for(let i = 0;i < squares.length;i++) {
 				var s = squares[i];
 				s.z -= time.delta * 2000;
@@ -40,8 +40,8 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 			}
 		}
 		
-		this.render = function(graphics) {
-			graphics.resetTransformToOrigin();
+		this.render = function(graphics, camera) {
+			graphics.resetTransformToCamera(camera);
 		
 			for(let i = 0;i < squares.length;i++) {
 				var s = squares[i];

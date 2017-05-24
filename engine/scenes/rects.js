@@ -92,15 +92,15 @@ define(function() {
 			graphics.ctx.fillText(txt, graphics.getWidth() - txtSize.width, graphics.getHeight() - 20);
 		}
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
 			
 			addRects(startCount, this);
 		};
 		
-		this.update = function(gameInfo, input, time) {
-			if (!gameInfo.paused) {
+		this.update = function(gameStatus, camera, input, time) {
+			if (!gameStatus.paused) {
 				var keys = input.getKeys();
 			
 				for(let i = 0;i < rects.length;i++)
@@ -122,7 +122,7 @@ define(function() {
 			}
 		};
 		
-		this.render = function(graphics) {
+		this.render = function(graphics, camera) {
 			for(let i = 0;i < rects.length;i++)
 				rects[i].draw(graphics);
 			

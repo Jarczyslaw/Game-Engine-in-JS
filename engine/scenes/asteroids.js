@@ -162,9 +162,9 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			});
 		}
 
-		this.draw = function(graphics) {
+		this.draw = function(graphics, camera) {
 			pool.forEach(function(projectile) {
-				graphics.resetTransformToOrigin();
+				graphics.resetTransformToCamera(camera);
 				projectile.draw(graphics);
 			});
 		}
@@ -247,10 +247,11 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		var screenRepeater = null;
 		var screenDisabler = null;
 		
-		this.start = function(gameInfo) {
-			gameInfo.setOriginToCenter();
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
+		this.start = function(gameStatus, camera, input) {
+			camera.setPointOfViewToCenter();
+
+			this.width = gameStatus.getWidth();
+			this.height = gameStatus.getHeight();
 			var halfWidth = this.width / 2;
 			var halfHeight = this.height / 2;
 
@@ -260,8 +261,8 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		
 		var spark = new Particles.Spark();
 
-		this.update = function(gameInfo, input, time) {
-			if (!gameInfo.paused) {
+		this.update = function(gameStatus, camera, input, time) {
+			if (!gameStatus.paused) {
 				ship.update(input, time);
 				ship.repeatInScreen(screenRepeater);
 
@@ -270,7 +271,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			}
 
 			if (input.getMouse().isPressed()) {
-				var position = input.getMouse().getInGamePosition(gameInfo);
+				var position = input.getMouse().getInGamePosition(camera);
 				log.info("emit: ["+ position.x + ", " + position.y + "]");
 				spark.emit(new Vector(position.x, position.y), new Vector(100,0), 45, 90, 20, 2);
 			}
@@ -278,13 +279,13 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			spark.update(time);
 		}
 		
-		this.render = function(graphics) {
-			graphics.resetTransformToOrigin();
+		this.render = function(graphics, camera) {
+			graphics.resetTransformToCamera(camera);
 			ship.draw(graphics);
 
-			projectiles.draw(graphics);
+			projectiles.draw(graphics, camera);
 
-			graphics.resetTransformToOrigin();
+			graphics.resetTransformToCamera(camera);
 			spark.draw(graphics);
 		}
 	}

@@ -50,7 +50,7 @@ define(function() {
 		}
 	}
 
-	function Graphics(canvas, gameInfo) {
+	function Graphics(canvas) {
 		
 		var that = this;
 
@@ -61,7 +61,7 @@ define(function() {
 		var height = canvas.height;
 		
 		this.drawing = new Drawing(this.ctx);
-		
+
 		this.clear = function() {
 			this.ctx.fillStyle = 'white';
 			this.ctx.fillRect(0, 0, width, height);
@@ -80,17 +80,11 @@ define(function() {
 				y : randY
 			};
 		};
-		
-		this.getCenter = function() {
-			return {
-				x : width / 2,
-				y : height / 2
-			};
-		};
 
-		this.resetTransformToOrigin = function() {
+		this.resetTransformToCamera = function(camera) {
+			var origin = camera.getOrigin();
 			this.ctx.setTransform(1, 0, 0,
-				1, gameInfo.originX, gameInfo.originY);
+				1, origin.x, origin.y);
 		}
 
 		this.resetTransform = function() {
@@ -99,19 +93,21 @@ define(function() {
 		
 		this.startDrawing = function() {
 			this.resetTransform();
-			this.fill(0,0,0);
+			this.fill(0, 0, 0);
 		}
 
-		this.finishDrawing = function(game, time) {
-			this.resetTransform();
-			drawStatus(game, time);
+		this.finishDrawing = function(gameStatus, time) {
+			if (gameStatus.drawStatus) {
+				this.resetTransform();
+				drawStatus(gameStatus, time);
+			}
 		}
 		
-		var drawStatus = function(gameInfo, time) {
+		var drawStatus = function(gameStatus, time) {
 			var fontSize = 10;
 			
 			var lines = [];
-			lines.push('Paused: ' + (gameInfo.paused ? 'true' : 'false'));
+			lines.push('Paused: ' + (gameStatus.paused ? 'true' : 'false'));
 			lines.push('FPS: ' + time.fps.current.toFixed());
 			lines.push('Mean FPS: ' + time.fps.mean.toFixed());
 			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
@@ -125,6 +121,7 @@ define(function() {
 			that.ctx.fillRect(0, 0, 100, lines.length * fontSize + 3);
 			
 			that.ctx.font = 'bold ' + fontSize + 'px Arial';
+			that.ctx.textAlign = 'left';
 			that.ctx.fillStyle = 'white';
 			for (let i = 0;i < lines.length;i++)
 				that.ctx.fillText(lines[i], 0, (i + 1) * fontSize);

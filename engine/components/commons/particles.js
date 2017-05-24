@@ -70,7 +70,7 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 		this.force = new Vector();
 		this.impulse = new Vector();
 		
-		this.drag = 0;
+		this.drag = 1;
 		this.gravity = new Vector(0, 100);
 		
 		this.enabled = false;

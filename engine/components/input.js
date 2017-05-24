@@ -95,9 +95,10 @@ define(function() {
 		this.addKey(keyMap.SPACE, false);
 		
 		this.addKey(keyMap.P, false); // press P to pause
+		this.addKey(keyMap.I, false);
 	}
 
-	function MouseInput(canvas, gameInfo) {
+	function MouseInput(canvas) {
 		
 		var that = this;
 		
@@ -161,10 +162,11 @@ define(function() {
 			return position;
 		};
 
-		this.getInGamePosition = function() {
+		this.getInGamePosition = function(camera) {
 			var pos = { x : -1, y : -1 };
-			pos.x = position.x - gameInfo.originX;
-			pos.y = position.y - gameInfo.originY;
+			var origin = camera.getOrigin();
+			pos.x = position.x - origin.x;
+			pos.y = position.y - origin.y;
 			return pos;
 		}
 		
@@ -174,9 +176,9 @@ define(function() {
 		};
 	}
 
-	function Input(canvas, gameInfo) {
+	function Input(canvas) {
 		
-		var mouseInput = new MouseInput(canvas, gameInfo);
+		var mouseInput = new MouseInput(canvas);
 		var keyInput = new KeyInput();
 		
 		window.addEventListener('keydown', function(event) {

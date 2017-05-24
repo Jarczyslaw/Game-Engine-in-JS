@@ -185,20 +185,20 @@ define(['commons/vector'], function(Vector) {
 			}
 		};
 		
-		this.start = function(gameInfo) {
-			this.width = gameInfo.getWidth();
-			this.height = gameInfo.getHeight();
+		this.start = function(gameStatus, camera, input) {
+			this.width = camera.getWidth();
+			this.height = camera.getHeight();
 
 			mouseTest.start(this.width, this.height);
 			keyTest.start(this.width, this.height);
 		};
 		
-		this.update = function(gameInfo, input, time) {
+		this.update = function(gameStatus, camera, input, time) {
 			mouseTest.update(input, time);
 			keyTest.update(input, time);
 		}
 		
-		this.render = function(graphics) {
+		this.render = function(graphics, camera) {
 			mouseTest.render(graphics);
 			keyTest.render(graphics);
 			sleep(100);
