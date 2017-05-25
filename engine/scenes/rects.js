@@ -1,9 +1,9 @@
 define(function() {
 	
-	function Rect(gameWorld) {
+	function Rect(gameScene) {
 		
-		var xLimit = gameWorld.width;
-		var yLimit = gameWorld.height;
+		var xLimit = gameScene.width;
+		var yLimit = gameScene.height;
 		
 		var size = 30;
 		var pos = { x : 0, y : 0};
@@ -23,16 +23,16 @@ define(function() {
 		};
 		
 		this.update = function(delta) {
-			tempPos.x = pos.x + delta * speedDir.x * gameWorld.speed;
-			tempPos.y = pos.y + delta * speedDir.y * gameWorld.speed;
+			tempPos.x = pos.x + delta * speedDir.x * gameScene.speed;
+			tempPos.y = pos.y + delta * speedDir.y * gameScene.speed;
 			
 			if((tempPos.x + size) > xLimit || tempPos.x < 0)
 				speedDir.x = -speedDir.x;
 			if ((tempPos.y + size) > yLimit || tempPos.y < 0)
 				speedDir.y = -speedDir.y;
 			
-			pos.x += delta * speedDir.x * gameWorld.speed;
-			pos.y += delta * speedDir.y * gameWorld.speed;
+			pos.x += delta * speedDir.x * gameScene.speed;
+			pos.y += delta * speedDir.y * gameScene.speed;
 		};
 		
 		this.draw = function(graphics) {
@@ -45,7 +45,7 @@ define(function() {
 		};
 	}
 	
-	function World() {
+	function Scene() {
 		
 		var that = this;
 		
@@ -60,9 +60,9 @@ define(function() {
 		var rects = [];
 		var rectsToAdd = [];
 		
-		var addRects = function(cnt, gameWorld) {
+		var addRects = function(cnt, gameScene) {
 			for(let i = 0;i < cnt;i++) {
-				var r = new Rect(gameWorld);
+				var r = new Rect(gameScene);
 				rects.push(r);
 				r.init();
 			}
@@ -131,5 +131,5 @@ define(function() {
 		};
 	}
 	
-	return World;
+	return Scene;
 })

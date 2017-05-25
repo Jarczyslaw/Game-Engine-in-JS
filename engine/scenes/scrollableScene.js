@@ -39,7 +39,7 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
 
 	}
 
-	function World() {
+	function Scene() {
 	
 		var that = this;
 
@@ -71,6 +71,7 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
 		};
 
 		this.update = function(gameStatus, camera, input, time) {
+			time.scale = 0.5;
 			// move player with camera
 			var keys = input.getKeys();
 			if (keys.getKey(keyMap.UP).isDown())
@@ -112,14 +113,16 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
 				}
 			});
 
-			graphics.resetTransformToCamera(camera);
-			player.draw(graphics);
+			graphics.drawInCameraContext(camera, function() {
+				player.draw(graphics);
+			});
 
-			graphics.resetTransformToCamera(camera);
-			player2.draw(graphics);
+			graphics.drawInCameraContext(camera, function() {
+				player2.draw(graphics);
+			});
 		}
 	}
 	
-	return World;
+	return Scene;
 })
 

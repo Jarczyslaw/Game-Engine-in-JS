@@ -90,6 +90,11 @@ define(function() {
 		this.resetTransform = function() {
 			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 		}
+
+		this.drawInCameraContext = function(camera, drawCallback) {
+			this.resetTransformToCamera(camera);
+			drawCallback();
+		}
 		
 		this.startDrawing = function() {
 			this.resetTransform();
@@ -112,13 +117,14 @@ define(function() {
 			lines.push('Mean FPS: ' + time.fps.mean.toFixed());
 			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
 			lines.push('Real time: ' + time.realTimeSinceStart.toFixed(2) + ' s');
-			lines.push('Frames: ' + time.framesCounter);
-			lines.push('Delta: ' + time.delta.toFixed(3) + ' s');
-			lines.push('Update time: ' + (time.updateTime * 1000).toFixed() + ' ms');
-			lines.push('Render: ' + (time.renderTime * 1000).toFixed() + ' ms');
+			lines.push('Scale: ' + time.scale.toFixed(2));
+			lines.push('Delta: ' + secondsToMillis(time.delta) + ' ms');
+			lines.push('Real delta: ' + secondsToMillis(time.realDelta) + ' ms');
+			lines.push('Update time: ' + secondsToMillis(time.updateTime) + ' ms');
+			lines.push('Render time: ' + secondsToMillis(time.renderTime) + ' ms');
 			
 			that.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-			that.ctx.fillRect(0, 0, 100, lines.length * fontSize + 3);
+			that.ctx.fillRect(0, 0, 110, lines.length * fontSize + 3);
 			
 			that.ctx.font = 'bold ' + fontSize + 'px Arial';
 			that.ctx.textAlign = 'left';

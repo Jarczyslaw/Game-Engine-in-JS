@@ -57,7 +57,7 @@ define(['commons/vector'], function(Vector){
 		};
 	}
 	
-	function World() {
+	function Scene() {
 		
 		var that = this;
 		
@@ -109,6 +109,6 @@ define(['commons/vector'], function(Vector){
 		}
 	} 
 	
-	return World;
+	return Scene;
 })
 

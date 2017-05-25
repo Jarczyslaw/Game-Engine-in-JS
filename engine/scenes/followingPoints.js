@@ -46,7 +46,7 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector) {
 	};
 	
 	
-	function World() {
+	function Scene() {
 		
 		var pointsNumber = 50;
 		
@@ -67,5 +67,5 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector) {
 		}
 	}
 
-	return World;
+	return Scene;
 });

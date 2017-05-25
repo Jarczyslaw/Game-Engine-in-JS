@@ -54,7 +54,9 @@ define(function() {
 		this.timeSinceStart = 0;
 		this.realTimeSinceStart = 0;
 		this.previousFrameTime = 0;
+		this.scale = 1;
 		this.delta = 0;
+		this.realDelta = 0;
 		this.fps = new FpsCounter();
 		
 		this.updateTime = 0;
@@ -73,15 +75,16 @@ define(function() {
 		
 		this.nextFrame = function() {
 			var currentTime = getTime();
-			this.delta = currentTime - this.previousFrameTime;
+			this.realDelta = currentTime - this.previousFrameTime;
+			this.delta = this.scale * this.realDelta;
 			this.previousFrameTime = currentTime;
 			if (this.enabled) {
 				this.timeSinceStart += this.delta;
 				this.framesCounter++;
 			}
-			this.realTimeSinceStart += this.delta;
+			this.realTimeSinceStart += this.realDelta;
 
-			this.fps.update(this.delta);
+			this.fps.update(this.realDelta);
 		};
 		
 		this.tick = function() {

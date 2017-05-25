@@ -4,6 +4,10 @@ define(function() {
 		return window.performance.now() / 1000;
 	}
 
+	this.secondsToMillis = function(millis) {
+		return (millis * 1000).toFixed();
+	}
+
 	this.getDateTime = function() {
 		var now     = new Date(); 
 		var year    = now.getFullYear();

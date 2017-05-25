@@ -2,7 +2,7 @@ define(function() {
 
     function Camera(width, height) {
 
-        // point on canvas where drawing begins
+        // point on canvas where drawing begins, 0;0 is top-left canvas's corner
 		var pointOfViewX = 0;
 		var pointOfViewY = 0;
 

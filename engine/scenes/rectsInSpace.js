@@ -12,7 +12,7 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 		}
 	}
 	
-	function World() {
+	function Scene() {
 		
 		var squares = [];
 		
@@ -58,6 +58,6 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 		}
 	}
 	
-	return World;
+	return Scene;
 })
 

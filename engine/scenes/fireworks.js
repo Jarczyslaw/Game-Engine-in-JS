@@ -1,6 +1,6 @@
 define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler) {
 	
-	function World() {
+	function Scene() {
 		
 		var that = this;
 		
@@ -108,5 +108,5 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		}
 	}
 	
-	return World;
+	return Scene;
 });

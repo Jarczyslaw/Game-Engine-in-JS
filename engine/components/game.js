@@ -29,20 +29,20 @@ define(['time', 'input', 'graphics', 'camera'], function(Time, Input, Graphics, 
 		}
 	}
 
-	function Game(canvasId, gameWorld) {
+	function Game(canvasId, gameScene) {
 
 		var canvas = document.getElementById(canvasId);
 		
 		var gameStatus = new GameStatus();
 		var time = new Time();
 		var input = new Input(canvas, gameStatus);
-		var graphics = new Graphics(canvas, camera);
+		var graphics = new Graphics(canvas);
 		var camera = new Camera(graphics.getWidth(), graphics.getHeight());
 		gameStatus.init(graphics.getWidth(), graphics.getHeight());
 
 		this.start = function() {
 			time.start();
-			gameWorld.start(gameStatus, camera, input);
+			gameScene.start(gameStatus, camera, input);
 			gameLoop();
 			log.info('game start...');
 		};
@@ -71,14 +71,14 @@ define(['time', 'input', 'graphics', 'camera'], function(Time, Input, Graphics, 
 		var update = function() {
 			time.nextFrame();
 			time.tick();
-			gameWorld.update(gameStatus, camera, input, time);
+			gameScene.update(gameStatus, camera, input, time);
 			time.updateTime = time.tock();
 		}
 
 		var render = function() {
 			time.tick();
 			graphics.startDrawing();
-			gameWorld.render(graphics, camera);
+			gameScene.render(graphics, camera);
 			graphics.finishDrawing(gameStatus, time);
 			time.renderTime = time.tock();
 		}

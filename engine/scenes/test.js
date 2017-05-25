@@ -1,6 +1,6 @@
 define(function(){
 	
-	function World() {
+	function Scene() {
 	
 		var that = this;
 		
@@ -19,6 +19,6 @@ define(function(){
 		}
 	}
 	
-	return World;
+	return Scene;
 })
 
