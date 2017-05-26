@@ -91,9 +91,9 @@ define(function() {
 			this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 		}
 
-		this.drawInCameraContext = function(camera, drawCallback) {
+		this.drawInCameraContext = function(camera, drawableObject) {
 			this.resetTransformToCamera(camera);
-			drawCallback();
+			drawableObject.draw(this);
 		}
 		
 		this.startDrawing = function() {
@@ -113,8 +113,8 @@ define(function() {
 			
 			var lines = [];
 			lines.push('Paused: ' + (gameStatus.paused ? 'true' : 'false'));
-			lines.push('FPS: ' + time.fps.current.toFixed());
-			lines.push('Mean FPS: ' + time.fps.mean.toFixed());
+			lines.push('FPS: ' + time.fpsCounter.getCurrent().toFixed());
+			lines.push('Mean FPS: ' + time.fpsCounter.getMean().toFixed());
 			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
 			lines.push('Real time: ' + time.realTimeSinceStart.toFixed(2) + ' s');
 			lines.push('Scale: ' + time.scale.toFixed(2));

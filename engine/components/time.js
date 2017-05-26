@@ -1,50 +1,67 @@
-define(function() {
+define(['commons/timeAccumulator'], function(TimeAccumulator) {
 	
-	function FpsCounter () {
-			
-		var that = this;
-		
-		var fpsUpdate = 0.2;
-		
-		this.current = 0;
-		var currentFpsAccu = 0;
-		var lastFrames = 0;
+	function MeanFpsWithQueue(updateTime) {
 
-		this.mean = 0;
-		var meanFpsAccu = 0;
+		var meanFps = 0;
+
 		var deltasQueue = [];
-		var deltasQueueLength = 5;
-		
-		this.update = function(delta) {
-			getCurrentFps(delta);
-			getMeanFps(delta);
-			//getMeanFps2(delta);
-		}
-		
-		var getCurrentFps = function(delta) {
-			that.current = 1 / delta;
-		}
-		
-		var getMeanFps = function(delta) {
-			lastFrames++;
-			meanFpsAccu += delta;
-			if (meanFpsAccu > fpsUpdate) {
-				that.mean = lastFrames / fpsUpdate;
-				meanFpsAccu = 0;
-				lastFrames = 0;
-			}
-		};
-		
-		var getMeanFps2 = function(delta) {
+		var deltasQueueLength = 8;
+		var timeAccumulator = new TimeAccumulator(updateTime, function() {
+			var deltaSum  = deltasQueue.reduce(function(a, b) { return a + b; }, 0);
+			meanFps = 1 / (deltaSum / deltasQueue.length);
+		});
+
+		this.calc = function(delta) {
 			deltasQueue.push(delta);
 			if(deltasQueue.length > deltasQueueLength)
 				deltasQueue.splice(0, 1);
-			meanFpsAccu += delta;
-			if (meanFpsAccu > fpsUpdate) {
-				var deltaSum  = deltasQueue.reduce(function(a, b) { return a + b; }, 0);
-				that.mean = 1 / (deltaSum / deltasQueue.length);
-				meanFpsAccu = 0;
-			}
+			timeAccumulator.add(delta);
+			return meanFps;
+		}
+	}
+
+	function MeanFpsWithSum(updateTime) {
+
+		var meanFps = 0;
+
+		var framesAccu = 0;
+		var timeAccumulator = new TimeAccumulator(updateTime, function() {
+			meanFps = framesAccu / updateTime;
+			framesAccu = 0;
+		});
+
+		this.calc = function(delta) {
+			framesAccu++;
+			timeAccumulator.add(delta);
+			return meanFps;
+		}
+	}
+
+	function FpsCounter () {
+			
+		var fpsUpdate = 0.2;
+		
+		var lastDelta = 0;
+		var current = 0;
+		var mean = 0;
+		var meanFps = new MeanFpsWithQueue(fpsUpdate);
+		var timeAccumulator = new TimeAccumulator(fpsUpdate, function() {
+			if (lastDelta != 0)
+				current = 1 / lastDelta;
+		});
+		
+		this.update = function(delta) {
+			lastDelta = delta;
+			timeAccumulator.add(delta);
+			mean = meanFps.calc(delta);
+		}
+		
+		this.getCurrent = function(delta) {
+			return current;
+		}
+
+		this.getMean = function() {
+			return mean;
 		}
 	};
 	
@@ -57,7 +74,7 @@ define(function() {
 		this.scale = 1;
 		this.delta = 0;
 		this.realDelta = 0;
-		this.fps = new FpsCounter();
+		this.fpsCounter = new FpsCounter();
 		
 		this.updateTime = 0;
 		this.renderTime = 0;
@@ -84,15 +101,15 @@ define(function() {
 			}
 			this.realTimeSinceStart += this.realDelta;
 
-			this.fps.update(this.realDelta);
+			this.fpsCounter.update(this.realDelta);
 		};
 		
 		this.tick = function() {
-			tempTime = getTime();
+			tickTockTime = getTime();
 		}
 		
 		this.tock = function() {
-			return getTime() - tempTime;
+			return getTime() - tickTockTime;
 		}
 	}
 	

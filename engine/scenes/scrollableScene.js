@@ -113,13 +113,9 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
 				}
 			});
 
-			graphics.drawInCameraContext(camera, function() {
-				player.draw(graphics);
-			});
+			graphics.drawInCameraContext(camera, player);
 
-			graphics.drawInCameraContext(camera, function() {
-				player2.draw(graphics);
-			});
+			graphics.drawInCameraContext(camera, player2);
 		}
 	}
 	
