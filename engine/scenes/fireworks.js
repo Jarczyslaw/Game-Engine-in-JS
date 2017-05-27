@@ -1,4 +1,5 @@
-define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler) {
+define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/color'], 
+function(Vector, Particles, Pooler, Color) {
 	
 	function Scene() {
 		
@@ -8,7 +9,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		
 		var instantiateParticle = function(particle) {
 			particle.body.size = randomInRange(5, 20);
-			particle.body.color = getRandomColor();
+			particle.body.color = Color.random();
 		}
 		
 		var pooler = new Pooler(Particles.Particle, instantiateParticle);

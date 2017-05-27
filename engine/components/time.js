@@ -5,10 +5,16 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 		var meanFps = 0;
 
 		var deltasQueue = [];
-		var deltasQueueLength = 8;
+		var deltasQueueLength = 10;
 		var timeAccumulator = new TimeAccumulator(updateTime, function() {
-			var deltaSum  = deltasQueue.reduce(function(a, b) { return a + b; }, 0);
-			meanFps = 1 / (deltaSum / deltasQueue.length);
+			var fpsQueue = []
+			for (let i = 0;i < deltasQueue.length;i++) {
+				if (deltasQueue[i] > 0)
+					fpsQueue.push(1 / deltasQueue[i]);
+			}
+			var fpsSum  = fpsQueue.reduce(function(a, b) { return a + b; }, 0);
+			if (fpsQueue.length != 0)
+				meanFps = fpsSum / fpsQueue.length;
 		});
 
 		this.calc = function(delta) {

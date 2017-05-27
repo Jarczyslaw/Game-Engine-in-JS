@@ -1,4 +1,4 @@
-define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
+define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primitives, Vector, Color){
 	
 	function TextSquare(size, x, y, color) {
 		this.body = new Primitives.Square();
@@ -49,9 +49,9 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
 
 		var len = 50;
 
-		var player = new TextSquare(20, 0, 0, 'red');
+		var player = new TextSquare(20, 0, 0, Color.red());
 		player.drawPosition = false;
-		var player2 = new TextSquare(20, 0, 0, 'cyan');
+		var player2 = new TextSquare(20, 0, 0, Color.blue());
 		player2.drawPosition = false;
 		var playerSpeed = 150;
 
@@ -61,7 +61,7 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector){
 		{
 			for (let j = -len;j < len;j++)
 			{
-				var newRect = new TextSquare(5, offset + i * gap, j * gap, 'white');
+				var newRect = new TextSquare(5, offset + i * gap, j * gap, Color.white());
 				TextSquares.push(newRect);
 			}
 		}

@@ -49,9 +49,16 @@ define(function() {
 		return color;
 	};
 	
+	// return random number between min (inclusive) and max (exclusive)
 	this.randomInRange = function(min, max) {
 		var range = max - min;
 		return Math.random() * range + min;
+	}
+
+	// return random int between min (inclusive) and max (inclusive)
+	this.randomIntInRange = function(min, max) {
+		var range = max - min + 1;
+		return Math.floor(Math.random() * range) + min;
 	}
 
 	this.Math.radians = function(degrees) {
