@@ -1,4 +1,4 @@
-define(function() {
+define(['commons/color'], function(Color) {
 	
 	function Drawing(context) {
 
@@ -18,8 +18,10 @@ define(function() {
 		};
 
 		this.getPixel = function(x, y) {
-			var p = context.getImageData(x, y).data;
-			// TODO implement later
+			var p = context.getImageData(x, y, 1, 1).data;
+			var color = new Color();
+			color.setRGBA(p[0], p[1], p[2], p[3]);
+			return color;
 		}
 		
 		this.drawLine = function(startX, startY, endX, endY, width, color) {
@@ -59,16 +61,13 @@ define(function() {
 		
 		var width = canvas.width;
 		var height = canvas.height;
+
+		var blankColor = Color.black();
 		
 		this.drawing = new Drawing(this.ctx);
 
-		this.clear = function() {
-			this.ctx.fillStyle = 'white';
-			this.ctx.fillRect(0, 0, width, height);
-		};
-		
-		this.fill = function(r, g, b, a = 255) {
-			this.ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+		this.clear = function(color) {
+			this.ctx.fillStyle = color;
 			this.ctx.fillRect(0, 0, width, height);
 		};
 		
@@ -98,7 +97,7 @@ define(function() {
 		
 		this.startDrawing = function() {
 			this.resetTransform();
-			this.fill(0, 0, 0);
+			this.clear(blankColor.toText());
 		}
 
 		this.finishDrawing = function(gameStatus, time) {

@@ -4,26 +4,20 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 
 		var particle = new Particle();
 		particle.body = new Primitives.Square();
+		particle.enabled = false;
 		var body = particle.body;
 
 		this.sizeOverLifetime = true;
-
 		var startSize = 10;
-		var lifetime = 1;
+		this.lifetime = 1;
 		var timeAccu = 0;
-		
-		var setRotation = function(timeDelta) {
-			if (rotationOverLifetime) {
-				particle.rotation += rotationSpeed * timeDelta;
-			}
-		}
 
 		this.emit = function(sparkStartPosition, sparkStartVelocity, 
 				sparkStartRotation, sparkStartRotationSpeed,
 				sparkStartSize, sparkLifetime) {
 			timeAccu = 0;
 			particle.enabled = true;
-			lifetime = sparkLifetime;
+			this.lifetime = sparkLifetime;
 			startSize = sparkStartSize;
 			body.size = sparkStartSize;
 			particle.init(sparkStartPosition, sparkStartRotation);
@@ -37,14 +31,14 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 
 		this.update = function(time) {
 			if (particle.enabled) {
-				var t = timeAccu / lifetime;
+				var t = timeAccu / this.lifetime;
 				if (this.sizeOverLifetime) {
 					var currentSize = Math.lerp(t, startSize, 0);
 					body.size = currentSize;
 				}
 
 				timeAccu += time.delta;
-				if (timeAccu > lifetime)
+				if (timeAccu > this.lifetime)
 					this.disable();
 				
 				particle.update(time);

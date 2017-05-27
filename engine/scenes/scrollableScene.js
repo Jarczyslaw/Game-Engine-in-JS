@@ -36,7 +36,25 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 
 			lastCheck = visible;
 		}
+	}
 
+	function ColorPicker() {
+		var newPixel = false;
+		var pixelPosition = { x : -1, y : -1};
+
+		this.setPixelPosition = function(position) {
+			pixelPosition.x = position.x;
+			pixelPosition.y = position.y;
+			newPixel = true;
+		}
+
+		this.getPixel = function(graphics) {
+			if (newPixel) {
+				var color = graphics.drawing.getPixel(pixelPosition.x, pixelPosition.y);
+				log.info(color.toText());
+				newPixel = false;
+			}
+		}
 	}
 
 	function Scene() {
@@ -56,6 +74,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 		var playerSpeed = 150;
 
 		var visibilityChecker = new VisibilityChecker();
+		var colorPicker = new ColorPicker();
 
 		for (let i = -len;i < len;i++)
 		{
@@ -85,11 +104,14 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 
 			camera.moveTo(player.position.x + 50, player.position.y);
 
-			// check mouse input
+			// check mouse input and selected pixel color
 			var mouse = input.getMouse();
 			if (mouse.isPressed()) {
 				var pos = mouse.getInGamePosition(camera);
 				log.info('In game position: ' + pos.x.toFixed() + ', ' + pos.y.toFixed());
+
+				pos = mouse.getPosition();
+				colorPicker.setPixelPosition(pos);
 			}
 
 			// move square and test its visibility
@@ -116,6 +138,8 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 			graphics.drawInCameraContext(camera, player);
 
 			graphics.drawInCameraContext(camera, player2);
+
+			colorPicker.getPixel(graphics);
 		}
 	}
 	

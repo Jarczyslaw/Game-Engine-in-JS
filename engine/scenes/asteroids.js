@@ -1,5 +1,5 @@
 define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler){
-	
+
 	function Propulsion() {
 
 		var visible = false;
