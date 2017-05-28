@@ -1,5 +1,42 @@
 define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler){
 
+	function SparksExplosion() {
+
+		var sparks = [];
+		for (let i = 0;i < 30;i++) {
+			var spark = new Particles.Spark();
+			spark.particle.gravity = new Vector(0, 0);
+			sparks.push(spark);
+		}
+
+		this.emit = function(position) {
+			sparks.forEach(function(spark) {
+				var startVelocity = new Vector(randomInRange(50, 150), 0);
+				startVelocity.setAngle(randomInRange(-Math.PI, Math.PI));
+				var startRotation = randomInRange(-45, 45);
+				var startRotationSpeed = randomInRange(-90, 90);
+				var startSize = randomInRange(5, 20);
+				var lifeTime = randomInRange(0.5, 2);
+				spark.emit(position, startVelocity,
+					startRotation, startRotationSpeed,
+					startSize, lifeTime);
+			});
+		}
+
+		this.update = function(time) {
+			sparks.forEach(function(spark) {
+				spark.update(time);
+			});
+		}
+		
+		this.draw = function(graphics, camera) {
+			sparks.forEach(function(spark) {
+				graphics.drawInCameraContext(camera, spark);
+			});	
+		}
+
+	}
+
 	function Propulsion() {
 
 		var visible = false;
@@ -259,7 +296,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			screenDisabler = new ScreenDisabler(-halfWidth, halfWidth, -halfHeight, halfHeight);
 		};
 		
-		var spark = new Particles.Spark();
+		var sparksExplosion = new SparksExplosion();
 
 		this.update = function(gameStatus, camera, input, time) {
 			if (!gameStatus.paused) {
@@ -273,20 +310,18 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			if (input.getMouse().isPressed()) {
 				var position = input.getMouse().getInGamePosition(camera);
 				log.info("emit: ["+ position.x + ", " + position.y + "]");
-				spark.emit(new Vector(position.x, position.y), new Vector(100,0), 45, 90, 20, 2);
+				sparksExplosion.emit(new Vector(position.x, position.y));
 			}
 
-			spark.update(time);
+			sparksExplosion.update(time);
 		}
 		
 		this.render = function(graphics, camera) {
-			graphics.resetTransformToCamera(camera);
-			ship.draw(graphics);
+			graphics.drawInCameraContext(camera, ship);
 
 			projectiles.draw(graphics, camera);
 
-			graphics.resetTransformToCamera(camera);
-			spark.draw(graphics);
+			sparksExplosion.draw(graphics, camera);
 		}
 	}
 	

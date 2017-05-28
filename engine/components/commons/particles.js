@@ -2,51 +2,50 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 	
 	function Spark() {
 
-		var particle = new Particle();
-		particle.body = new Primitives.Square();
-		particle.enabled = false;
-		var body = particle.body;
+		this.particle = new Particle();
+		this.particle.body = new Primitives.Square();
 
 		this.sizeOverLifetime = true;
-		var startSize = 10;
 		this.lifetime = 1;
+
+		var startSize = 10;
 		var timeAccu = 0;
 
 		this.emit = function(sparkStartPosition, sparkStartVelocity, 
 				sparkStartRotation, sparkStartRotationSpeed,
 				sparkStartSize, sparkLifetime) {
 			timeAccu = 0;
-			particle.enabled = true;
-			this.lifetime = sparkLifetime;
+			this.particle.enabled = true;
+			lifetime = sparkLifetime;
 			startSize = sparkStartSize;
-			body.size = sparkStartSize;
-			particle.init(sparkStartPosition, sparkStartRotation);
-			particle.velocity = sparkStartVelocity;
-			particle.rotationSpeed = sparkStartRotationSpeed;
+			this.particle.body.size = sparkStartSize;
+			this.particle.init(sparkStartPosition, sparkStartRotation);
+			this.particle.velocity = sparkStartVelocity;
+			this.particle.rotationSpeed = sparkStartRotationSpeed;
 		}
 
 		this.disable = function() {
-			particle.enabled = false;
+			this.particle.enabled = false;
 		}
 
 		this.update = function(time) {
-			if (particle.enabled) {
+			if (this.particle.enabled) {
 				var t = timeAccu / this.lifetime;
 				if (this.sizeOverLifetime) {
 					var currentSize = Math.lerp(t, startSize, 0);
-					body.size = currentSize;
+					this.particle.body.size = currentSize;
 				}
 
 				timeAccu += time.delta;
 				if (timeAccu > this.lifetime)
 					this.disable();
 				
-				particle.update(time);
+				this.particle.update(time);
 			}
 		}
 
 		this.draw = function(graphics) {
-			particle.draw(graphics);
+			this.particle.draw(graphics);
 		}
 	}
 
@@ -95,7 +94,7 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 		
 		this.draw = function(graphics) {
 			if (this.enabled) {
-				this.body.draw(graphics, this.position, this.rotation);
+				this.body.draw(graphics, this.position, Math.radians(this.rotation));
 			}
 		}
 	}
