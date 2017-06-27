@@ -55,25 +55,19 @@ define(['commons/vector'], function(Vector) {
 			keyStates = [];
 			var k = keys.getKeys();
 			for(key in k) {
-				keyStates.push({ 
-					title: keyMap.getKeyName(key), 
-					value: (k[key].isDown() ? 'down' : 'up') 
-				});
+				keyStates.push(keyMap.getKeyName(key) + ': ' + (k[key].isDown() ? 'down' : 'up'));
 			}
 		}
 		
 		this.render = function(graphics) {
-			graphics.ctx.fillStyle = 'cyan';
-			graphics.ctx.fillRect(pos.x, pos.y, size, size);
-			
-			graphics.ctx.font = 'bold 15px Arial';
-			graphics.ctx.fillStyle = 'red';
-			
-			inputTest.drawTextBlock(graphics.ctx, keyStates, 300, 15);
+			graphics.drawing.drawSquare(pos.x, pos.y, size, 'cyan');
+
+			graphics.resetTransform();
+			graphics.text.setTextBlock(keyStates, 0, 300, 15, 'red');
 		}
 	}
 
-	function MouseTest(inputTest) {
+	function MouseTest() {
 		
 		var mouse;
 		
@@ -131,14 +125,12 @@ define(['commons/vector'], function(Vector) {
 		this.render = function(graphics) {
 			// pressed points
 			for(let i = 0;i < pressedPoints.length;i++) {
-				graphics.ctx.fillStyle = 'green';
-				graphics.ctx.fillRect(pressedPoints[i].x - 5, pressedPoints[i].y - 5, 9, 9);
+				graphics.drawing.drawSquare(pressedPoints[i].x, pressedPoints[i].y, 9, 'green');
 			}
 			
 			// up points		
 			for(let i = 0;i < upPoints.length;i++) {
-				graphics.ctx.fillStyle = 'red';
-				graphics.ctx.fillRect(upPoints[i].x - 5, upPoints[i].y - 5, 9, 9);
+				graphics.drawing.drawSquare(upPoints[i].x, upPoints[i].y, 9, 'red');
 			}
 			
 			// lines
@@ -150,40 +142,31 @@ define(['commons/vector'], function(Vector) {
 				}
 				
 				for (let j = 0;j < line.length;j++) {
-					graphics.ctx.fillStyle = 'white';
-					graphics.ctx.fillRect(line[j].x - 3, line[j].y - 3, 5, 5);
+					graphics.drawing.drawSquare(line[j].x, line[j].y, 5, 'white');
 				}
 			}
 			
 			// mouse info
-			graphics.ctx.font = 'bold 15px Arial';
-			graphics.ctx.fillStyle = 'red';
-			
 			var mouseInfo = [];
 			var pos = mouse.getPosition();
-			mouseInfo.push({ title: 'Move position', value: '[' + pos.x + ', ' + pos.y + ']' });
-			mouseInfo.push({ title: 'Move down position', value: '[' + lastDown.x + ', ' + lastDown.y + ']' });
-			mouseInfo.push({ title: 'Mouse state', value: (mouse.isDown() ? 'down' : 'up') });
-			mouseInfo.push({ title: 'MousePress points', value: pressedPoints.length });
-			mouseInfo.push({ title: 'Move points', value: movePoints });
-			mouseInfo.push({ title: 'Lines', value: lines.length });
-			mouseInfo.push({ title: 'Lines points', value: linesPoints });
-			mouseInfo.push({ title: 'MouseUp points', value: upPoints.length });
-			inputTest.drawTextBlock(graphics.ctx, mouseInfo, 150, 15);
+			mouseInfo.push('Move position: [' + pos.x + ', ' + pos.y + ']');
+			mouseInfo.push('Move down position: [' + lastDown.x + ', ' + lastDown.y + ']');
+			mouseInfo.push('Mouse state: ' + (mouse.isDown() ? 'down' : 'up'));
+			mouseInfo.push('MousePress points: ' + pressedPoints.length);
+			mouseInfo.push('Move points: ' + movePoints );
+			mouseInfo.push('Lines: ' + lines.length);
+			mouseInfo.push('Lines points: ' + linesPoints);
+			mouseInfo.push('MouseUp points: ' + upPoints.length);
+
+			graphics.resetTransform();
+			graphics.text.setTextBlock(mouseInfo, 0, 150, 15, 'red');
 		}
 	}
 
 	function Scene() {
 		
-		var mouseTest = new MouseTest(this);
-		var keyTest = new KeyTest(this);
-		
-		this.drawTextBlock = function(context, infos, startY, fontSize) {
-			for(let i = 0;i < infos.length;i++) {
-				var info = infos[i];
-				context.fillText(info.title + ': ' + info.value, 0, startY + i * fontSize);
-			}
-		};
+		var mouseTest = new MouseTest();
+		var keyTest = new KeyTest();
 		
 		this.start = function(gameStatus, camera, input) {
 			this.width = camera.getWidth();

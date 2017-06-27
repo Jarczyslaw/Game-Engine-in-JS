@@ -55,11 +55,11 @@ function(Vector, Particles, Pooler, Color) {
 			particle.velocity = startVelocity;
 		}
 		
-		var drawCount = function(ctx) {
-			ctx.font = 'bold 20px Arial';
-			ctx.fillStyle = 'red';
-			ctx.fillText('Count: ' + pooler.count(), 0, 150);
-			ctx.fillText('Visible: ' + visibleObjects, 0, 170);
+		var drawCount = function(graphics) {
+			var lines = [];
+			lines.push('Count: ' + pooler.count());
+			lines.push('Visible: ' + visibleObjects);
+			graphics.text.setTextBlock(lines, 0, 170, 20, 'red');
 		}
 		
 		var onOutOfScreen = function(particle) {
@@ -105,7 +105,7 @@ function(Vector, Particles, Pooler, Color) {
 			});
 			
 			graphics.resetTransform();
-			drawCount(graphics.ctx);
+			drawCount(graphics);
 		}
 	}
 	

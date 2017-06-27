@@ -1,16 +1,6 @@
 define(['commons/color'], function(Color) {
 	
 	function Drawing(context) {
-
-		var pixel = context.createImageData(1,1);
-		
-		this.setPixel2 = function(x, y, r, g, b, a = 255) {
-			pixel.data[0] = r;
-			pixel.data[1] = g;
-			pixel.data[2] = b;
-			pixel.data[3] = a;
-			context.putImageData(this.pixel, x, y);
-		};
 		
 		this.setPixel = function(x, y, color) {
 			context.fillStyle = color;
@@ -70,7 +60,7 @@ define(['commons/color'], function(Color) {
 		}
 	}
 
-	function Status() {
+	function StatusBoard() {
 
 		var fontSize = 10;
 		var fontColor = Color.white();
@@ -102,7 +92,8 @@ define(['commons/color'], function(Color) {
 
 		this.ctx = canvas.getContext("2d");
 		this.ctx.imageSmoothingEnabled = false;
-		
+
+
 		var width = canvas.width;
 		var height = canvas.height;
 
@@ -111,7 +102,7 @@ define(['commons/color'], function(Color) {
 		this.drawing = new Drawing(this.ctx);
 		this.text = new Text(this.ctx);
 
-		var status = new Status();
+		var statusBoard = new StatusBoard();
 
 		this.clear = function(color) {
 			this.ctx.fillStyle = color;
@@ -150,7 +141,7 @@ define(['commons/color'], function(Color) {
 		this.finishDrawing = function(gameStatus, time) {
 			if (gameStatus.drawStatus) {
 				this.resetTransform();
-				status.draw(this, gameStatus, time);
+				statusBoard.draw(this, gameStatus, time);
 			}
 		}
 

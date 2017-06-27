@@ -78,10 +78,8 @@ define(['commons/vector'], function(Vector){
 			return newParticle;
 		}
 		
-		var drawCount = function(ctx) {
-			ctx.font = 'bold 20px Arial';
-			ctx.fillStyle = 'red';
-			ctx.fillText('Count: ' + particles.length, 0, 150);
+		var drawCount = function(graphics) {
+			graphics.text.setText('Count: ' + particles.length, 0, 150, 20, 'red');
 		}
 		
 		this.start = function(gameStatus, camera, input) {
@@ -105,7 +103,7 @@ define(['commons/vector'], function(Vector){
 			for(let i = 0;i < particles.length;i++) 
 				particles[i].draw(graphics);
 			
-			drawCount(graphics.ctx);
+			drawCount(graphics);
 		}
 	} 
 	
