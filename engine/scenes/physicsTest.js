@@ -8,13 +8,31 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
         square.size = 100;
 
         var physicsInit = function() {
-            angularPhysics.angularVelocity = 20;
-            angularPhysics.angularDrag = 1;
+            angularPhysics.velocity = 20;
+            angularPhysics.drag = 1;
         }
 
-        var drawPhysics = function(graphics) {
-            
+        var drawLinearPhysicsValues = function(graphics) {
+            var linear = [];
+			linear.push('Linear physics');
+			linear.push('Position: ' + linearPhysics.position.toString());
+			linear.push('Velocity: ' + linearPhysics.velocity.toString());
+			linear.push('Acceleration: ' + linearPhysics.acceleration.toString());
+
+			graphics.resetTransform();
+			graphics.text.setTextBlock(linear, 0, 150, 14, 'red');
         }
+
+		var drawAngularPhysicsValues = function(graphics) {
+			var angular = [];
+			angular.push('Angular physics');
+			angular.push('Rotation: ' + angularPhysics.rotation.toFixed(2));
+			angular.push('Velocity: ' + angularPhysics.velocity.toFixed(2));
+			angular.push('Acceleration: ' + angularPhysics.acceleration.toFixed(2));
+
+			graphics.resetTransform();
+			graphics.text.setTextBlock(angular, 0, 350, 14, 'red');
+		}
 
 		this.start = function(gameStatus, camera, input) {
 			this.gameWidth = gameStatus.getWidth();
@@ -28,6 +46,7 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {
+
 			linearPhysics.update(time.delta);
 			angularPhysics.update(time.delta);
 		}
@@ -35,6 +54,9 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
 		this.render = function(graphics, camera) {
 			graphics.resetTransformToCamera(camera);
             square.draw(graphics, linearPhysics.position, angularPhysics.rotation);
+
+			drawLinearPhysicsValues(graphics);
+			drawAngularPhysicsValues(graphics);
 		}
 	}
 	

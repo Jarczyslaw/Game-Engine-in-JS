@@ -1,19 +1,20 @@
 define(['commons/Vector'], function(Vector) {
 
     function Angular() {
-        
+
+        // assume moment of inertia = 1
         this.rotation = 0;
-        this.angularVelocity = 0;
-        this.angularAcceleration = 0;
+        this.velocity = 0;
+        this.acceleration = 0;
         this.torque = 0;
         this.torqueImpulse = 0;
-        this.angularDrag = 0;
+        this.drag = 0;
 
         this.update = function(timeDelta) {
             var externalTorques = this.torque + this.torqueImpulse;
-            this.angularAcceleration = (this.angularVelocity * -this.angularDrag) + externalTorques;
-            this.angularVelocity += this.angularAcceleration * timeDelta;
-            this.rotation += this.angularVelocity * timeDelta;
+            this.acceleration = (this.velocity * -this.drag) + externalTorques;
+            this.velocity += this.acceleration * timeDelta;
+            this.rotation += this.velocity * timeDelta;
 
             this.torqueImpulse = 0;
         }
