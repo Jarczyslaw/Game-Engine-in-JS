@@ -1,4 +1,4 @@
-define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler){
+define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler) {
 
 	function SparksExplosion() {
 

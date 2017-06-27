@@ -33,7 +33,7 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		this.draw = function(graphics, position, rotation) {
 			graphics.ctx.translate(position.x, position.y);
 			graphics.ctx.rotate(rotation);
-			graphics.drawing.drawSquare(0, 0, this.width, this.height, this.color.toText());
+			graphics.drawing.drawRectangle(0, 0, this.width, this.height, this.color.toText());
 		}
 	}
 	

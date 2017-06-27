@@ -52,9 +52,53 @@ define(['commons/color'], function(Color) {
 		}
 	}
 
+	function Text(context) {
+
+		this.setText = function(text, positionX, positionY, fontSize, fontColor, textAlign = 'left') {
+			context.font = 'bold ' + fontSize + 'px Arial';
+			context.textAlign = textAlign;
+			context.fillStyle = fontColor;
+			context.fillText(text, positionX, positionY);
+		}
+
+		this.setTextBlock = function(lines, positionX, positionY, fontSize, fontColor, textAlign = 'left') {
+			for (let i = 0;i < lines.length;i++) {
+				var linePositionX = positionX;
+				var linePositionY = positionY + (i + 1) * fontSize;
+				this.setText(lines[i], linePositionX, linePositionY, fontSize, fontColor, textAlign);
+			}	
+		}
+	}
+
+	function Status() {
+
+		var fontSize = 10;
+		var fontColor = Color.white();
+		var backColor = new Color();
+		backColor.setRGBA(255, 0, 0, 127);
+
+		this.draw = function(graphics, gameStatus, time) {
+			var lines = [];
+			lines.push('Paused: ' + (gameStatus.paused ? 'true' : 'false'));
+			lines.push('FPS: ' + time.fpsCounter.getCurrent().toFixed());
+			lines.push('Mean FPS: ' + time.fpsCounter.getMean().toFixed());
+			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
+			lines.push('Real time: ' + time.realTimeSinceStart.toFixed(2) + ' s');
+			lines.push('Scale: ' + time.scale.toFixed(2));
+			lines.push('Delta: ' + secondsToMillis(time.delta) + ' ms');
+			lines.push('Real delta: ' + secondsToMillis(time.realDelta) + ' ms');
+			lines.push('Update time: ' + secondsToMillis(time.updateTime) + ' ms');
+			lines.push('Render time: ' + secondsToMillis(time.renderTime) + ' ms');
+			
+			var boxWidth = 110;
+			var boxHeight = lines.length * fontSize + 3;
+
+			graphics.drawing.drawRectangle(boxWidth / 2, boxHeight / 2, boxWidth, boxHeight, backColor.toText());
+			graphics.text.setTextBlock(lines, 0, 0, fontSize, fontColor.toText());
+		}
+	}
+
 	function Graphics(canvas) {
-		
-		var that = this;
 
 		this.ctx = canvas.getContext("2d");
 		this.ctx.imageSmoothingEnabled = false;
@@ -65,6 +109,9 @@ define(['commons/color'], function(Color) {
 		var blankColor = Color.black();
 		
 		this.drawing = new Drawing(this.ctx);
+		this.text = new Text(this.ctx);
+
+		var status = new Status();
 
 		this.clear = function(color) {
 			this.ctx.fillStyle = color;
@@ -103,34 +150,9 @@ define(['commons/color'], function(Color) {
 		this.finishDrawing = function(gameStatus, time) {
 			if (gameStatus.drawStatus) {
 				this.resetTransform();
-				drawStatus(gameStatus, time);
+				status.draw(this, gameStatus, time);
 			}
 		}
-		
-		var drawStatus = function(gameStatus, time) {
-			var fontSize = 10;
-			
-			var lines = [];
-			lines.push('Paused: ' + (gameStatus.paused ? 'true' : 'false'));
-			lines.push('FPS: ' + time.fpsCounter.getCurrent().toFixed());
-			lines.push('Mean FPS: ' + time.fpsCounter.getMean().toFixed());
-			lines.push('Time: ' + time.timeSinceStart.toFixed(2) + ' s');
-			lines.push('Real time: ' + time.realTimeSinceStart.toFixed(2) + ' s');
-			lines.push('Scale: ' + time.scale.toFixed(2));
-			lines.push('Delta: ' + secondsToMillis(time.delta) + ' ms');
-			lines.push('Real delta: ' + secondsToMillis(time.realDelta) + ' ms');
-			lines.push('Update time: ' + secondsToMillis(time.updateTime) + ' ms');
-			lines.push('Render time: ' + secondsToMillis(time.renderTime) + ' ms');
-			
-			that.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-			that.ctx.fillRect(0, 0, 110, lines.length * fontSize + 3);
-			
-			that.ctx.font = 'bold ' + fontSize + 'px Arial';
-			that.ctx.textAlign = 'left';
-			that.ctx.fillStyle = 'white';
-			for (let i = 0;i < lines.length;i++)
-				that.ctx.fillText(lines[i], 0, (i + 1) * fontSize);
-		};
 
 		this.getWidth = function() {
 			return width;

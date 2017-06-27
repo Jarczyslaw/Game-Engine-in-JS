@@ -63,6 +63,14 @@ define(function() {
 			return '[' + this.x.toFixed(2) + ', ' + this.y.toFixed(2)  +']';
 		}
 	}
+
+	Vector.zeros = function() {
+		return new Vector(0, 0);
+	}
+
+	Vector.ones = function() {
+		return new Vector(1, 1);
+	}
 	
 	return Vector;
 })
