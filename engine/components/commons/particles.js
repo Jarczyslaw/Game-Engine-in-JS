@@ -1,9 +1,8 @@
-define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
+define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vector, Primitives, Physics) {
 	
 	function Spark() {
-
-		this.particle = new Particle();
-		this.particle.body = new Primitives.Square();
+		Particle.call(this); // 'inherit' from particle
+		this.body = new Primitives.Square();
 
 		this.sizeOverLifetime = true;
 		this.lifetime = 1;
@@ -15,37 +14,29 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 				sparkStartRotation, sparkStartRotationSpeed,
 				sparkStartSize, sparkLifetime) {
 			timeAccu = 0;
-			this.particle.enabled = true;
 			lifetime = sparkLifetime;
 			startSize = sparkStartSize;
-			this.particle.body.size = sparkStartSize;
-			this.particle.init(sparkStartPosition, sparkStartRotation);
-			this.particle.velocity = sparkStartVelocity;
-			this.particle.rotationSpeed = sparkStartRotationSpeed;
-		}
-
-		this.disable = function() {
-			this.particle.enabled = false;
+			this.init(sparkStartPosition, sparkStartRotation);
+			this.body.size = sparkStartSize;
+			this.linearPhysics.velocity = sparkStartVelocity;
+			this.angularPhysics.velocity = sparkStartRotationSpeed;
+			this.setEnabled(true);
 		}
 
 		this.update = function(time) {
-			if (this.particle.enabled) {
+			if (this.getEnabled()) {
 				var t = timeAccu / this.lifetime;
 				if (this.sizeOverLifetime) {
 					var currentSize = Math.lerp(t, startSize, 0);
-					this.particle.body.size = currentSize;
+					this.body.size = currentSize;
 				}
 
 				timeAccu += time.delta;
 				if (timeAccu > this.lifetime)
-					this.disable();
-				
-				this.particle.update(time);
+					this.setEnabled(false);
 			}
-		}
-
-		this.draw = function(graphics) {
-			this.particle.draw(graphics);
+			this.linearPhysics.update(time.delta);
+			this.angularPhysics.update(time.delta);
 		}
 	}
 
@@ -53,48 +44,37 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives) {
 		
 		this.body = new Primitives.Circle();
 		
-		this.rotation = 0;
-		this.rotationSpeed = 0;
-
-		this.position = new Vector();
-		this.velocity = new Vector();
-		this.acceleration = new Vector();
+		this.linearPhysics = new Physics.Linear();
+		this.angularPhysics = new Physics.Angular();
 		
-		this.force = new Vector();
-		this.impulse = new Vector();
-		
-		this.drag = 1;
-		this.gravity = new Vector(0, 100);
-		
-		this.enabled = false;
+		var enabled = false;
 		
 		this.init = function(position, rotation) {
-			this.position = position;
-			this.rotation = rotation;
-			this.velocity.zero();
-			this.acceleration.zero();
-			this.force.zero();
-			this.impulse.zero();
-			
-			this.enabled = true;
+			this.linearPhysics.position = position;
+			this.linearPhysics.stop();
+
+			this.angularPhysics.rotation = rotation;
+			this.angularPhysics.stop();
+		}
+
+		this.setEnabled = function(newEnabled) {
+			enabled = newEnabled;
+			this.linearPhysics.enabled = enabled;
+			this.angularPhysics.enabled = enabled;
+		}
+
+		this.getEnabled = function() {
+			return enabled;
 		}
 		
 		this.update = function(time) {
-			if (this.enabled) {
-				var externalForces = this.force.add(this.impulse).add(this.gravity);
-				this.acceleration = this.velocity.multiply(-this.drag).add(externalForces);
-				this.position = this.position.add(this.velocity.multiply(time.delta));
-				this.velocity = this.velocity.add(this.acceleration.multiply(time.delta));
-				
-				this.rotation += this.rotationSpeed * time.delta;
-
-				this.impulse.zero();
-			}
+			this.linearPhysics.update(time.delta);
+			this.angularPhysics.update(time.delta);
 		}
 		
 		this.draw = function(graphics) {
-			if (this.enabled) {
-				this.body.draw(graphics, this.position, Math.radians(this.rotation));
+			if (enabled) {
+				this.body.draw(graphics, this.linearPhysics.position, Math.radians(this.angularPhysics.rotation));
 			}
 		}
 	}

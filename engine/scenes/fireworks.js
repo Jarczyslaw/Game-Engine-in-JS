@@ -29,12 +29,13 @@ function(Vector, Particles, Pooler, Color) {
 				var p = particlesToFire[i];
 				p.init(new Vector(position.x, position.y), 0);
 				
-				p.gravity = new Vector(0, 500);
+				p.linearPhysics.gravity = new Vector(0, 500);
 				var startVelocity = new Vector();
 				startVelocity.setMagnitude(Math.random() * 400 + 100);
 				startVelocity.setAngle(Math.random() * 2 * Math.PI);
 				
-				p.velocity = startVelocity;
+				p.linearPhysics.velocity = startVelocity;
+				p.setEnabled(true);
 			}
 		}
 		
@@ -45,14 +46,14 @@ function(Vector, Particles, Pooler, Color) {
 					return;
 			
 			particle.init(new Vector(that.width / 2, that.height), 0);
-			particle.gravity = new Vector(0, 300);
+			particle.linearPhysics.gravity = new Vector(0, 300);
 			
 			var startVelocity = new Vector();
 			var range = Math.radians(30); 
 			startVelocity.setMagnitude(Math.random() * 100 + 700);
 			startVelocity.setAngle(-Math.PI / 2 + Math.random() * range - range / 2);
 			
-			particle.velocity = startVelocity;
+			particle.linearPhysics.velocity = startVelocity;
 		}
 		
 		var drawCount = function(graphics) {
@@ -63,14 +64,14 @@ function(Vector, Particles, Pooler, Color) {
 		}
 		
 		var onOutOfScreen = function(particle) {
-			if(particle.position.x - particle.body.size > that.width)
-				particle.enabled = false;
-			if(particle.position.x + particle.body.size < 0)
-				particle.enabled = false;
-			if(particle.position.y - particle.body.size > that.height)
-				particle.enabled = false;
+			if (particle.linearPhysics.position.x - particle.body.size > that.width)
+				particle.setEnabled(false);
+			else if (particle.linearPhysics.position.x + particle.body.size < 0)
+				particle.setEnabled(false);
+			else if(particle.linearPhysics.position.y - particle.body.size > that.height)
+				particle.setEnabled(false);
 			
-			if (particle.enabled)
+			if (particle.getEnabled())
 				visibleObjects = visibleObjects + 1;
 		}
 		

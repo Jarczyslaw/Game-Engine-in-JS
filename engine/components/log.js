@@ -28,18 +28,27 @@ define(function() {
 		}
 		
 		this.info = function(message, object = null) {
+			if (logContainer == null) 
+				return;
+
 			logContainer.innerHTML += messageHeader(object) + message + '<br />';
 			checkCapacity();
 			scrollToBottom();
 		};
 		
 		this.error = function(message, object = null) {
+			if (logContainer == null) 
+				return;
+
 			logContainer.innerHTML += messageHeader(object) + '<span style="color:red;">' + message + '</span><br />';
 			checkCapacity();
 			scrollToBottom();
 		};
 		
 		this.clear = function() {
+			if (logContainer == null) 
+				return;
+
 			logContainer.innerHTML = '';
 		};
 	}

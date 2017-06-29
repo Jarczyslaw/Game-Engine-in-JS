@@ -5,7 +5,6 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		var sparks = [];
 		for (let i = 0;i < 30;i++) {
 			var spark = new Particles.Spark();
-			spark.particle.gravity = new Vector(0, 0);
 			sparks.push(spark);
 		}
 
@@ -34,7 +33,6 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 				graphics.drawInCameraContext(camera, spark);
 			});	
 		}
-
 	}
 
 	function Propulsion() {
@@ -134,11 +132,11 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 
 		this.disable = function(object, position) {
 			if (checkBorders(position.x, minWidth, maxWidth)) {
-				object.enabled = false;
+				object.setEnabled(false);
 				return;
 			}
 			if (checkBorders(position.y, minHeight, maxHeight)) {
-				object.enabled = false;
+				object.setEnabled(false);
 				return;
 			}
 		}
@@ -150,10 +148,18 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		var direction;
 		var velocity = new Vector(800, 0);
 
-		this.enabled = false;
+		var enabled = false;
+
+		this.getEnabled = function() {
+			return enabled;
+		}
+
+		this.setEnabled = function(newState) {
+			enabled = newState;
+		}
 
 		this.shoot = function(shootPosition, shootDirection) {
-			this.enabled = true;
+			this.setEnabled(true);
 			direction = shootDirection;
 			velocity.setAngle(Math.radians(direction));
 			position = shootPosition;
@@ -164,12 +170,12 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		}
 
 		this.update = function(time) {
-			if (this.enabled)
+			if (enabled)
 				position = position.add(velocity.multiply(time.delta));
 		}
 
 		this.draw = function(graphics) {
-			if (this.enabled) {
+			if (enabled) {
 				var context = graphics.ctx;
 				context.translate(position.x, position.y);
 				context.rotate(Math.radians(direction));

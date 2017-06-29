@@ -8,6 +8,11 @@ define(function() {
 		this.A = 65;
 		this.S = 83;
 		this.D = 68;
+
+		this.Q = 81;
+		this.E = 69;
+
+		this.X = 88;
 		
 		this.ENTER = 13;
 		this.SPACE = 32;

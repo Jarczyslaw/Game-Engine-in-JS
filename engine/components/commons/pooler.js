@@ -9,8 +9,8 @@ define(function() {
 		this.get = function() {
 			for(let i = 0;i < objects.length;i++) {
 				var obj = objects[i];
-				if(!obj.enabled) {
-					obj.enabled = true;
+				if(!obj.getEnabled()) {
+					obj.setEnabled(true);
 					return obj;
 				}
 			}
@@ -28,7 +28,7 @@ define(function() {
 				var newObj = new poolableObject();
 				if (instantiateCallback != null)
 					instantiateCallback(newObj)
-				newObj.enabled = true;
+				newObj.setEnabled(true);
 				objects.push(newObj);
 				return newObj;
 			}
