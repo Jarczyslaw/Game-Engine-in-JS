@@ -36,10 +36,23 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 			graphics.drawing.drawRectangle(0, 0, this.width, this.height, this.color.toText());
 		}
 	}
+
+	function Line() {
+
+		this.width = 3;
+		this.color = Color.white();
+
+		this.draw = function(graphics, start, end) {
+			var vect = end.substract(start);
+			graphics.ctx.translate(start.x, start.y);
+			graphics.drawing.drawLine(0, 0, vect.x, vect.y, this.width, this.color.toText());
+		}
+	}
 	
 	return {
 		Circle : Circle,
 		Square : Square,
-		Rectangle : Rectangle
+		Rectangle : Rectangle,
+		Line : Line
 	};
 });

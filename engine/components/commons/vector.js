@@ -26,6 +26,10 @@ define(function() {
 		this.magnitude = function() {
 			return Math.sqrt(this.x * this.x + this.y * this.y);
 		};
+
+		this.sqrMagnitude = function() {
+			return this.x * this.x + this.y * this.y;
+		}
 		
 		this.setMagnitude = function(value) {
 			var angle = this.angle();
@@ -58,6 +62,12 @@ define(function() {
 		this.divide = function(value) {
 			return new Vector(this.x / value, this.y / value);
 		};
+
+		this.dotProduct = function(vector) {
+			return this.x * vector.x + this.y * vector.y;
+		}
+
+
 
 		this.toString = function() {
 			return '[' + this.x.toFixed(2) + ', ' + this.y.toFixed(2)  +']';
