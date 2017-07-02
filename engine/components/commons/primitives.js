@@ -2,13 +2,13 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 	
 	function Circle() {
 		
-		this.size = 10;
+		this.radius = 10;
 		this.color = Color.white();
 		
 		this.draw = function(graphics, position, rotation) {
 			graphics.ctx.translate(position.x, position.y);
 			graphics.ctx.rotate(rotation);
-			graphics.drawing.drawCircle(0, 0, this.size, this.color.toText());
+			graphics.drawing.drawCircle(0, 0, this.radius, this.color.toText());
 		}
 	};
 	

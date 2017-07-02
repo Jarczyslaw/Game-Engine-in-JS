@@ -8,10 +8,9 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 		this.drawPosition = true;
 
 		this.drawText = function(graphics) {
-			graphics.ctx.textAlign = 'center';
-			graphics.ctx.font = '16px Arial';
-			graphics.ctx.fillStyle = 'green';
-			graphics.ctx.fillText('['+ this.position.x + ',' + this.position.y + ']', 0, -5);
+			var txt = '['+ this.position.x + ',' + this.position.y + ']';
+			graphics.text.setTextAlignment('center', 'bottom');
+			graphics.text.setText(txt, 0, -5, 16, 'green');
 		}
 
 		this.draw = function(graphics) {

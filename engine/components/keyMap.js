@@ -24,6 +24,7 @@ define(function() {
 		
 		this.I = 73;
 		this.P = 80;
+		this.L = 76;
 
 		for(var key in this) {
 			keyNames[this[key]] = key;

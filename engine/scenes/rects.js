@@ -76,11 +76,13 @@ define(function() {
 		
 		var drawCount = function(graphics) {
 			var txt = "Count: " + rects.length;
+			graphics.text.setTextAlignment('left', 'bottom');
 			graphics.text.setText(txt, 0, graphics.getHeight(), 20, 'red', 'left');
 		};
 		
 		var drawSpeed = function(graphics) {
 			var txt = "Speed: " + that.speed;
+			graphics.text.setTextAlignment('left', 'bottom');
 			graphics.text.setText(txt, 0, graphics.getHeight() - 20, 20, 'red', 'left');
 		}
 		

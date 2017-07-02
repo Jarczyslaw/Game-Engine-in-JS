@@ -14,7 +14,8 @@ define(['commons/color'], function(Color) {
 			return color;
 		}
 		
-		this.drawLine = function(startX, startY, endX, endY, width, color) {
+		this.drawLine = function(startX, startY, endX, endY, width, color, dash = []) {
+			context.setLineDash(dash);
 			context.beginPath();
 			context.moveTo(startX, startY);
 			context.lineTo(endX, endY);
@@ -44,19 +45,34 @@ define(['commons/color'], function(Color) {
 
 	function Text(context) {
 
-		this.setText = function(text, positionX, positionY, fontSize, fontColor, textAlign = 'left') {
+		var defaultAlign = 'left';
+		var defaultBaseline = 'top';
+
+		this.setTextAlignment = function(align, baseline) {
+			context.textAlign = align;
+			context.textBaseline = baseline;
+		}
+		this.setTextAlignment(defaultAlign, defaultBaseline);
+
+		this.setText = function(text, positionX, positionY, fontSize, fontColor) {
 			context.font = 'bold ' + fontSize + 'px Arial';
-			context.textAlign = textAlign;
 			context.fillStyle = fontColor;
 			context.fillText(text, positionX, positionY);
+			this.setTextAlignment(defaultAlign, defaultBaseline);
 		}
 
-		this.setTextBlock = function(lines, positionX, positionY, fontSize, fontColor, textAlign = 'left') {
+		this.setTextBlock = function(lines, positionX, positionY, fontSize, fontColor) {
 			for (let i = 0;i < lines.length;i++) {
 				var linePositionX = positionX;
-				var linePositionY = positionY + (i + 1) * fontSize;
-				this.setText(lines[i], linePositionX, linePositionY, fontSize, fontColor, textAlign);
+				var linePositionY = positionY + i * fontSize;
+				this.setText(lines[i], linePositionX, linePositionY, fontSize, fontColor);
 			}	
+			this.setTextAlignment(defaultAlign, defaultBaseline);
+		}
+
+		this.measureText = function(text, fontSize) {
+			context.font = fontSize;
+			return context.measureText(text).width;
 		}
 	}
 
@@ -84,6 +100,7 @@ define(['commons/color'], function(Color) {
 			var boxHeight = lines.length * fontSize + 3;
 
 			graphics.drawing.drawRectangle(boxWidth / 2, boxHeight / 2, boxWidth, boxHeight, backColor.toText());
+			graphics.text.setTextAlignment('left', 'top');
 			graphics.text.setTextBlock(lines, 0, 0, fontSize, fontColor.toText());
 		}
 	}

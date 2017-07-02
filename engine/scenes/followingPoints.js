@@ -18,7 +18,7 @@ define(['commons/primitives', 'commons/vector'], function(Primitives, Vector) {
 		var sizeDelta = startSize / pointsNumber;
 		for (let i = 0;i < pointsNumber;i++) {
 			var newPoint = new Point();
-			newPoint.body.size = startSize - i * sizeDelta;
+			newPoint.body.radius = startSize - i * sizeDelta;
 			points.push(newPoint);
 		}
 		

@@ -3,7 +3,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 	function Scene() {
 	
         var circle = new Primitives.Circle();
-        circle.size = 30;
+        circle.radius = 30;
         var circlePosition = new Vector(0, 0);
 
         var line = new Primitives.Line();

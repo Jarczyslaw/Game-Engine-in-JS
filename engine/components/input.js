@@ -95,7 +95,7 @@ define(function() {
 		this.addKey(keyMap.SPACE, false);
 		
 		this.addKey(keyMap.P, false); // press P to pause
-		this.addKey(keyMap.I, false);
+		this.addKey(keyMap.I, false); // press I to toggle status board
 	}
 
 	function MouseInput(canvas) {

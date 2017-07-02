@@ -45,6 +45,7 @@ define(['time', 'input', 'graphics', 'camera'], function(Time, Input, Graphics, 
 			gameScene.start(gameStatus, camera, input);
 			gameLoop();
 			log.info('game start...');
+			log.error('test error');
 		};
 		
 		var gameLoop = function() {
