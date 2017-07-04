@@ -326,6 +326,8 @@ function(Vector, Primitives, Physics, Color){
 			this.gameHeight = gameStatus.getHeight();
 			var gameHalfWidth = this.gameWidth / 2;
 
+			// disable status board drawing 
+			gameStatus.drawStatus = false;
 			// set 0,0 at canvas's centeer
 			camera.setPointOfViewToCenter();
 			// register additional keys
