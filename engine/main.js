@@ -2,7 +2,7 @@ requirejs.config({
     baseUrl: 'engine/components',
 });
 
-require(['../domReady!', 'game', '../scenes/pong', 
+require(['../domReady!', 'game', '../scenes/circleCollisions', 
 	'utils', 'keyMap', 'log'], 
 	function(dom, Game, Scene) {
 		console.log('all modules loaded');

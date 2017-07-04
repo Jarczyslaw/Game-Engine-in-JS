@@ -8,7 +8,8 @@ function(Vector, Particles, Pooler, Color) {
 		var visibleObjects = 0;
 		
 		var instantiateParticle = function(particle) {
-			particle.body.size = randomInRange(5, 20);
+			// assume that particle has circular body
+			particle.body.radius = Math.randomInRange(5, 20);
 			particle.body.color = Color.random();
 		}
 		

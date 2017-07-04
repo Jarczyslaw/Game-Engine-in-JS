@@ -10,12 +10,12 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 
 		this.emit = function(position) {
 			sparks.forEach(function(spark) {
-				var startVelocity = new Vector(randomInRange(50, 150), 0);
-				startVelocity.setAngle(randomInRange(-Math.PI, Math.PI));
-				var startRotation = randomInRange(-45, 45);
-				var startRotationSpeed = randomInRange(-90, 90);
-				var startSize = randomInRange(5, 20);
-				var lifeTime = randomInRange(0.5, 2);
+				var startVelocity = new Vector(Math.randomInRange(50, 150), 0);
+				startVelocity.setAngle(Math.randomInRange(-Math.PI, Math.PI));
+				var startRotation = Math.randomInRange(-45, 45);
+				var startRotationSpeed = Math.randomInRange(-90, 90);
+				var startSize = Math.randomInRange(5, 20);
+				var lifeTime = Math.randomInRange(0.5, 2);
 				spark.emit(position, startVelocity,
 					startRotation, startRotationSpeed,
 					startSize, lifeTime);

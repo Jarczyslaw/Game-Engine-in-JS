@@ -1,8 +1,6 @@
 define(function(){
 	
 	function Scene() {
-	
-		var that = this;
 		
 		// called once at game start
 		this.start = function(gameStatus, camera, input) {

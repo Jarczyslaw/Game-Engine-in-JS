@@ -6,9 +6,9 @@ define(['commons/vector', 'commons/primitives'], function(Vector, Primitives){
 		this.z = 0;
 		
 		this.randomize = function() {
-			this.position = new Vector(randomInRange(-500, 500), randomInRange(-500, 500));
-			this.z = randomInRange(0, 10000);
-			this.rect.size = randomInRange(40, 80);
+			this.position = new Vector(Math.randomInRange(-500, 500), Math.randomInRange(-500, 500));
+			this.z = Math.randomInRange(0, 10000);
+			this.rect.size = Math.randomInRange(40, 80);
 		}
 	}
 	

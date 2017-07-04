@@ -28,7 +28,7 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 				var t = timeAccu / this.lifetime;
 				if (this.sizeOverLifetime) {
 					var currentSize = Math.lerp(t, startSize, 0);
-					this.body.size = currentSize;
+					this.body.radius = currentSize;
 				}
 
 				timeAccu += time.delta;

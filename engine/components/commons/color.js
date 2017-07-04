@@ -73,13 +73,13 @@ define(function() {
 
     Color.random = function(randomAlpha = false) {
         var color = new Color();
-        var rComp = randomIntInRange(0, 255);
-        var gComp = randomIntInRange(0, 255);
-        var bComp = randomIntInRange(0, 255);
+        var rComp = Math.randomIntInRange(0, 255);
+        var gComp = Math.randomIntInRange(0, 255);
+        var bComp = Math.randomIntInRange(0, 255);
         if (!randomAlpha)
             color.setRGB(rComp, gComp, bComp);
         else {
-            var aComp = randomIntInRange(0, 255);
+            var aComp = Math.randomIntInRange(0, 255);
             color.setRGBA(rComp, gComp, bComp, aComp);
         }
         return color;

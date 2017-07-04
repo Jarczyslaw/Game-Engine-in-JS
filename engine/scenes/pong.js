@@ -13,14 +13,16 @@ function(Vector, Primitives, Physics, Color){
 		var leftLimit = -100;
 		var rightLimit = 100;
 
-		var scoreCallback;
+		// empty score callback
+		this.scoreCallback = function(playerScored) { }
 
-		this.initialize = function(ballRadius, callback, gameWidth, gameHeight) {
+		this.initialize = function(ballRadius, gameWidth, gameHeight) {
 			this.body.radius = ballRadius;
-			scoreCallback = callback;
+			// set bottom and upper limits
 			var halfGameHeight = gameHeight / 2;
 			bottomLimit = -halfGameHeight;
 			upperLimit = halfGameHeight;
+			// set goal limits
 			var halfGameWidth = gameWidth / 2;
 			leftLimit = -halfGameWidth;
 			rightLimit = halfGameWidth;
@@ -28,11 +30,12 @@ function(Vector, Primitives, Physics, Color){
 		}
 
 		this.launch = function(toPlayer) {
+			// initial speed in random direction
 			var startVelocity = new Vector(200, 0);
 			var deviation = Math.PI / 4;
-			startVelocity.setAngle(randomInRange(-deviation, deviation));
+			startVelocity.setAngle(Math.randomInRange(-deviation, deviation));
 
-			if (toPlayer == 1) {
+			if (toPlayer == Players.Player1) { // if ball should launch towards player1, rotate initial speed by PI
 				var angle = startVelocity.angle();
 				angle += Math.PI;
 				startVelocity.setAngle(angle);	
@@ -51,11 +54,10 @@ function(Vector, Primitives, Physics, Color){
 		}
 
 		this.checkScore = function(position) {
-			if (position.x - this.body.radius > rightLimit) {
-				scoreCallback(1);
-			} else if (position.x + this.body.radius < leftLimit) {
-				scoreCallback(2);
-			}
+			if (position.x - this.body.radius > rightLimit)
+				this.scoreCallback(Players.Player1);
+			else if (position.x + this.body.radius < leftLimit)
+				this.scoreCallback(Players.Player2);
 		}
 
 		this.update = function(input, time) {
@@ -104,6 +106,12 @@ function(Vector, Primitives, Physics, Color){
 		}
 	}
 
+	function PaddleFreezeControl() {
+		this.getPaddleForce = function(input) {
+			return 0;
+		}
+	}
+
 	function Paddle(paddleWidth, paddleHeight) {
 
 		this.body = new Primitives.Rectangle();
@@ -116,18 +124,17 @@ function(Vector, Primitives, Physics, Color){
 		var upperLimit = 100;
 		var fixedXposition = 0;
 
-		var paddleControl = null;
+		// empty paddle control object
+		this.paddleControl = new PaddleFreezeControl();
 
-		this.initialize = function(paddleWidth, paddleHeight, startXPosition, gameHeight, paddleControlObject) {
+		this.initialize = function(paddleWidth, paddleHeight, startXPosition, gameHeight) {
 			this.body.width = paddleWidth;
 			this.body.height = paddleHeight;
 			halfHeight = paddleHeight / 2;
-
 			var gameHalfHeight = gameHeight / 2;
 			bottomLimit = -gameHalfHeight;
 			upperLimit = gameHalfHeight;
 			fixedXposition = startXPosition;
-			paddleControl = paddleControlObject;
 			this.reset();
 			this.linearPhysics.enabled = true;
 		}
@@ -139,23 +146,18 @@ function(Vector, Primitives, Physics, Color){
 		}
 
 		this.clampToHeight = function() {
-			var clamped = false;
 			var newPosition = this.linearPhysics.position.y;
 			if (this.linearPhysics.position.y + halfHeight > upperLimit) {
-				clamped = true;
-				newPosition = upperLimit - halfHeight;
-			} else if (this.linearPhysics.position.y - halfHeight < bottomLimit) {
-				clamped = true;
-				newPosition = bottomLimit + halfHeight;
-			}	
-			if (clamped) {
 				this.linearPhysics.stop();
-				this.linearPhysics.position.y = newPosition;
-			}
+				this.linearPhysics.position.y = upperLimit - halfHeight;
+			} else if (this.linearPhysics.position.y - halfHeight < bottomLimit) {
+				this.linearPhysics.stop();
+				this.linearPhysics.position.y = bottomLimit + halfHeight;
+			}	
 		}
 
 		this.update = function(input, time) {	
-			var inputForce = paddleControl.getPaddleForce(input);
+			var inputForce = this.paddleControl.getPaddleForce(input);
 
 			this.linearPhysics.force.set(0, inputForce);
 			this.linearPhysics.update(time.delta);
@@ -291,6 +293,11 @@ function(Vector, Primitives, Physics, Color){
 		}
 	}
 
+	// Players enum
+	var Players = Object.freeze(
+		{ Player1 : 1, Player2 : 2 }
+	);
+
 	function Scene() {
 
 		var player1Score = 0;
@@ -305,13 +312,13 @@ function(Vector, Primitives, Physics, Color){
 		var rightPaddle = new Paddle();
 
 		var scoreHandler = function(playerScored) {
-			if (playerScored == 1)
+			if (playerScored == Players.Player1)
 				player1Score++;
-			else if (playerScored == 2)
+			else if (playerScored == Players.Player2)
 				player2Score++;
 			scoreBoard.setScore(player1Score, player2Score);
 			ball.launch(playerScored);
-			log.info("scored: " + playerScored);
+			log.info("scored by player: " + playerScored);
 		}
 		
 		this.start = function(gameStatus, camera, input) {
@@ -334,17 +341,18 @@ function(Vector, Primitives, Physics, Color){
 			messageBox.show("[1] - PvP, [2] - PvC");
 
 			var scaledBallRadius = this.gameHeight / 80;
-			ball.initialize(scaledBallRadius, scoreHandler, this.gameWidth, this.gameHeight);
+			ball.initialize(scaledBallRadius, this.gameWidth, this.gameHeight);
+			ball.scoreCallback = scoreHandler;
 
 			var scaledPaddleWidth = this.gameHeight / 40;
 			var scaledPaddleHeight = this.gameHeight / 5;
 			var paddleMargin = 20;
 			var leftPaddleX = -gameHalfWidth + scaledPaddleWidth / 2 + paddleMargin;
 			var rightPaddleX = gameHalfWidth - scaledPaddleWidth / 2 - paddleMargin;
-			leftPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, leftPaddleX, this.gameHeight, 
-				new PaddleUserControl(keyMap.Q, keyMap.A));
-			rightPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, rightPaddleX, this.gameHeight, 
-				new PaddleComputerControl(ball, rightPaddle));
+			leftPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, leftPaddleX, this.gameHeight);
+			leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A);
+			rightPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, rightPaddleX, this.gameHeight);
+			rightPaddle.paddleControl = new PaddleComputerControl(ball, rightPaddle);
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {
@@ -353,7 +361,11 @@ function(Vector, Primitives, Physics, Color){
 			rightPaddle.update(input, time);
 
 			if (input.getKeys().getKey(keyMap.ENTER).isPressed()) {
-				var randomPlayer = randomIntInRange(1, 2);
+				var randomId = Math.randomIntInRange(0, 1);
+				if (randomId == 0)
+					var randomPlayer = Players.Player1;
+				else
+					var randomPlayer = Players.Player2;
 				ball.launch(randomPlayer);
 			}	
 		}
