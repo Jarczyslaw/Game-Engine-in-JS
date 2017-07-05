@@ -27,7 +27,7 @@ define(function() {
 			if (createNew) {
 				var newObj = new poolableObject();
 				if (instantiateCallback != null)
-					instantiateCallback(newObj)
+					instantiateCallback(newObj); // pass new instantiated object to callback to set its initial parameters
 				newObj.setEnabled(true);
 				objects.push(newObj);
 				return newObj;

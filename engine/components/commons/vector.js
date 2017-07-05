@@ -67,8 +67,6 @@ define(function() {
 			return this.x * vector.x + this.y * vector.y;
 		}
 
-
-
 		this.toString = function() {
 			return '[' + this.x.toFixed(2) + ', ' + this.y.toFixed(2)  +']';
 		}

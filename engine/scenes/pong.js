@@ -46,7 +46,7 @@ function(Vector, Primitives, Physics, Color){
 			this.linearPhysics.enabled = true;
 		}
 
-		this.clampToLimits = function(nextPosition) {
+		this.clampToHeight = function(nextPosition) {
 			if (nextPosition.y + this.body.radius > upperLimit || nextPosition.y - this.body.radius < bottomLimit)
 				return true;
 			else
@@ -63,7 +63,7 @@ function(Vector, Primitives, Physics, Color){
 		this.update = function(input, time) {
 			var currentPosition = this.linearPhysics.position;
 			this.linearPhysics.update(time.delta);
-			if (this.clampToLimits(this.linearPhysics.position)) {
+			if (this.clampToHeight(this.linearPhysics.position)) {
 				this.linearPhysics.position = currentPosition;
 				this.linearPhysics.velocity.set(this.linearPhysics.velocity.x, -this.linearPhysics.velocity.y);
 			} 
@@ -112,10 +112,11 @@ function(Vector, Primitives, Physics, Color){
 		}
 	}
 
-	function Paddle(paddleWidth, paddleHeight) {
+	function Paddle() {
 
 		this.body = new Primitives.Rectangle();
 		var halfHeight = this.body.height / 2;
+		var halfWidth = this.body.width / 2;
 
 		this.linearPhysics = new Physics.Linear();
 		this.linearPhysics.drag = 5;
@@ -129,6 +130,7 @@ function(Vector, Primitives, Physics, Color){
 
 		this.initialize = function(paddleWidth, paddleHeight, startXPosition, gameHeight) {
 			this.body.width = paddleWidth;
+			halfWidth = paddleWidth / 2;
 			this.body.height = paddleHeight;
 			halfHeight = paddleHeight / 2;
 			var gameHalfHeight = gameHeight / 2;
@@ -191,11 +193,9 @@ function(Vector, Primitives, Physics, Color){
 
 		var margin = 40;
 
-		var sizeSet = false;
+		var resize = false;
 
-		this.show = function(msg) {
-			message = msg;
-			sizeSet = false;
+		this.show = function() {
 			enabled = true;
 		}
 
@@ -203,18 +203,28 @@ function(Vector, Primitives, Physics, Color){
 			enabled = false;
 		}
 
-		this.initialize = function(gameWidth, gameHeight) {
-			positionX = gameWidth / 2;
-			positionY = gameHeight / 2;
+		this.setMessage = function(msg) {
+			message = msg;
+			resize = false;
+		}
+
+		this.setFontSize = function(size) {
+			fontSize = size;
+			resize = false;
+		}
+
+		this.setPosition = function(x, y) {
+			positionX = x;
+			positionY = y;
 		}
 
 		this.draw = function(graphics) {
 			if (enabled) {
 				// check message box sizes only once per show
-				if (!sizeSet) {
-					width = graphics.text.measureText(message) + margin;
+				if (!resize) {
+					width = graphics.text.measureText(message, fontSize) + margin;
 					height = fontSize + margin;
-					sizeSet = true;
+					resize = true;
 				}
 				// draw background
 				graphics.resetTransform();
@@ -306,10 +316,12 @@ function(Vector, Primitives, Physics, Color){
 		// create all game objects with default values
 		var board = new Board();
 		var scoreBoard = new ScoreBoard();
-		var messageBox = new MessageBox();
 		var ball = new Ball();
 		var leftPaddle = new Paddle();
 		var rightPaddle = new Paddle();
+
+		var primaryMessageBox = new MessageBox();
+		var secondaryMessageBox = new MessageBox();
 
 		var scoreHandler = function(playerScored) {
 			if (playerScored == Players.Player1)
@@ -325,6 +337,7 @@ function(Vector, Primitives, Physics, Color){
 			this.gameWidth = gameStatus.getWidth();
 			this.gameHeight = gameStatus.getHeight();
 			var gameHalfWidth = this.gameWidth / 2;
+			var gameHalfHeight = this.gameHeight / 2;
 
 			// disable status board drawing 
 			gameStatus.drawStatus = false;
@@ -339,9 +352,6 @@ function(Vector, Primitives, Physics, Color){
 			board.initialize(this.gameWidth, this.gameHeight);
 			scoreBoard.initialize(this.gameWidth);
 
-			messageBox.initialize(this.gameWidth, this.gameHeight);
-			messageBox.show("[1] - PvP, [2] - PvC");
-
 			var scaledBallRadius = this.gameHeight / 80;
 			ball.initialize(scaledBallRadius, this.gameWidth, this.gameHeight);
 			ball.scoreCallback = scoreHandler;
@@ -355,6 +365,15 @@ function(Vector, Primitives, Physics, Color){
 			leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A);
 			rightPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, rightPaddleX, this.gameHeight);
 			rightPaddle.paddleControl = new PaddleComputerControl(ball, rightPaddle);
+
+			primaryMessageBox.setPosition(gameHalfWidth, gameHalfHeight);
+			primaryMessageBox.setFontSize(48);
+			primaryMessageBox.setMessage("[1] - PvP, [2] - PvC");
+			primaryMessageBox.show();
+			secondaryMessageBox.setPosition(gameHalfWidth, gameHalfHeight + 200);
+			secondaryMessageBox.setFontSize(32);
+			secondaryMessageBox.setMessage("asdfg dasd ad");
+			secondaryMessageBox.show();
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {
@@ -380,7 +399,8 @@ function(Vector, Primitives, Physics, Color){
 			leftPaddle.draw(graphics, camera);
 			rightPaddle.draw(graphics, camera);
 
-			messageBox.draw(graphics);
+			primaryMessageBox.draw(graphics);
+			secondaryMessageBox.draw(graphics);
 		}
 	}
 	

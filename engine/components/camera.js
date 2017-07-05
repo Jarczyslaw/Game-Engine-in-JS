@@ -31,12 +31,12 @@ define(function() {
         this.checkVisibility = function(positionX, positionY, rectangleSize) {
             var halfSize = rectangleSize / 2;
             var origin = this.getOrigin();
-            var onScreenPosition = {
+            var positionInCamera = {
                 x : origin.x + positionX,
                 y : origin.y + positionY
             }
-            if (onScreenPosition.x + halfSize > 0 && onScreenPosition.x - halfSize < width)
-                if (onScreenPosition.y + halfSize > 0 && onScreenPosition.y - halfSize < height)
+            if (positionInCamera.x + halfSize > 0 && positionInCamera.x - halfSize < width)
+                if (positionInCamera.y + halfSize > 0 && positionInCamera.y - halfSize < height)
                     return true;
             return false;
         }

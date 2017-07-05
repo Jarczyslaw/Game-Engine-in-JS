@@ -32,9 +32,7 @@ define(['commons/color'], function(Color) {
 		}
 
 		this.drawSquare = function(centerX, centerY, size, color) {
-			var halfSize = size / 2;
-			context.fillStyle = color;
-			context.fillRect(centerX - halfSize, centerY - halfSize, size, size);
+			this.drawRectangle(centerX, centerY, size, size, color);
 		}
 
 		this.drawRectangle = function(centerX, centerY, width, height, color) {
@@ -45,20 +43,21 @@ define(['commons/color'], function(Color) {
 
 	function Text(context) {
 
-		var defaultAlign = 'left';
-		var defaultBaseline = 'top';
+		var defaultFontFamily = 'Arial';
+
+		var getDefaultFont = function(size) {
+			return 'bold ' + size + 'px ' + defaultFontFamily;
+		}
 
 		this.setTextAlignment = function(align, baseline) {
 			context.textAlign = align;
 			context.textBaseline = baseline;
 		}
-		this.setTextAlignment(defaultAlign, defaultBaseline);
 
 		this.setText = function(text, positionX, positionY, fontSize, fontColor) {
-			context.font = 'bold ' + fontSize + 'px Arial';
+			context.font = getDefaultFont(fontSize);
 			context.fillStyle = fontColor;
 			context.fillText(text, positionX, positionY);
-			this.setTextAlignment(defaultAlign, defaultBaseline);
 		}
 
 		this.setTextBlock = function(lines, positionX, positionY, fontSize, fontColor) {
@@ -67,12 +66,11 @@ define(['commons/color'], function(Color) {
 				var linePositionY = positionY + i * fontSize;
 				this.setText(lines[i], linePositionX, linePositionY, fontSize, fontColor);
 			}	
-			this.setTextAlignment(defaultAlign, defaultBaseline);
 		}
 
 		this.measureText = function(text, fontSize) {
-			context.font = fontSize;
-			return context.measureText(text).width;
+			context.font = getDefaultFont(fontSize);
+			return Math.round(context.measureText(text).width + 1);
 		}
 	}
 
@@ -99,6 +97,7 @@ define(['commons/color'], function(Color) {
 			var boxWidth = 110;
 			var boxHeight = lines.length * fontSize + 3;
 
+			graphics.resetTransform();
 			graphics.drawing.drawRectangle(boxWidth / 2, boxHeight / 2, boxWidth, boxHeight, backColor.toText());
 			graphics.text.setTextAlignment('left', 'top');
 			graphics.text.setTextBlock(lines, 0, 0, fontSize, fontColor.toText());
@@ -109,7 +108,6 @@ define(['commons/color'], function(Color) {
 
 		this.ctx = canvas.getContext("2d");
 		this.ctx.imageSmoothingEnabled = false;
-
 
 		var width = canvas.width;
 		var height = canvas.height;
@@ -156,10 +154,8 @@ define(['commons/color'], function(Color) {
 		}
 
 		this.finishDrawing = function(gameStatus, time) {
-			if (gameStatus.drawStatus) {
-				this.resetTransform();
+			if (gameStatus.drawStatus)
 				statusBoard.draw(this, gameStatus, time);
-			}
 		}
 
 		this.getWidth = function() {

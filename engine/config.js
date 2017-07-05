@@ -1,6 +1,6 @@
 define(function() {
 
-    this.sceneName = 'circleCollisions';
+    this.sceneName = 'scrollableScene';
     this.targetCanvas = 'game_canvas';
 
     return this;

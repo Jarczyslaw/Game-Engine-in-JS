@@ -65,11 +65,11 @@ function(Vector, Particles, Pooler, Color) {
 		}
 		
 		var onOutOfScreen = function(particle) {
-			if (particle.linearPhysics.position.x - particle.body.size > that.width)
+			if (particle.linearPhysics.position.x - particle.body.radius > that.width)
 				particle.setEnabled(false);
-			else if (particle.linearPhysics.position.x + particle.body.size < 0)
+			else if (particle.linearPhysics.position.x + particle.body.radius < 0)
 				particle.setEnabled(false);
-			else if(particle.linearPhysics.position.y - particle.body.size > that.height)
+			else if(particle.linearPhysics.position.y - particle.body.radius > that.height)
 				particle.setEnabled(false);
 			
 			if (particle.getEnabled())
