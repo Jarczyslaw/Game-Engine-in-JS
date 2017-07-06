@@ -1,5 +1,5 @@
 // if sceneToLoad is not defined, load default scene
-var scene = 'scrollableScene';
+var scene = 'pong';
 if (typeof sceneToLoad !== 'undefined')
 	scene = sceneToLoad;
 

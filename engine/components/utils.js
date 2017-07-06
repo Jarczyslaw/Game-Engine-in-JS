@@ -8,6 +8,19 @@ define(function() {
 		return (millis * 1000).toFixed();
 	}
 
+	this.secondsToTime = function(sec) {
+		var hours = Math.floor(sec / 3600).toFixed();
+		var minutes = Math.floor((sec - hours * 3600) / 60).toFixed();
+		var seconds = (sec - hours * 3600 - minutes * 60).toFixed();
+		if (hours < 10)
+			hours = '0' + hours;
+		if (minutes < 10)
+			minutes = '0' + minutes;
+		if (seconds < 10)
+			seconds = '0' + seconds;
+		return hours + ':' + minutes + ':' + seconds;
+	}
+
 	this.getDateTime = function() {
 		var now     = new Date(); 
 		var year    = now.getFullYear();
@@ -16,21 +29,16 @@ define(function() {
 		var hour    = now.getHours();
 		var minute  = now.getMinutes();
 		var second  = now.getSeconds(); 
-		if(month.toString().length == 1) {
+		if(month.toString().length == 1)
 			var month = '0' + month;
-		}
-		if(day.toString().length == 1) {
+		if(day.toString().length == 1)
 			var day = '0' + day;
-		}   
-		if(hour.toString().length == 1) {
+		if(hour.toString().length == 1)
 			var hour = '0' + hour;
-		}
-		if(minute.toString().length == 1) {
+		if(minute.toString().length == 1)
 			var minute = '0' + minute;
-		}
-		if(second.toString().length == 1) {
-			var second = '0' + second;
-		}   
+		if(second.toString().length == 1)
+			var second = '0' + second; 
 		var dateTime = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;   
 		return dateTime;
 	}

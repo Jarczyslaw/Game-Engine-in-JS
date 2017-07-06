@@ -6,7 +6,8 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 
 		var deltasQueue = [];
 		var deltasQueueLength = 10;
-		var timeAccumulator = new TimeAccumulator(updateTime, function() {
+		var timeAccumulator = new TimeAccumulator();
+		timeAccumulator.setTickEvent(updateTime, function() {
 			var fpsQueue = []
 			for (let i = 0;i < deltasQueue.length;i++) {
 				if (deltasQueue[i] > 0)
@@ -31,7 +32,8 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 		var meanFps = 0;
 
 		var framesAccu = 0;
-		var timeAccumulator = new TimeAccumulator(updateTime, function() {
+		var timeAccumulator = new TimeAccumulator();
+		timeAccumulator.setTickEvent(updateTime, function() {
 			meanFps = framesAccu / updateTime;
 			framesAccu = 0;
 		});
@@ -51,7 +53,8 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 		var current = 0;
 		var mean = 0;
 		var meanFps = new MeanFpsWithQueue(fpsUpdate);
-		var timeAccumulator = new TimeAccumulator(fpsUpdate, function() {
+		var timeAccumulator = new TimeAccumulator();
+		timeAccumulator.setTickEvent(fpsUpdate, function() {
 			if (lastDelta != 0)
 				current = 1 / lastDelta;
 		});

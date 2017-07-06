@@ -1,5 +1,5 @@
-define(['commons/vector', 'commons/primitives', 'commons/physics', 'commons/color'], 
-function(Vector, Primitives, Physics, Color){
+define(['commons/vector', 'commons/primitives', 'commons/physics', 'commons/color', 'commons/timeAccumulator'], 
+function(Vector, Primitives, Physics, Color, TimeAccumulator){
 
 	function Ball() {
 
@@ -272,6 +272,34 @@ function(Vector, Primitives, Physics, Color){
 		}
 	}
 
+	function TimeBoard() {
+
+		var fontColor = Color.white();
+		var fontSize = 24;
+
+		var bottomMargin = 20;
+
+		var positionX = 0;
+		var positionY = 0;
+
+		var timeAccumulator = new TimeAccumulator();
+
+		this.initialize = function(gameWidth, gameHeight) {
+			positionX = gameWidth / 2;
+			positionY = gameHeight - bottomMargin;
+		}
+
+		this.update = function(timeDelta) {
+			timeAccumulator.add(timeDelta);
+		}
+
+		this.draw = function(graphics) {
+			graphics.resetTransform();
+			graphics.text.setTextAlignment('center', 'bottom');
+			graphics.text.setText(secondsToTime(timeAccumulator.getTime()), positionX, positionY, fontSize, fontColor.toText());
+		}
+	}
+
 	function Board() {
 
 		var boardColor = new Color();
@@ -281,12 +309,30 @@ function(Vector, Primitives, Physics, Color){
 		var goalLineWidth = 2;
 		var goalLineMargin = 5;
 		
+		var radius = 100;
 		var centerX = 0;
+		var centerY = 0;
 		var width = 200;
 		var height = 100;
 
+		this.drawDashedCircle = function(graphics, circleCenterX, circleCenterY, radius) {
+			var chunks = 200;
+			var chunksAngle = 2 * Math.PI / chunks; 
+			for (let i = 0; i < chunks;i += 2) {
+				var angleStart = chunksAngle * i;
+				var angleEnd = chunksAngle * (i + 1);
+				var chunkStartX = circleCenterX + radius * Math.cos(angleStart);
+				var chunkStartY = circleCenterY + radius * Math.sin(angleStart);
+				var chunkEndX = circleCenterX + radius * Math.cos(angleEnd);
+				var chunkEndY = circleCenterY + radius * Math.sin(angleEnd);
+				graphics.drawing.drawLine(chunkStartX, chunkStartY, chunkEndX, chunkEndY, 2, lineColor.toText());
+			}
+		}
+
 		this.initialize = function(gameWidth, gameHeight) {
 			centerX = gameWidth / 2;
+			centerY = gameHeight / 2;
+			radius = gameHeight / 4;
 			width = gameWidth;
 			height = gameHeight;
 		}
@@ -295,8 +341,12 @@ function(Vector, Primitives, Physics, Color){
 			// clear board
 			graphics.resetTransform();
 			graphics.clear(boardColor.toText());
+			// draw center dot
+			graphics.drawing.drawCircle(centerX, centerY, 5, lineColor.toText());
 			// draw center line
 			graphics.drawing.drawLine(centerX, 0, centerX, height, 3, lineColor.toText(), [5, 5]);
+			// draw dashed circle in the centre
+			this.drawDashedCircle(graphics, centerX, centerY, radius);
 			// draw goal lines
 			graphics.drawing.drawLine(goalLineMargin, 0, goalLineMargin, height, goalLineWidth, lineColor.toText());
 			graphics.drawing.drawLine(width - goalLineMargin, 0, width - goalLineMargin, height, goalLineWidth, lineColor.toText());
@@ -316,6 +366,8 @@ function(Vector, Primitives, Physics, Color){
 		// create all game objects with default values
 		var board = new Board();
 		var scoreBoard = new ScoreBoard();
+		var timeBoard = new TimeBoard();
+
 		var ball = new Ball();
 		var leftPaddle = new Paddle();
 		var rightPaddle = new Paddle();
@@ -340,7 +392,8 @@ function(Vector, Primitives, Physics, Color){
 			var gameHalfHeight = this.gameHeight / 2;
 
 			// disable status board drawing 
-			gameStatus.drawStatus = false;
+			//gameStatus.drawStatus = false;
+			
 			// set 0,0 at canvas's centeer
 			camera.setPointOfViewToCenter();
 			// register additional keys
@@ -351,6 +404,7 @@ function(Vector, Primitives, Physics, Color){
 			// initialize all objects
 			board.initialize(this.gameWidth, this.gameHeight);
 			scoreBoard.initialize(this.gameWidth);
+			timeBoard.initialize(this.gameWidth, this.gameHeight);
 
 			var scaledBallRadius = this.gameHeight / 80;
 			ball.initialize(scaledBallRadius, this.gameWidth, this.gameHeight);
@@ -377,6 +431,8 @@ function(Vector, Primitives, Physics, Color){
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {
+			timeBoard.update(time.delta);
+
 			ball.update(input, time, this.gameHalfHeight);
 			leftPaddle.update(input, time);
 			rightPaddle.update(input, time);
@@ -394,6 +450,7 @@ function(Vector, Primitives, Physics, Color){
 		this.render = function(graphics, camera) {
 			board.draw(graphics);
 			scoreBoard.draw(graphics);
+			timeBoard.draw(graphics);
 
 			ball.draw(graphics, camera);
 			leftPaddle.draw(graphics, camera);
