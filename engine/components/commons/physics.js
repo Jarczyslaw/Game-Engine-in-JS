@@ -1,4 +1,4 @@
-define(['commons/Vector'], function(Vector) {
+define(['commons/vector'], function(Vector) {
 
     function Angular() {
 

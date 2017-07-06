@@ -1,14 +1,17 @@
+// if sceneToLoad is not defined, load default scene
+var scene = 'scrollableScene';
+if (typeof sceneToLoad !== 'undefined')
+	scene = sceneToLoad;
+
 requirejs.config({
     baseUrl: 'engine/components',
 });
 
-require(['../domReady!', 'game', '../config',  
+require(['../domReady!', 'game', '../../scenes/' + scene,  
 	'utils', 'keyMap', 'log'], 
-	function(dom, Game, config) {
-		// wait to load scene from config
-		require(['../scenes/' + config.sceneName], function(Scene) {
-			console.log('all modules loaded');
-			var game = new Game(config.targetCanvas, new Scene());
-			game.start();
-		}) 
-});
+	function(dom, Game, Scene) {
+		console.log('all modules loaded');
+		var game = new Game('game_canvas', new Scene());
+		game.start();
+	}
+);
