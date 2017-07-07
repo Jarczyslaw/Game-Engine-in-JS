@@ -18,7 +18,7 @@ define(function() {
 			this.set(1, 1);
 		};
 		
-		this.normalize = function(vector) {
+		this.normalize = function() {
 			var mag = this.magnitude();
 			return new Vector(this.x / mag, this.y / mag);
 		};

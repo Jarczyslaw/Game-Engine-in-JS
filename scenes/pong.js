@@ -282,21 +282,15 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 		var positionX = 0;
 		var positionY = 0;
 
-		var timeAccumulator = new TimeAccumulator();
-
 		this.initialize = function(gameWidth, gameHeight) {
 			positionX = gameWidth / 2;
 			positionY = gameHeight - bottomMargin;
 		}
 
-		this.update = function(timeDelta) {
-			timeAccumulator.add(timeDelta);
-		}
-
-		this.draw = function(graphics) {
+		this.draw = function(graphics, time) {
 			graphics.resetTransform();
 			graphics.text.setTextAlignment('center', 'bottom');
-			graphics.text.setText(secondsToTime(timeAccumulator.getTime()), positionX, positionY, fontSize, fontColor.toText());
+			graphics.text.setText(secondsToTime(time), positionX, positionY, fontSize, fontColor.toText());
 		}
 	}
 
@@ -306,6 +300,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 		boardColor.setRGBA(30, 30, 30, 255);
 
 		var lineColor = Color.white();
+		var centerLineWidth = 3;
 		var goalLineWidth = 2;
 		var goalLineMargin = 5;
 		
@@ -325,7 +320,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 				var chunkStartY = circleCenterY + radius * Math.sin(angleStart);
 				var chunkEndX = circleCenterX + radius * Math.cos(angleEnd);
 				var chunkEndY = circleCenterY + radius * Math.sin(angleEnd);
-				graphics.drawing.drawLine(chunkStartX, chunkStartY, chunkEndX, chunkEndY, 2, lineColor.toText());
+				graphics.drawing.drawLine(chunkStartX, chunkStartY, chunkEndX, chunkEndY, centerLineWidth, lineColor.toText());
 			}
 		}
 
@@ -344,7 +339,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 			// draw center dot
 			graphics.drawing.drawCircle(centerX, centerY, 5, lineColor.toText());
 			// draw center line
-			graphics.drawing.drawLine(centerX, 0, centerX, height, 3, lineColor.toText(), [5, 5]);
+			graphics.drawing.drawLine(centerX, 0, centerX, height, centerLineWidth, lineColor.toText(), [5, 5]);
 			// draw dashed circle in the centre
 			this.drawDashedCircle(graphics, centerX, centerY, radius);
 			// draw goal lines
@@ -375,6 +370,8 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 		var primaryMessageBox = new MessageBox();
 		var secondaryMessageBox = new MessageBox();
 
+		var timeAccumulator = new TimeAccumulator();
+
 		var scoreHandler = function(playerScored) {
 			if (playerScored == Players.Player1)
 				player1Score++;
@@ -393,7 +390,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 
 			// disable status board drawing 
 			//gameStatus.drawStatus = false;
-			
+
 			// set 0,0 at canvas's centeer
 			camera.setPointOfViewToCenter();
 			// register additional keys
@@ -416,7 +413,8 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 			var leftPaddleX = -gameHalfWidth + scaledPaddleWidth / 2 + paddleMargin;
 			var rightPaddleX = gameHalfWidth - scaledPaddleWidth / 2 - paddleMargin;
 			leftPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, leftPaddleX, this.gameHeight);
-			leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A);
+			//leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A);
+			leftPaddle.paddleControl = new PaddleComputerControl(ball, leftPaddle);
 			rightPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, rightPaddleX, this.gameHeight);
 			rightPaddle.paddleControl = new PaddleComputerControl(ball, rightPaddle);
 
@@ -431,7 +429,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {
-			timeBoard.update(time.delta);
+			timeAccumulator.add(time.delta);
 
 			ball.update(input, time, this.gameHalfHeight);
 			leftPaddle.update(input, time);
@@ -444,13 +442,14 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator){
 				else
 					var randomPlayer = Players.Player2;
 				ball.launch(randomPlayer);
+				timeAccumulator.enabled = true;
 			}	
 		}
 		
 		this.render = function(graphics, camera) {
 			board.draw(graphics);
 			scoreBoard.draw(graphics);
-			timeBoard.draw(graphics);
+			timeBoard.draw(graphics, timeAccumulator.getTime());
 
 			ball.draw(graphics, camera);
 			leftPaddle.draw(graphics, camera);

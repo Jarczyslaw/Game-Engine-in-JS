@@ -17,6 +17,7 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 			if (fpsQueue.length != 0)
 				meanFps = fpsSum / fpsQueue.length;
 		});
+		timeAccumulator.enabled = true;
 
 		this.calc = function(delta) {
 			deltasQueue.push(delta);
@@ -37,6 +38,7 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 			meanFps = framesAccu / updateTime;
 			framesAccu = 0;
 		});
+		timeAccumulator.enabled = true;
 
 		this.calc = function(delta) {
 			framesAccu++;
@@ -58,6 +60,7 @@ define(['commons/timeAccumulator'], function(TimeAccumulator) {
 			if (lastDelta != 0)
 				current = 1 / lastDelta;
 		});
+		timeAccumulator.enabled = true;
 		
 		this.update = function(delta) {
 			lastDelta = delta;

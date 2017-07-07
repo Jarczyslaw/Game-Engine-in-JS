@@ -2,6 +2,8 @@ define(function() {
 
     function TimeAccumulator() {
         
+        this.enabled = false;
+
         var timeAccu = 0;
         var timeToTickAccu = 0;
 
@@ -19,6 +21,9 @@ define(function() {
         }
 
         this.add = function(timeDelta) {
+            if (!this.enabled)
+                return;
+
             timeAccu += timeDelta;
             if (tickEvent != null) {
                 timeToTickAccu -= timeDelta;
