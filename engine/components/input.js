@@ -59,6 +59,11 @@ define(function() {
 			else
 				keys[keyCode] = new Key(repeating);
 		}
+
+		this.addKeys = function(keyCodes, repeating) {
+			for(let i = 0;i < keyCodes.length;i++)
+				this.addKey(keyCodes[i], repeating);
+		}
 		
 		this.getKey = function(keyCode) {
 			if (keyCode in keys)

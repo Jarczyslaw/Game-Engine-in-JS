@@ -46,7 +46,6 @@ function(Time, Input, Graphics, Camera) {
 			gameScene.start(gameStatus, camera, input);
 			gameLoop();
 			log.info('game start...');
-			log.error('test error');
 		};
 		
 		var gameLoop = function() {

@@ -1,7 +1,6 @@
 define(['commons/vector', 'commons/primitives', 'commons/physics', 'commons/color', 'commons/timeAccumulator', 'commons/Collisions'], 
 function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 
-
 	function BallPaddlesCollisions(ball, leftPaddle, rightPaddle) {
 
 		var lastPaddleCollided = null;
@@ -45,13 +44,30 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			}
 		}
 
-		var applyCollision = function() {
+		var addPaddleDrag = function(paddle) {
+			// get paddle max speed
+			var maxSpeed = paddle.paddleControl.getMaxForce() / paddle.linearPhysics.drag;
+			// get paddle scaled speed
+			var scaledSpeed = paddle.linearPhysics.velocity.y / maxSpeed;
+			scaledSpeed = Math.clamp(scaledSpeed, -1, 1);
+			// add small amount of ball speed on y axis
+			ball.linearPhysics.velocity.y += scaledSpeed * ball.linearPhysics.velocity.magnitude() * 0.1;
+		}
+
+		var applyCollision = function(paddle) {
 			ball.restorePreviousPosition();
+			addPaddleDrag(paddle);
+			ball.clampInitialSpeed();
 			ball.bounceVertical();
+			ball.accelerate();
+		}
+
+		this.reset = function() {
+			lastPaddleCollided = null;
 		}
 
 		this.checkCollision = function() {
-			// check paddle to test collision, if ball is to the left of the start point
+			// select paddle to test collision, if ball is to the left of the start point
 			var paddleToTest = null;
 			if (ball.linearPhysics.position.x < 0) 
 				paddleToTest = leftPaddle;
@@ -70,7 +86,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 
 				var test = Collisions.lineIntersection(ballLine.start, ballLine.end, paddleLine.start, paddleLine.end)
 				if (test != null) {
-					applyCollision();
+					applyCollision(paddleToTest);
 					lastPaddleCollided = paddleToTest;
 				}
 			}
@@ -110,13 +126,16 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 		var leftLimit = -100;
 		var rightLimit = 100;
 
+		var delayLimit = 100; // additional margin to add delay before next ball spawn
+
 		// empty score handler
 		var scoreHandler = function(playerScored) {}
 
 		this.initialize = function(gameWidth, scoreCallback) {
 			var halfGameWidth = gameWidth / 2;
-			leftLimit = -halfGameWidth;
-			rightLimit = halfGameWidth;
+			delayLimit = gameWidth / 8;
+			leftLimit = -halfGameWidth - delayLimit;
+			rightLimit = -leftLimit;
 			scoreHandler = scoreCallback;
 		}
 
@@ -138,18 +157,19 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 		this.linearPhysics = new Physics.Linear();
 		this.linearPhysics.drag = 0;
 
-		this.initialize = function(ballRadius) {
+		var initialSpeed = 400;
+
+		this.initialize = function(ballRadius, startSpeed) {
 			this.body.radius = ballRadius;
 			this.linearPhysics.enabled = false;
+			initialSpeed = startSpeed;
 		}
 
 		this.launch = function(toPlayer) {
 			// initial speed in random direction
-			var startVelocity = new Vector(400, 0);
-			var deviation = Math.PI / 4;
+			var startVelocity = new Vector(initialSpeed, 0);
+			var deviation = Math.PI / 6;
 			startVelocity.setAngle(Math.randomInRange(-deviation, deviation));
-
-			startVelocity = new Vector(3777, 0);
 
 			if (toPlayer == Players.Player1) { // if ball should launch towards player1, rotate initial speed by PI
 				var angle = startVelocity.angle();
@@ -174,6 +194,17 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			this.linearPhysics.velocity.y = -this.linearPhysics.velocity.y;
 		}
 
+		this.accelerate = function() {
+			var speed = this.linearPhysics.velocity.magnitude();
+			this.linearPhysics.velocity.setMagnitude(1.05 * speed);
+		}
+
+		this.clampInitialSpeed = function() {
+			var speed = this.linearPhysics.velocity.magnitude();
+			if (speed < initialSpeed)
+				this.linearPhysics.velocity.setMagnitude(speed);
+		}
+
 		this.update = function(input, time) {
 			this.previousPosition = this.linearPhysics.position;
 			this.linearPhysics.update(time.delta);
@@ -185,9 +216,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 		}
 	}
 
-	function PaddleUserControl(upKey, downKey) {
-
-		var moveForce = 2000;
+	function PaddleUserControl(upKey, downKey, moveForce) {
 
 		this.getPaddleForce = function(input) {
 			var inputForce;
@@ -200,11 +229,14 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 				inputForce = 0;
 			return inputForce;
 		}
+
+		this.getMaxForce = function() {
+			return moveForce;
+		}
 	}
 
-	function PaddleComputerControl(ball, computerPaddle) {
+	function PaddleComputerControl(ball, computerPaddle, moveForce) {
 
-		var moveForce = 3000;
 		var gain = 20;
 
 		this.getPaddleForce = function(input) {
@@ -213,10 +245,18 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			force = Math.clamp(force, -moveForce, moveForce);
 			return force;
 		}
+
+		this.getMaxForce = function() {
+			return moveForce;
+		}
 	}
 
 	function PaddleFreezeControl() {
 		this.getPaddleForce = function(input) {
+			return 0;
+		}
+
+		this.getMaxForce = function() {
 			return 0;
 		}
 	}
@@ -466,9 +506,60 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 		}
 	}
 
+	function PlayersInfo() {
+
+		this.enabled = true;
+
+		var fontColor = Color.white();
+		var fontSize = 24;
+
+		var horizontalMargin = 40;
+		var verticalMargin = 60;
+
+		var player1Info = 'Player1Info';
+		var player2Info = 'Player2Info';
+
+		var gameWidth = 100;
+
+		this.initialize = function(mode, width) {
+			gameWidth = width;
+			this.updateInfo(mode);
+		}
+
+		this.updateInfo = function(mode) {
+			if (this.enabled) {
+				if (mode == GameModes.CvC) {
+					player1Info = 'Player 1: BOT';
+					player2Info = 'Player 2: BOT';
+				} else if (mode == GameModes.PvC) {
+					player1Info = 'Player 1: ↑ [Q], ↓ [A]';
+					player2Info = 'Player 2: BOT';
+				} else if (mode == GameModes.PvP) {
+					player1Info = 'Player 1: ↑ [Q], ↓ [A]';
+					player2Info = 'Player 2: ↑ [K], ↓ [M]';
+				}
+			}
+		}
+
+		this.draw = function(graphics) {
+			if (this.enabled) {
+				graphics.resetTransform();
+				graphics.text.setTextAlignment('left', 'top');
+				graphics.text.setText(player1Info, horizontalMargin, verticalMargin, fontSize, fontColor.toText());
+				graphics.text.setTextAlignment('right', 'top');
+				graphics.text.setText(player2Info, gameWidth - horizontalMargin, verticalMargin, fontSize, fontColor.toText());
+			}
+		}
+	}
+
 	// Players enum
 	var Players = Object.freeze(
 		{ Player1 : 1, Player2 : 2 }
+	);
+
+	// Game Modes enum
+	var GameModes = Object.freeze(
+		{ CvC : 0, PvC : 1, PvP : 2 }
 	);
 
 	function Scene() {
@@ -487,13 +578,22 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 
 		var ball = new Ball();
 		var ballPaddlesCollisions = new BallPaddlesCollisions(ball, leftPaddle, rightPaddle);
+		// draw collisions debug lines
+		ballPaddlesCollisions.debugLines = false;
 		var ballHorizontalLimiter = new BallHorizontalLimiter();
 		var ballScoreChecker = new BallScoreChecker();
 
 		var primaryMessageBox = new MessageBox();
 		var secondaryMessageBox = new MessageBox();
 
+		var playersInfo = new PlayersInfo();
+
 		var timeAccumulator = new TimeAccumulator();
+
+		var gameStarted = false;
+		var gameMode = GameModes.PvC;
+
+		var height = 100;
 
 		var scoreHandler = function(playerScored) {
 			if (playerScored == Players.Player1)
@@ -501,25 +601,60 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			else if (playerScored == Players.Player2)
 				player2Score++;
 			scoreBoard.setScore(player1Score, player2Score);
+			ballPaddlesCollisions.reset();
 			ball.launch(playerScored);
 			log.info("scored by player: " + playerScored);
+		}
+
+		var getPaddleForce = function(timeFromTopToBottom, paddleDrag) {
+			return height / timeFromTopToBottom * paddleDrag;
+		}
+
+		this.gameStart = function() {
+			// hide all UI elements
+			primaryMessageBox.hide();
+			secondaryMessageBox.hide();
+			playersInfo.enabled = false;
+
+			// attach proper controller for paddles
+			var defaultPaddleForce = getPaddleForce(2, leftPaddle.linearPhysics.drag);
+			if (gameMode == GameModes.CvC) {
+				// paddles controlled by random skilled bots
+				leftPaddle.paddleControl = new PaddleComputerControl(ball, leftPaddle, defaultPaddleForce);
+				rightPaddle.paddleControl = new PaddleComputerControl(ball, rightPaddle, defaultPaddleForce);
+			} else if (gameMode == GameModes.PvC) {
+				leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A, defaultPaddleForce);
+				rightPaddle.paddleControl = new PaddleComputerControl(ball, rightPaddle, defaultPaddleForce);
+			} else if (gameMode == GameModes.PvP) {
+				leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A, defaultPaddleForce);
+				rightPaddle.paddleControl = new PaddleUserControl(keyMap.K, keyMap.M, defaultPaddleForce);
+			}
+
+			// get random player and start the game
+			var randomId = Math.randomIntInRange(0, 1);
+			if (randomId == 0)
+				var randomPlayer = Players.Player1;
+			else
+				var randomPlayer = Players.Player2;
+			ball.launch(randomPlayer);
+			timeAccumulator.enabled = true;
+			gameStarted = true;
 		}
 		
 		this.start = function(gameStatus, camera, input) {
 			this.gameWidth = gameStatus.getWidth();
 			this.gameHeight = gameStatus.getHeight();
+			height = this.gameHeight;
 			var gameHalfWidth = this.gameWidth / 2;
 			var gameHalfHeight = this.gameHeight / 2;
 
 			// disable status board drawing 
-			//gameStatus.drawStatus = false;
-
+			gameStatus.drawStatus = false;
 			// set 0,0 at canvas's centeer
 			camera.setPointOfViewToCenter();
 			// register additional keys
 			var keys = input.getKeys();
-			keys.addKey(keyMap.Q, false);
-			keys.addKey(keyMap.ENTER, false);
+			keys.addKeys([keyMap.Q, keyMap.K, keyMap.M, keyMap.Key0, keyMap.Key1, keyMap.Key2, keyMap.ENTER], false);
 
 			// initialize all objects
 			board.initialize(this.gameWidth, this.gameHeight);
@@ -527,7 +662,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			timeBoard.initialize(this.gameWidth, this.gameHeight);
 
 			var scaledBallRadius = this.gameHeight / 80;
-			ball.initialize(scaledBallRadius);
+			ball.initialize(scaledBallRadius, this.gameWidth / 4);
 
 			ballHorizontalLimiter.initialize(this.gameHeight);
 			ballScoreChecker.initialize(this.gameWidth, scoreHandler);
@@ -536,47 +671,56 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			var scaledPaddleHeight = this.gameHeight / 5;
 			var paddleMargin = 20;
 			var leftPaddleX = -gameHalfWidth + scaledPaddleWidth / 2 + paddleMargin;
-			var rightPaddleX = gameHalfWidth - scaledPaddleWidth / 2 - paddleMargin;
+			var rightPaddleX = -leftPaddleX;
 			leftPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, leftPaddleX, this.gameHeight);
-			//leftPaddle.paddleControl = new PaddleUserControl(keyMap.Q, keyMap.A);
-			leftPaddle.paddleControl = new PaddleComputerControl(ball, leftPaddle);
 			rightPaddle.initialize(scaledPaddleWidth, scaledPaddleHeight, rightPaddleX, this.gameHeight);
-			rightPaddle.paddleControl = new PaddleComputerControl(ball, rightPaddle);
 
 			paddleHorizontalLimiter.initialize(this.gameHeight, scaledPaddleHeight);
 
+			// UI elements
 			primaryMessageBox.setPosition(gameHalfWidth, gameHalfHeight);
-			primaryMessageBox.setFontSize(48);
-			primaryMessageBox.setMessage("[1] - PvP, [2] - PvC");
+			primaryMessageBox.setFontSize(40);
+			primaryMessageBox.setMessage("Press ENTER to start!");
 			primaryMessageBox.show();
-			secondaryMessageBox.setPosition(gameHalfWidth, gameHalfHeight + 200);
+			secondaryMessageBox.setPosition(gameHalfWidth, gameHalfHeight + 100);
 			secondaryMessageBox.setFontSize(32);
-			secondaryMessageBox.setMessage("asdfg dasd ad");
+			secondaryMessageBox.setMessage("[1] - PvC, [2] - PvP, [3] - CvC");
 			secondaryMessageBox.show();
+			playersInfo.initialize(gameMode, this.gameWidth);
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {
-			timeAccumulator.add(time.delta);
+			if (gameStatus.paused)
+				return;
+			
+			var keys = input.getKeys();
 
-			ball.update(input, time);
-			leftPaddle.update(input, time);
-			paddleHorizontalLimiter.checkLimits(leftPaddle);
-			rightPaddle.update(input, time);
-			paddleHorizontalLimiter.checkLimits(rightPaddle);
+			if (gameStarted) {
+				timeAccumulator.add(time.delta);
 
-			ballPaddlesCollisions.checkCollision();
-			ballHorizontalLimiter.checkLimits(ball);
-			ballScoreChecker.checkScores(ball);
+				ball.update(input, time);
+				leftPaddle.update(input, time);
+				paddleHorizontalLimiter.checkLimits(leftPaddle);
+				rightPaddle.update(input, time);
+				paddleHorizontalLimiter.checkLimits(rightPaddle);
 
-			if (input.getKeys().getKey(keyMap.ENTER).isPressed()) {
-				var randomId = Math.randomIntInRange(0, 1);
-				if (randomId == 0)
-					var randomPlayer = Players.Player1;
-				else
-					var randomPlayer = Players.Player2;
-				ball.launch(randomPlayer);
-				timeAccumulator.enabled = true;
-			}	
+				ballPaddlesCollisions.checkCollision();
+				ballHorizontalLimiter.checkLimits(ball);
+				ballScoreChecker.checkScores(ball);
+			} else {
+				var previousGameMode = gameMode;
+				if (keys.getKey(keyMap.ENTER).isPressed()) {
+					this.gameStart();
+				} else if (keys.getKey(keyMap.Key0).isPressed()) {
+					gameMode = GameModes.CvC;
+				} else if (keys.getKey(keyMap.Key1).isPressed()) {
+					gameMode = GameModes.PvC;
+				} else if (keys.getKey(keyMap.Key2).isPressed()) {
+					gameMode = GameModes.PvP;
+				}	
+				if (gameMode != previousGameMode)
+					playersInfo.updateInfo(gameMode);
+			}
 		}
 		
 		this.render = function(graphics, camera) {
@@ -590,9 +734,9 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 
 			primaryMessageBox.draw(graphics);
 			secondaryMessageBox.draw(graphics);
+			playersInfo.draw(graphics);
 
 			graphics.resetTransformToCamera(camera);
-			ballPaddlesCollisions.debugLines = true;
 			ballPaddlesCollisions.drawDebugLines(graphics);
 
 			//sleep(200);

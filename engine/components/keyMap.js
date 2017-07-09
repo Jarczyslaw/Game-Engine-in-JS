@@ -25,6 +25,13 @@ define(function() {
 		this.I = 73;
 		this.P = 80;
 		this.L = 76;
+		this.K = 75;
+		this.M = 77;
+
+		this.Key0 = 48;
+		this.Key1 = 49;
+		this.Key2 = 50;
+		this.Key3 = 51;
 
 		for(var key in this) {
 			keyNames[this[key]] = key;
