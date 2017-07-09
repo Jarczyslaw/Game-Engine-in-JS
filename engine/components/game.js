@@ -1,4 +1,5 @@
-define(['time', 'input', 'graphics', 'camera'], function(Time, Input, Graphics, Camera) {
+define(['components/time', 'components/input', 'components/graphics', 'components/camera'], 
+function(Time, Input, Graphics, Camera) {
 	
 	function GameStatus() {
 

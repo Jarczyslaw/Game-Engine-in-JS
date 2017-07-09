@@ -16,13 +16,13 @@ define(['commons/vector'], function(Vector) {
             (lineStart.x > d.x && d.x > lineEnd.x) ||
             (lineStart.y < d.y && d.y < lineEnd.y) ||
             (lineStart.y > d.y && d.y > lineEnd.y)) {
-                // check if projection is in circle
-                var dr = circlePosition.substract(d);
-                if (dr.magnitude() < circleRadius) {
-                    hit = true;
-                    hitPoint = d;
-                }
+            // check if projection is in circle
+            var dr = circlePosition.substract(d);
+            if (dr.magnitude() < circleRadius) {
+                hit = true;
+                hitPoint = d;
             }
+        }
         // check if line points are inside the circle
         if (circlePosition.substract(lineStart).magnitude() < circleRadius) {
             hit = true;
@@ -86,6 +86,24 @@ define(['commons/vector'], function(Vector) {
             hitPoint : hitPoint
         }
     }
+
+    Collisions.lineIntersection = function(line1Start, line1End, line2Start, line2End) {
+        var det, gamma, lambda;
+        det = (line1End.x - line1Start.x) * (line2End.y - line2Start.y) - (line2End.x - line2Start.x) * (line1End.y - line1Start.y);
+        if (det === 0) {
+            return null;
+        } else {
+            lambda = ((line2End.y - line2Start.y) * (line2End.x - line1Start.x) + (line2Start.x - line2End.x) * (line2End.y - line1Start.y)) / det;
+            gamma = ((line1Start.y - line1End.y) * (line2End.x - line1Start.x) + (line1End.x - line1Start.x) * (line2End.y - line1Start.y)) / det;
+            if ((0 < lambda && lambda < 1) && (0 < gamma && gamma < 1)) // check if line segments intersect
+                return { // return intersection coordinates
+                    x : line1Start.x + lambda * (line1End.x - line1Start.x),
+                    y : line1Start.y + lambda * (line1End.y - line1Start.y)
+                }
+            else
+                return null;
+        }
+    };
 
     return Collisions;
 })
