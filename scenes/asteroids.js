@@ -1,4 +1,4 @@
-define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vector, Particles, Pooler) {
+define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics'], function(Vector, Particles, Pooler, Physics) {
 
 	function SparksExplosion() {
 
@@ -70,7 +70,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		}
 	}
 
-	function Physics () {
+	/*function Physics () {
 
 		this.rotation = 0;
 		var rotationSpeed = 270;
@@ -94,59 +94,49 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			this.velocity = this.velocity.add(acceleration.multiply(timeDelta));
 			this.position = this.position.add(this.velocity.multiply(timeDelta));
 		}
-	}
+	}*/
 
 	function ScreenRepeater(minWidth, maxWidth, minHeight, maxHeight) {
 
-		var that = this;
-		this.margin = 20;
-
-		var repeatValue = function(value, minValue, maxValue) {
-			if (value > maxValue + that.margin)
-				return minValue - that.margin;
-			else if (value < minValue - that.margin)
-				return maxValue + that.margin;
+		var repeatValue = function(value, margin, minValue, maxValue) {
+			if (value > maxValue + margin)
+				return minValue - margin;
+			else if (value < minValue - margin)
+				return maxValue + margin;
 			return value;
 		}
 
-		this.repeat = function(position) {
+		this.repeat = function(position, margin) {
 			var repeated = new Vector();
-			repeated.x = repeatValue(position.x, minWidth, maxWidth);
-			repeated.y = repeatValue(position.y, minHeight, maxHeight);
+			repeated.x = repeatValue(position.x, margin, minWidth, maxWidth);
+			repeated.y = repeatValue(position.y, margin, minHeight, maxHeight);
 			return repeated;
 		}
 	}
 
 	function ScreenDisabler(minWidth, maxWidth, minHeight, maxHeight) {
 
-		var that = this;
-		this.margin = 50;
-
-		var checkBorders = function(value, minValue, maxValue) {
-			if (value - that.margin > maxValue)
+		var checkBorders = function(value, margin, minValue, maxValue) {
+			if (value - margin > maxValue)
 				return true;
-			else if (value + that.margin < minValue)
+			else if (value + margin < minValue)
 				return true;
 			return false;
 		}
 
-		this.disable = function(object, position) {
-			if (checkBorders(position.x, minWidth, maxWidth)) {
-				object.setEnabled(false);
-				return;
-			}
-			if (checkBorders(position.y, minHeight, maxHeight)) {
-				object.setEnabled(false);
-				return;
-			}
+		this.disable = function(position, margin) {
+			if (checkBorders(position.x, margin, minWidth, maxWidth)) 
+				return true;
+			if (checkBorders(position.y, margin, minHeight, maxHeight)) 
+				return true;
+			return false;
 		}
 	}
 
 	function Projectile() {
 
-		var position;
-		var direction;
-		var velocity = new Vector(800, 0);
+		this.linearPhysics = new Physics.Linear();
+		this.angularPhysics = new Physics.Angular();
 
 		var enabled = false;
 
@@ -156,29 +146,29 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 
 		this.setEnabled = function(newState) {
 			enabled = newState;
+			this.linearPhysics.enabled = newState;
 		}
 
 		this.shoot = function(shootPosition, shootDirection) {
 			this.setEnabled(true);
-			direction = shootDirection;
-			velocity.setAngle(Math.radians(direction));
-			position = shootPosition;
-		}
+			this.linearPhysics.stop();
+			this.angularPhysics.stop();
 
-		this.getPosition = function() {
-			return position;
+			this.linearPhysics.position = shootPosition;
+			this.angularPhysics.rotation = shootDirection;
+			this.linearPhysics.velocity = new Vector(800, 0);
+			this.linearPhysics.velocity.setAngle(Math.radians(this.angularPhysics.rotation));
 		}
 
 		this.update = function(time) {
-			if (enabled)
-				position = position.add(velocity.multiply(time.delta));
+			this.linearPhysics.update(time.delta);
 		}
 
 		this.draw = function(graphics) {
 			if (enabled) {
 				var context = graphics.ctx;
-				context.translate(position.x, position.y);
-				context.rotate(Math.radians(direction));
+				context.translate(this.linearPhysics.position.x, this.linearPhysics.position.y);
+				context.rotate(Math.radians(this.angularPhysics.rotation));
 				context.beginPath();
 				context.lineWidth = '3';
 				context.strokeStyle = 'white';
@@ -189,7 +179,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		}
 	}
 
-	function Projectiles() {
+	function ProjectilesContainer() {
 
 		var pool = new Pooler(Projectile);
 
@@ -199,7 +189,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			log.info('Projectiles count: ' + pool.count());
 		}
 
-		this.update = function(time) {
+		this.update = function(time, disabler) {
 			pool.forEach(function(projectile) {
 				projectile.update(time);
 			});
@@ -212,62 +202,86 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 			});
 		}
 
-		this.disable = function(disabler) {
-			pool.forEach(function(projectile) {
-				disabler.disable(projectile, projectile.getPosition());
+		this.forEach = function(callback) {
+			pool.forEach(function(p) {
+				callback(p);
 			});
 		}
 	}
 
 	function Ship() {
 
-		var physics = new Physics();
+		this.linearPhysics = new Physics.Linear();
+		this.linearPhysics.drag = 0.5;
+		this.angularPhysics = new Physics.Angular();
+
 		var propulsion = new Propulsion();
 		var projectiles = null;
 
-		this.getPhysics = function() {
-			return physics;
+		var enabled = true;
+
+		this.getEnabled = function() {
+			return enabled;
 		}
 
-		this.setProjectiles = function(projectilesPool) {
+		this.setEnabled = function(state) {
+			enable = false;
+			this.linearPhysics.enabled = state;
+			this.angularPhysics.enabled = state;
+		}
+
+		this.initialize = function(projectilesPool) {
 			projectiles = projectilesPool;
-		}
-
-		this.repeatInScreen = function(screenRepeater) {
-			var clampedPosition = screenRepeater.repeat(physics.position);
-			physics.position = clampedPosition;
+			this.setEnabled(true);
 		}
 
 		this.update = function(input, time) {
+			if (!enabled)
+				return;
+
 			var keys = input.getKeys();
 			
-			if(keys.getKey(keyMap.LEFT).isDown() || keys.getKey(keyMap.A).isDown())
-				physics.rotate(-1, time.delta);
-			if(keys.getKey(keyMap.RIGHT).isDown() || keys.getKey(keyMap.D).isDown())
-				physics.rotate(1, time.delta);
+			// rotation movement
+			var angularVelocity = 0;
+			if (keys.getKey(keyMap.LEFT).isDown() || keys.getKey(keyMap.A).isDown())
+				angularVelocity -= 270;
+			if (keys.getKey(keyMap.RIGHT).isDown() || keys.getKey(keyMap.D).isDown())
+				angularVelocity += 270;
+			this.angularPhysics.velocity = angularVelocity;
+			this.angularPhysics.update(time.delta);
 
+			// shooting
 			if(keys.getKey(keyMap.SPACE).isPressed()) {
-				if (projectiles != null)
-					projectiles.shoot(physics.position, physics.rotation);
+				projectiles.shoot(this.linearPhysics.position, this.angularPhysics.rotation);
 			}
 			
+			// linear movement
 			var accelerating = false;
-			if(keys.getKey(keyMap.UP).isDown() || keys.getKey(keyMap.W).isDown())
+			var force = Vector.zeros();
+			if(keys.getKey(keyMap.UP).isDown() || keys.getKey(keyMap.W).isDown()) {
 				accelerating = true;
-				
+				force.x = 120;
+			}
+			force.setAngle(Math.radians(this.angularPhysics.rotation));
+			this.linearPhysics.force = force;
+			this.linearPhysics.update(time.delta);	
+
 			propulsion.update(accelerating, time.delta);
-			physics.update(accelerating, time.delta);
+			
 		}
 		
 		this.draw = function(graphics) {
-			drawBody(graphics);
+			if (!enabled)
+				return;
+
+			this.drawBody(graphics);
 			propulsion.draw(graphics);
 		}
 
-		var drawBody = function(graphics) {
+		this.drawBody = function(graphics) {
 			var ctx = graphics.ctx;
-			ctx.translate(physics.position.x, physics.position.y);
-			ctx.rotate(Math.radians(physics.rotation));
+			ctx.translate(this.linearPhysics.position.x, this.linearPhysics.position.y);
+			ctx.rotate(Math.radians(this.angularPhysics.rotation));
 			ctx.beginPath();
 			ctx.lineWidth = '5';
 			ctx.fillStyle = 'white';
@@ -280,12 +294,9 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 	
 	
 	function Scene() {
-	
-		var that = this;
-		
-		var projectiles = new Projectiles();
+
+		var projectiles = new ProjectilesContainer();
 		var ship = new Ship();
-		ship.setProjectiles(projectiles);
 
 		var screenRepeater = null;
 		var screenDisabler = null;
@@ -300,6 +311,8 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 
 			screenRepeater = new ScreenRepeater(-halfWidth, halfWidth, -halfHeight, halfHeight);
 			screenDisabler = new ScreenDisabler(-halfWidth, halfWidth, -halfHeight, halfHeight);
+
+			ship.initialize(projectiles);
 		};
 		
 		var sparksExplosion = new SparksExplosion();
@@ -307,10 +320,14 @@ define(['commons/vector', 'commons/particles', 'commons/pooler'], function(Vecto
 		this.update = function(gameStatus, camera, input, time) {
 			if (!gameStatus.paused) {
 				ship.update(input, time);
-				ship.repeatInScreen(screenRepeater);
+				var clampedPosition = screenRepeater.repeat(ship.linearPhysics.position, 20);
+				ship.linearPhysics.position = clampedPosition;
 
-				projectiles.update(time);
-				projectiles.disable(screenDisabler);
+				projectiles.update(time, screenDisabler);
+				projectiles.forEach(function(projectile) {
+					if (screenDisabler.disable(projectile.linearPhysics.position, 20))
+						projectile.setEnabled(false);
+				});
 			}
 
 			if (input.getMouse().isPressed()) {

@@ -1,4 +1,4 @@
-define(['commons/vector', 'commons/primitives', 'commons/physics', 'commons/color', 'commons/timeAccumulator', 'commons/Collisions'], 
+define(['commons/vector', 'commons/primitives', 'commons/physics', 'commons/color', 'commons/timeAccumulator', 'commons/collisions'], 
 function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 
 	function BallPaddlesCollisions(ball, leftPaddle, rightPaddle) {
