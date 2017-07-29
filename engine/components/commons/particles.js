@@ -74,7 +74,7 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 		
 		this.draw = function(graphics) {
 			if (enabled) {
-				this.body.draw(graphics, this.linearPhysics.position, Math.radians(this.angularPhysics.rotation));
+				this.body.draw(graphics, this.linearPhysics.position);
 			}
 		}
 	}

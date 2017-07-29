@@ -5,9 +5,8 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		this.radius = 10;
 		this.color = Color.white();
 		
-		this.draw = function(graphics, position, rotation) {
+		this.draw = function(graphics, position) {
 			graphics.ctx.translate(position.x, position.y);
-			graphics.ctx.rotate(rotation);
 			graphics.drawing.drawCircle(0, 0, this.radius, this.color.toText());
 		}
 	};
@@ -39,7 +38,7 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 
 	function Line() {
 
-		this.width = 3;
+		this.width = 100;
 		this.color = Color.white();
 
 		this.draw = function(graphics, start, end) {
@@ -48,11 +47,32 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 			graphics.drawing.drawLine(0, 0, vect.x, vect.y, this.width, this.color.toText());
 		}
 	}
+
+	function Triangle() {
+
+		this.baseLength = 40;
+		this.height = 50;
+		this.color = Color.white();
+
+		this.draw = function(graphics, position, rotation) {
+			graphics.ctx.translate(position.x, position.y);
+			graphics.ctx.rotate(rotation);
+			
+			var p1 = this.height / 3;
+			var p2 = 2 * p1;
+			var p3 = this.baseLength / 2;
+			var a = { x: -p1, y: -p3 };
+			var b = { x: -p1, y: p3 };
+			var c = { x: p2, y: 0 };
+			graphics.drawing.drawTriangle(a, b, c, this.color.toText());
+		}
+	}
 	
 	return {
 		Circle : Circle,
 		Square : Square,
 		Rectangle : Rectangle,
-		Line : Line
+		Line : Line,
+		Triangle : Triangle
 	};
 });

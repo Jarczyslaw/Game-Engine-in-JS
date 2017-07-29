@@ -25,7 +25,7 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
 			linear.push('Linear physics');
 			linear.push('Position: ' + linearPhysics.position.toString());
 			linear.push('Velocity: ' + linearPhysics.velocity.toString());
-			linear.push('Acceleration: ' + linearPhysics.acceleration.toString());
+			linear.push('Acceleration: ' + linearPhysics.getAcceleration().toString());
 			linear.push('Force: ' + linearPhysics.force.toString());
 
 			graphics.resetTransform();
@@ -37,7 +37,7 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
 			angular.push('Angular physics');
 			angular.push('Rotation: ' + angularPhysics.rotation.toFixed(2));
 			angular.push('Velocity: ' + angularPhysics.velocity.toFixed(2));
-			angular.push('Acceleration: ' + angularPhysics.acceleration.toFixed(2));
+			angular.push('Acceleration: ' + angularPhysics.getAcceleration().toFixed(2));
 			angular.push('Torque: ' + angularPhysics.torque.toFixed(2));
 
 			graphics.resetTransform();

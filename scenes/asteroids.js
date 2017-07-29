@@ -1,4 +1,5 @@
-define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics'], function(Vector, Particles, Pooler, Physics) {
+define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics', 'commons/primitives', 'commons/color'], 
+function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 	function SparksExplosion() {
 
@@ -34,67 +35,6 @@ define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physic
 			});	
 		}
 	}
-
-	function Propulsion() {
-
-		var visible = false;
-		
-		var timeAccu = 0;
-		var blinkTime = 0.025;
-
-		this.update = function(enabled, timeDelta) {
-			if (enabled) {
-				timeAccu += timeDelta;
-				if (timeAccu > blinkTime) {
-					visible = !visible;
-					timeAccu = 0;
-				}
-			} else {
-				visible = false;
-				timeAccu = 0;
-			}
-		}
-
-		this.draw = function(graphics) {
-			if (visible) {
-				var context = graphics.ctx;
-				context.beginPath();
-				context.lineWidth = '2';
-				context.strokeStyle = 'white';
-				context.moveTo(-10, 2);
-				context.lineTo(-25, 2);
-				context.moveTo(-10, -2);
-				context.lineTo(-25, -2);
-				context.stroke();
-			}
-		}
-	}
-
-	/*function Physics () {
-
-		this.rotation = 0;
-		var rotationSpeed = 270;
-		
-		this.position = new Vector(0, 0);
-		this.velocity = new Vector(0, 0);
-		var drag = 0.5;
-		var accelerationValue = 120;
-
-		this.rotate = function(direction, timeDelta) {
-			this.rotation += direction * rotationSpeed * timeDelta;
-		}
-
-		this.update = function(accelerate, timeDelta) {
-			var acceleration = new Vector(0, 0);
-			if (accelerate) {
-				acceleration.x = accelerationValue;
-				acceleration.setAngle(Math.radians(this.rotation));
-			}
-			acceleration = acceleration.add(this.velocity.multiply(-drag));
-			this.velocity = this.velocity.add(acceleration.multiply(timeDelta));
-			this.position = this.position.add(this.velocity.multiply(timeDelta));
-		}
-	}*/
 
 	function ScreenRepeater(minWidth, maxWidth, minHeight, maxHeight) {
 
@@ -209,7 +149,83 @@ define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physic
 		}
 	}
 
+	function Propulsion() {
+
+		function PropulsionLine() {
+			this.body = new Primitives.Line();
+			this.start = new Vector();
+			this.end = new Vector();
+
+			this.draw = function(graphics) {
+				this.body.draw(graphics, this.start, this.end);
+			}
+		}
+
+		var primaryLine = new PropulsionLine();
+		var secondaryLine1 = new PropulsionLine();
+		var secondaryLine2 = new PropulsionLine();
+
+		var visible = false;
+		
+		var timeAccu = 0;
+		var blinkTime = 0.025;
+		var gap = 1;
+		var lineAnchor = 0;
+		var primaryLineLength = 10;
+		var secondaryLineLength = 6;
+
+		this.initialize = function(shipHeight, shipBaseLength) {
+			var lineWidth = 2;
+			gap = shipBaseLength / 4;
+			lineAnchor = -shipHeight / 3;
+			primaryLineLength = shipHeight / 4;
+			secondaryLineLength = 2 / 3 * primaryLineLength;
+			primaryLine.body.width = lineWidth;
+			primaryLine.start.set(lineAnchor, 0);
+			primaryLine.end.set(lineAnchor - primaryLineLength, 0);
+			secondaryLine1.body.width = lineWidth;
+			secondaryLine1.start.set(lineAnchor, gap);
+			secondaryLine1.end.set(lineAnchor - secondaryLineLength, gap);
+			secondaryLine2.body.width = lineWidth;
+			secondaryLine2.start.set(lineAnchor, -gap);
+			secondaryLine2.end.set(lineAnchor - secondaryLineLength, -gap);
+		}
+
+		this.update = function(enabled, timeDelta) {
+			if (enabled) {
+				timeAccu += timeDelta;
+				if (timeAccu > blinkTime) {
+					visible = !visible;
+					timeAccu = 0;
+				}
+			} else {
+				visible = false;
+				timeAccu = 0;
+			}
+		}
+
+		this.draw = function(graphics, camera, shipRotation, shipPosition) {
+			if (visible) {
+				primaryLine.draw(graphics);
+				// undo translation for primaryLine
+				graphics.ctx.translate(-primaryLine.start.x, -primaryLine.start.y);
+				secondaryLine1.draw(graphics);
+				// undo translation for secondaryLine1
+				graphics.ctx.translate(-secondaryLine1.start.x, -secondaryLine1.start.y);
+				secondaryLine2.draw(graphics);
+			}
+		}
+	}
+
 	function Ship() {
+
+		this.body = new Primitives.Triangle();
+		this.body.height = 30;
+		this.body.baseLength = 15;
+
+		this.center = new Primitives.Circle();
+		this.center.radius = 1;
+		this.center.color = Color.black();
 
 		this.linearPhysics = new Physics.Linear();
 		this.linearPhysics.drag = 0.5;
@@ -232,6 +248,7 @@ define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physic
 
 		this.initialize = function(projectilesPool) {
 			projectiles = projectilesPool;
+			propulsion.initialize(this.body.height, this.body.baseLength);
 			this.setEnabled(true);
 		}
 
@@ -270,25 +287,19 @@ define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physic
 			
 		}
 		
-		this.draw = function(graphics) {
+		this.draw = function(graphics, camera) {
 			if (!enabled)
 				return;
 
-			this.drawBody(graphics);
-			propulsion.draw(graphics);
-		}
+			var rotation =  Math.radians(this.angularPhysics.rotation);
 
-		this.drawBody = function(graphics) {
-			var ctx = graphics.ctx;
-			ctx.translate(this.linearPhysics.position.x, this.linearPhysics.position.y);
-			ctx.rotate(Math.radians(this.angularPhysics.rotation));
-			ctx.beginPath();
-			ctx.lineWidth = '5';
-			ctx.fillStyle = 'white';
-			ctx.moveTo(-15, 10);
-			ctx.lineTo(20, 0);
-			ctx.lineTo(-15, -10);
-			ctx.fill();
+			graphics.resetTransformToCamera(camera);
+			this.body.draw(graphics, this.linearPhysics.position, rotation);
+
+			propulsion.draw(graphics, camera, this.linearPhysics.position, rotation);
+
+			graphics.resetTransformToCamera(camera);
+			this.center.draw(graphics, this.linearPhysics.position);
 		}
 	}
 	
@@ -340,10 +351,8 @@ define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physic
 		}
 		
 		this.render = function(graphics, camera) {
-			graphics.drawInCameraContext(camera, ship);
-
+			ship.draw(graphics, camera);
 			projectiles.draw(graphics, camera);
-
 			sparksExplosion.draw(graphics, camera);
 		}
 	}

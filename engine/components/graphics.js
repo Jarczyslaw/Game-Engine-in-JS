@@ -39,6 +39,15 @@ define(['commons/color'], function(Color) {
 			context.fillStyle = color;
 			context.fillRect(centerX - width / 2, centerY - height / 2, width, height);
 		}
+
+		this.drawTriangle = function(a, b, c, color) {
+			context.fillStyle = color;
+			context.beginPath();
+			context.moveTo(a.x, a.y);
+			context.lineTo(b.x, b.y);
+			context.lineTo(c.x, c.y);
+			context.fill();
+		}
 	}
 
 	function Text(context) {
