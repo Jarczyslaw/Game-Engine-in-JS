@@ -1,36 +1,41 @@
 define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics', 'commons/primitives', 'commons/color'], 
 function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
-	function SparksExplosion() {
+	function SparksContainer() {
 
-		var sparks = [];
-		for (let i = 0;i < 30;i++) {
-			var spark = new Particles.Spark();
-			sparks.push(spark);
-		}
+		var pool = new Pooler(Particles.Spark);
 
-		this.emit = function(position) {
-			sparks.forEach(function(spark) {
-				var startVelocity = new Vector(Math.randomInRange(50, 150), 0);
+		this.velocityMin = 50;
+		this.velocityMax = 150;
+		this.sizeMin = 5;
+		this.sizeMax = 15;
+		this.lifeTimeMin = 0.5;
+		this.lifeTimeMax = 1;
+
+		this.emit = function(position, count = 20) {
+			for (let i = 0;i < count;i++) {
+				var spark = pool.get();
+				var startVelocity = new Vector(Math.randomInRange(this.velocityMin, this.velocityMax), 0);
 				startVelocity.setAngle(Math.randomInRange(-Math.PI, Math.PI));
 				var startRotation = Math.randomInRange(-45, 45);
-				var startRotationSpeed = Math.randomInRange(-90, 90);
-				var startSize = Math.randomInRange(5, 20);
-				var lifeTime = Math.randomInRange(0.5, 2);
+				var startRotationSpeed = Math.randomInRange(-720, 720);
+				var startSize = Math.randomInRange(this.sizeMin, this.sizeMax);
+				var lifeTime = Math.randomInRange(this.lifeTimeMin, this.lifeTimeMax); 
 				spark.emit(position, startVelocity,
 					startRotation, startRotationSpeed,
 					startSize, lifeTime);
-			});
+			}
+			log.info("Sparks: " + pool.count());
 		}
 
 		this.update = function(time) {
-			sparks.forEach(function(spark) {
+			pool.forEach(function(spark) {
 				spark.update(time);
 			});
 		}
-		
+
 		this.draw = function(graphics, camera) {
-			sparks.forEach(function(spark) {
+			pool.forEach(function(spark) {
 				graphics.drawInCameraContext(camera, spark);
 			});	
 		}
@@ -216,12 +221,11 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			}
 		}
 	}
-
+	
 	function Ship() {
 
 		this.body = new Primitives.Triangle();
-		this.body.height = 30;
-		this.body.baseLength = 15;
+		this.body.setSizes(30, 15);
 
 		this.center = new Primitives.Circle();
 		this.center.radius = 1;
@@ -229,10 +233,12 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 		this.linearPhysics = new Physics.Linear();
 		this.linearPhysics.drag = 0.5;
+		var baseAngularSpeed = 270;
+		var baseLinearForce = 120;
 		this.angularPhysics = new Physics.Angular();
 
-		var propulsion = new Propulsion();
 		var projectiles = null;
+		var propulsion = new Propulsion();
 
 		var enabled = true;
 
@@ -261,30 +267,28 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			// rotation movement
 			var angularVelocity = 0;
 			if (keys.getKey(keyMap.LEFT).isDown() || keys.getKey(keyMap.A).isDown())
-				angularVelocity -= 270;
+				angularVelocity -= baseAngularSpeed;
 			if (keys.getKey(keyMap.RIGHT).isDown() || keys.getKey(keyMap.D).isDown())
-				angularVelocity += 270;
+				angularVelocity += baseAngularSpeed;
 			this.angularPhysics.velocity = angularVelocity;
 			this.angularPhysics.update(time.delta);
 
 			// shooting
-			if(keys.getKey(keyMap.SPACE).isPressed()) {
+			if(keys.getKey(keyMap.SPACE).isPressed()) 
 				projectiles.shoot(this.linearPhysics.position, this.angularPhysics.rotation);
-			}
 			
 			// linear movement
 			var accelerating = false;
 			var force = Vector.zeros();
 			if(keys.getKey(keyMap.UP).isDown() || keys.getKey(keyMap.W).isDown()) {
 				accelerating = true;
-				force.x = 120;
+				force.x = baseLinearForce;
 			}
 			force.setAngle(Math.radians(this.angularPhysics.rotation));
 			this.linearPhysics.force = force;
 			this.linearPhysics.update(time.delta);	
 
 			propulsion.update(accelerating, time.delta);
-			
 		}
 		
 		this.draw = function(graphics, camera) {
@@ -295,7 +299,6 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 			graphics.resetTransformToCamera(camera);
 			this.body.draw(graphics, this.linearPhysics.position, rotation);
-
 			propulsion.draw(graphics, camera, this.linearPhysics.position, rotation);
 
 			graphics.resetTransformToCamera(camera);
@@ -308,6 +311,7 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 		var projectiles = new ProjectilesContainer();
 		var ship = new Ship();
+		var sparks = new SparksContainer();
 
 		var screenRepeater = null;
 		var screenDisabler = null;
@@ -325,35 +329,34 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 			ship.initialize(projectiles);
 		};
-		
-		var sparksExplosion = new SparksExplosion();
 
 		this.update = function(gameStatus, camera, input, time) {
-			if (!gameStatus.paused) {
-				ship.update(input, time);
-				var clampedPosition = screenRepeater.repeat(ship.linearPhysics.position, 20);
-				ship.linearPhysics.position = clampedPosition;
+			if (gameStatus.paused) 
+				return;
 
-				projectiles.update(time, screenDisabler);
-				projectiles.forEach(function(projectile) {
-					if (screenDisabler.disable(projectile.linearPhysics.position, 20))
-						projectile.setEnabled(false);
-				});
-			}
+			ship.update(input, time);
+			var clampedPosition = screenRepeater.repeat(ship.linearPhysics.position, 20);
+			ship.linearPhysics.position = clampedPosition;
 
+			projectiles.update(time, screenDisabler);
+			projectiles.forEach(function(projectile) {
+				if (screenDisabler.disable(projectile.linearPhysics.position, 20))
+					projectile.setEnabled(false);
+			});
+			
 			if (input.getMouse().isPressed()) {
 				var position = input.getMouse().getInGamePosition(camera);
 				log.info("emit: ["+ position.x + ", " + position.y + "]");
-				sparksExplosion.emit(new Vector(position.x, position.y));
+				sparks.emit(new Vector(position.x, position.y));
 			}
 
-			sparksExplosion.update(time);
+			sparks.update(time);
 		}
 		
 		this.render = function(graphics, camera) {
 			ship.draw(graphics, camera);
 			projectiles.draw(graphics, camera);
-			sparksExplosion.draw(graphics, camera);
+			sparks.draw(graphics, camera);
 		}
 	}
 	

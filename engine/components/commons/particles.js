@@ -14,7 +14,7 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 				sparkStartRotation, sparkStartRotationSpeed,
 				sparkStartSize, sparkLifetime) {
 			timeAccu = 0;
-			lifetime = sparkLifetime;
+			this.lifetime = sparkLifetime;
 			startSize = sparkStartSize;
 			this.init(sparkStartPosition, sparkStartRotation);
 			this.body.size = sparkStartSize;
@@ -28,7 +28,7 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 				var t = timeAccu / this.lifetime;
 				if (this.sizeOverLifetime) {
 					var currentSize = Math.lerp(t, startSize, 0);
-					this.body.radius = currentSize;
+					this.body.size = currentSize;
 				}
 
 				timeAccu += time.delta;
@@ -74,7 +74,7 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 		
 		this.draw = function(graphics) {
 			if (enabled) {
-				this.body.draw(graphics, this.linearPhysics.position);
+				this.body.draw(graphics, this.linearPhysics.position, Math.radians(this.angularPhysics.rotation));
 			}
 		}
 	}

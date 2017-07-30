@@ -54,17 +54,27 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		this.height = 50;
 		this.color = Color.white();
 
-		this.draw = function(graphics, position, rotation) {
-			graphics.ctx.translate(position.x, position.y);
-			graphics.ctx.rotate(rotation);
-			
+		this.a = null;
+		this.b = null;
+		this.c = null;
+		this.d = null;
+
+		this.setSizes = function(height, baseLength) {
+			this.height = height;
+			this.baseLength = baseLength;
 			var p1 = this.height / 3;
 			var p2 = 2 * p1;
 			var p3 = this.baseLength / 2;
-			var a = { x: -p1, y: -p3 };
-			var b = { x: -p1, y: p3 };
-			var c = { x: p2, y: 0 };
-			graphics.drawing.drawTriangle(a, b, c, this.color.toText());
+			this.a = { x: -p1, y: -p3 };
+			this.b = { x: -p1, y: p3 };
+			this.c = { x: p2, y: 0 };
+			this.d = { x: -p1, y: 0};
+		}
+
+		this.draw = function(graphics, position, rotation) {
+			graphics.ctx.translate(position.x, position.y);
+			graphics.ctx.rotate(rotation);
+			graphics.drawing.drawTriangle(this.a, this.b, this.c, this.color.toText());
 		}
 	}
 	
