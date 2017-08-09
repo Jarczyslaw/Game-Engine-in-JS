@@ -1,6 +1,21 @@
 define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics', 'commons/primitives', 'commons/color'], 
 function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
+	var DEBUG = true;
+
+	function DebugDot () {
+		Primitives.Circle.call(this);
+		this.radius = 1;
+		this.color.setRGB(255, 0, 0);
+
+		this.drawDebug = function(graphics, camera, position) {
+			if (DEBUG) {
+				graphics.resetTransformToCamera(camera);
+				this.draw(graphics, position);
+			}
+		}
+	}
+
 	function SparksContainer() {
 
 		var pool = new Pooler(Particles.Spark);
@@ -12,11 +27,11 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 		this.lifeTimeMin = 0.5;
 		this.lifeTimeMax = 1;
 
-		this.emit = function(position, count = 20) {
+		this.emitInDirection = function(position, angleMin, angleMax, count = 20) {
 			for (let i = 0;i < count;i++) {
 				var spark = pool.get();
 				var startVelocity = new Vector(Math.randomInRange(this.velocityMin, this.velocityMax), 0);
-				startVelocity.setAngle(Math.randomInRange(-Math.PI, Math.PI));
+				startVelocity.setAngle(Math.randomInRange(angleMin, angleMax));
 				var startRotation = Math.randomInRange(-45, 45);
 				var startRotationSpeed = Math.randomInRange(-720, 720);
 				var startSize = Math.randomInRange(this.sizeMin, this.sizeMax);
@@ -26,6 +41,10 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 					startSize, lifeTime);
 			}
 			log.info("Sparks: " + pool.count());
+		}
+
+		this.emit = function(position, count = 20) {
+			this.emitInDirection(position, -Math.PI, Math.PI, count);
 		}
 
 		this.update = function(time) {
@@ -80,6 +99,9 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 	function Projectile() {
 
+		this.body = new Primitives.Rectangle();
+		this.body.width = 20;
+		this.body.height = 2;
 		this.linearPhysics = new Physics.Linear();
 		this.angularPhysics = new Physics.Angular();
 
@@ -109,17 +131,10 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			this.linearPhysics.update(time.delta);
 		}
 
-		this.draw = function(graphics) {
+		this.draw = function(graphics, camera) {
 			if (enabled) {
-				var context = graphics.ctx;
-				context.translate(this.linearPhysics.position.x, this.linearPhysics.position.y);
-				context.rotate(Math.radians(this.angularPhysics.rotation));
-				context.beginPath();
-				context.lineWidth = '3';
-				context.strokeStyle = 'white';
-				context.moveTo(7, 0);
-				context.lineTo(-7, 0);
-				context.stroke();
+				graphics.resetTransformToCamera(camera);
+				this.body.draw(graphics, this.linearPhysics.position, Math.radians(this.angularPhysics.rotation));
 			}
 		}
 	}
@@ -142,8 +157,7 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 		this.draw = function(graphics, camera) {
 			pool.forEach(function(projectile) {
-				graphics.resetTransformToCamera(camera);
-				projectile.draw(graphics);
+				projectile.draw(graphics, camera);
 			});
 		}
 
@@ -154,49 +168,162 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 		}
 	}
 
-	function Propulsion() {
+	function LocalPosition() {
 
-		function PropulsionLine() {
-			this.body = new Primitives.Line();
-			this.start = new Vector();
-			this.end = new Vector();
+		this.position = new Vector();
+		var absolute = new Vector();
 
-			this.draw = function(graphics) {
-				this.body.draw(graphics, this.start, this.end);
-			}
+		var parentPos;
+		var parentRot;
+		
+		this.update = function(parentPosition, parentRotation) {
+			parentPos = parentPosition;
+			parentRot = parentRotation;
+
+			var rotated = new Vector(this.position.x, this.position.y);
+			rotated.addAngle(Math.radians(parentRot));
+			absolute = parentPos.add(rotated);
 		}
 
-		var primaryLine = new PropulsionLine();
-		var secondaryLine1 = new PropulsionLine();
-		var secondaryLine2 = new PropulsionLine();
+		this.getParentPosition = function() {
+			return parentPos;
+		}
+
+		this.getParentRotation = function() {
+			return parentRot;
+		}
+
+		this.getAbsolutePosition = function() {
+			return absolute;
+		}
+	}
+
+	function CannonSparks() {
+
+		var sparks = new SparksContainer();
+		sparks.velocityMin = 20;
+		sparks.velocityMax = 50;
+		sparks.sizeMin = 1;
+		sparks.sizeMax = 2;
+		sparks.lifeTimeMin = 0.25;
+		sparks.lifeTimeMax = 0.5;
+
+		this.fire = function(position, cannonRotation) {
+			var sparksCount = Math.randomIntInRange(3, 7);
+			var randomRotDeviation = Math.randomInRange(15, 45);
+			var rotationStart = cannonRotation - randomRotDeviation;
+			var rotationEnd = cannonRotation + randomRotDeviation;
+			sparks.emitInDirection(position, Math.radians(rotationStart), Math.radians(rotationEnd), sparksCount);
+		}
+
+		this.update = function(time) {
+			sparks.update(time);
+		}
+
+		this.draw = function(graphics, camera) {
+			sparks.draw(graphics, camera);
+		}
+	}
+
+	function Cannon() {
+
+		var projectiles;
+		var sparks = new CannonSparks();
+
+		var local = new LocalPosition();
+
+		var pivot = new DebugDot();
+
+		this.initialize = function(projectilesContainer, shipHeight, shipBaseLength) {
+			projectiles = projectilesContainer;
+			local.position.x = 2 * shipHeight / 3;
+		}
+
+		this.shoot = function() {
+			var mountPosition = local.getAbsolutePosition();
+			var shootDirection = local.getParentRotation();
+			projectiles.shoot(mountPosition, shootDirection);
+			sparks.fire(mountPosition, shootDirection);
+		}
+
+		this.updatePosition = function(shipPosition, shipRotation) {
+			local.update(shipPosition, shipRotation);
+		}
+
+		this.updateState = function(time) {
+			sparks.update(time);
+		}
+
+		this.draw = function(graphics, camera) {
+			var mountPosition = local.getAbsolutePosition();
+			pivot.drawDebug(graphics, camera, mountPosition);
+
+			sparks.draw(graphics, camera);
+		}
+	}
+
+	function PropulsionFlames() {
+
+		var flameWidth = 10;
+		var flameThickness = 2;
+
+		var flame1 = new Primitives.Rectangle();
+		flame1.width = flameWidth;
+		flame1.height = flameThickness;
+
+		var flame2 = new Primitives.Rectangle();
+		flame2.width = flameWidth;
+		flame2.height = flameThickness;
+
+		var flame1Local = new LocalPosition();
+		var flame2Local = new LocalPosition();
+
+		this.initialize = function() {
+			var halfWidth = flameWidth / 2;
+			flame1Local.position.x = -halfWidth;
+			flame1Local.position.y = -flameThickness;
+			flame2Local.position.x = -halfWidth;
+			flame2Local.position.y = flameThickness;
+		}
+
+		this.updatePosition = function(propulsionMountPosition, propulsionRotation) {
+			flame1Local.update(propulsionMountPosition, propulsionRotation);
+			flame2Local.update(propulsionMountPosition, propulsionRotation);
+		}
+
+		this.draw = function(graphics, camera) {
+			graphics.resetTransformToCamera(camera);
+			flame1.draw(graphics, flame1Local.getAbsolutePosition(), Math.radians(flame1Local.getParentRotation()));
+			graphics.resetTransformToCamera(camera);
+			flame2.draw(graphics, flame2Local.getAbsolutePosition(), Math.radians(flame2Local.getParentRotation()));
+		}
+	}
+
+	function Propulsion() {
+
+		var propulsionFlames = new PropulsionFlames();
+		var local = new LocalPosition();
 
 		var visible = false;
 		
 		var timeAccu = 0;
 		var blinkTime = 0.025;
-		var gap = 1;
-		var lineAnchor = 0;
-		var primaryLineLength = 10;
-		var secondaryLineLength = 6;
+
+		var pivot = new DebugDot();
 
 		this.initialize = function(shipHeight, shipBaseLength) {
-			var lineWidth = 2;
-			gap = shipBaseLength / 4;
-			lineAnchor = -shipHeight / 3;
-			primaryLineLength = shipHeight / 4;
-			secondaryLineLength = 2 / 3 * primaryLineLength;
-			primaryLine.body.width = lineWidth;
-			primaryLine.start.set(lineAnchor, 0);
-			primaryLine.end.set(lineAnchor - primaryLineLength, 0);
-			secondaryLine1.body.width = lineWidth;
-			secondaryLine1.start.set(lineAnchor, gap);
-			secondaryLine1.end.set(lineAnchor - secondaryLineLength, gap);
-			secondaryLine2.body.width = lineWidth;
-			secondaryLine2.start.set(lineAnchor, -gap);
-			secondaryLine2.end.set(lineAnchor - secondaryLineLength, -gap);
+			local.position.x = -shipHeight / 3;
+			propulsionFlames.initialize();
 		}
 
-		this.update = function(enabled, timeDelta) {
+		this.updatePosition = function(shipPosition, shipRotation) {
+			local.update(shipPosition, shipRotation);
+			var propPosition = local.getAbsolutePosition();
+			var propRotation = local.getParentRotation();
+			propulsionFlames.updatePosition(propPosition, propRotation);
+		}
+
+		this.updateState = function(enabled, timeDelta) {
 			if (enabled) {
 				timeAccu += timeDelta;
 				if (timeAccu > blinkTime) {
@@ -209,27 +336,22 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			}
 		}
 
-		this.draw = function(graphics, camera, shipRotation, shipPosition) {
+		this.draw = function(graphics, camera) {
+			var mountPosition = local.getAbsolutePosition();
+			pivot.drawDebug(graphics, camera, mountPosition);
+
 			if (visible) {
-				primaryLine.draw(graphics);
-				// undo translation for primaryLine
-				graphics.ctx.translate(-primaryLine.start.x, -primaryLine.start.y);
-				secondaryLine1.draw(graphics);
-				// undo translation for secondaryLine1
-				graphics.ctx.translate(-secondaryLine1.start.x, -secondaryLine1.start.y);
-				secondaryLine2.draw(graphics);
+				propulsionFlames.draw(graphics, camera);
 			}
 		}
 	}
-	
+
 	function Ship() {
 
 		this.body = new Primitives.Triangle();
 		this.body.setSizes(30, 15);
 
-		this.center = new Primitives.Circle();
-		this.center.radius = 1;
-		this.center.color = Color.black();
+		var center = new DebugDot();
 
 		this.linearPhysics = new Physics.Linear();
 		this.linearPhysics.drag = 0.5;
@@ -237,8 +359,8 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 		var baseLinearForce = 120;
 		this.angularPhysics = new Physics.Angular();
 
-		var projectiles = null;
 		var propulsion = new Propulsion();
+		var cannon = new Cannon();
 
 		var enabled = true;
 
@@ -252,9 +374,9 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			this.angularPhysics.enabled = state;
 		}
 
-		this.initialize = function(projectilesPool) {
-			projectiles = projectilesPool;
+		this.initialize = function(projectilesContainer) {
 			propulsion.initialize(this.body.height, this.body.baseLength);
+			cannon.initialize(projectilesContainer, this.body.height, this.body.baseLength);
 			this.setEnabled(true);
 		}
 
@@ -272,10 +394,6 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 				angularVelocity += baseAngularSpeed;
 			this.angularPhysics.velocity = angularVelocity;
 			this.angularPhysics.update(time.delta);
-
-			// shooting
-			if(keys.getKey(keyMap.SPACE).isPressed()) 
-				projectiles.shoot(this.linearPhysics.position, this.angularPhysics.rotation);
 			
 			// linear movement
 			var accelerating = false;
@@ -288,7 +406,15 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			this.linearPhysics.force = force;
 			this.linearPhysics.update(time.delta);	
 
-			propulsion.update(accelerating, time.delta);
+			// shooting
+			cannon.updatePosition(this.linearPhysics.position, this.angularPhysics.rotation);
+			cannon.updateState(time);
+			if(keys.getKey(keyMap.SPACE).isPressed()) 
+				cannon.shoot();
+
+			// propulsion
+			propulsion.updatePosition(this.linearPhysics.position, this.angularPhysics.rotation);
+			propulsion.updateState(accelerating, time.delta);
 		}
 		
 		this.draw = function(graphics, camera) {
@@ -300,9 +426,9 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			graphics.resetTransformToCamera(camera);
 			this.body.draw(graphics, this.linearPhysics.position, rotation);
 			propulsion.draw(graphics, camera, this.linearPhysics.position, rotation);
+			cannon.draw(graphics, camera);
 
-			graphics.resetTransformToCamera(camera);
-			this.center.draw(graphics, this.linearPhysics.position);
+			center.drawDebug(graphics, camera, this.linearPhysics.position);
 		}
 	}
 	

@@ -46,6 +46,12 @@ define(function() {
 			this.x = Math.cos(value) * mag;
 			this.y = Math.sin(value) * mag;
 		};
+
+		this.addAngle = function(value) {
+			var angle = this.angle();
+			angle += value;
+			this.setAngle(angle);
+		}
 		
 		this.add = function(vector) {
 			return new Vector(this.x + vector.x, this.y + vector.y);
