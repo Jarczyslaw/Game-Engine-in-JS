@@ -4,6 +4,10 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		
 		this.radius = 10;
 		this.color = Color.white();
+
+		this.setSize = function(radius) {
+			this.radius = radius;
+		}
 		
 		this.draw = function(graphics, position) {
 			graphics.ctx.translate(position.x, position.y);
@@ -15,6 +19,10 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		
 		this.size = 10;
 		this.color = Color.white();
+
+		this.setSize = function(size) {
+			this.size = size;
+		}
 
 		this.draw = function(graphics, position, rotation) {
 			graphics.ctx.translate(position.x, position.y);
@@ -29,6 +37,11 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		this.height = 10;
 		this.color = Color.white();
 
+		this.setSize = function(width) {
+			this.width = width;
+			this.height = this.width / 2;
+		}
+
 		this.draw = function(graphics, position, rotation) {
 			graphics.ctx.translate(position.x, position.y);
 			graphics.ctx.rotate(rotation);
@@ -38,8 +51,12 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 
 	function Line() {
 
-		this.width = 100;
+		this.width = 3;
 		this.color = Color.white();
+
+		this.setSize = function(width) {
+			this.width = width;
+		}
 
 		this.draw = function(graphics, start, end) {
 			var vect = end.substract(start);
@@ -58,6 +75,11 @@ define(['commons/vector', 'commons/color'], function(Vector, Color) {
 		this.b = null;
 		this.c = null;
 		this.d = null;
+
+		this.setSize = function(height) {
+			var baseLength = 2 * Math.sqrt(3) / 3 * height;
+			this.setSizes(height, baseLength);
+		}
 
 		this.setSizes = function(height, baseLength) {
 			this.height = height;

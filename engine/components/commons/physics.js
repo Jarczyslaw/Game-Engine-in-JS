@@ -25,7 +25,7 @@ define(['commons/vector'], function(Vector) {
         this.update = function(timeDelta) {
             if (this.enabled) {
                 var externalTorques = this.torque + this.torqueImpulse; 
-                var acceleration = (this.velocity * -this.drag) + externalTorques;
+                acceleration = (this.velocity * -this.drag) + externalTorques;
                 this.velocity += acceleration * timeDelta;
                 this.rotation += this.velocity * timeDelta;
 
@@ -62,7 +62,7 @@ define(['commons/vector'], function(Vector) {
         this.update = function(timeDelta) {
             if (this.enabled) {
                 var externalForces = this.force.add(this.impulse).add(this.gravity);
-                var acceleration = this.velocity.multiply(-this.drag).add(externalForces);
+                acceleration = this.velocity.multiply(-this.drag).add(externalForces);
                 this.velocity = this.velocity.add(acceleration.multiply(timeDelta));
                 this.position = this.position.add(this.velocity.multiply(timeDelta));
 

@@ -188,13 +188,13 @@ define(function() {
 		
 		window.addEventListener('keydown', function(event) {
 			var k = keyInput.getKeys();
-			if(event.keyCode in k)
+			if (event.keyCode in k)
 				keyInput.getKey(event.keyCode).keyDown();
 		}, false);
 		
 		window.addEventListener('keyup', function(event) {
 			var k = keyInput.getKeys();
-			if(event.keyCode in k)
+			if (event.keyCode in k)
 				keyInput.getKey(event.keyCode).keyUp();
 		}, false);
 		

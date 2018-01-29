@@ -1,5 +1,5 @@
-define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics', 'commons/primitives', 'commons/color'], 
-function(Vector, Particles, Pooler, Physics, Primitives, Color) {
+define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physics', 'commons/primitives', 'commons/color', 'commons/timeAccumulator'], 
+function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator) {
 
 	var DEBUG = true;
 
@@ -16,9 +16,11 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 		}
 	}
 
-	function SparksContainer() {
+	function SparksContainer(Body) {
 
-		var pool = new Pooler(Particles.Spark);
+		var pool = new Pooler(Particles.Spark, function(spark) {
+			spark.body = new Body();
+		});
 
 		this.velocityMin = 50;
 		this.velocityMax = 150;
@@ -141,7 +143,7 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 	function ProjectilesContainer() {
 
-		var pool = new Pooler(Projectile);
+		var pool = new Pooler(Projectile, null);
 
 		this.shoot = function(shootPosition, shootDirection) {
 			var projectile = pool.get();
@@ -227,12 +229,19 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 	function Cannon() {
 
+		var reloaded = true;
+		var reloadTime = 0.2;
+
 		var projectiles;
 		var sparks = new CannonSparks();
-
 		var local = new LocalPosition();
-
 		var pivot = new DebugDot();
+
+		var timeAccu = new TimeAccumulator();
+		timeAccu.setTickEvent(reloadTime, function() {
+			reloaded = true;
+			timeAccu.enabled = false;
+		});
 
 		this.initialize = function(projectilesContainer, shipHeight, shipBaseLength) {
 			projectiles = projectilesContainer;
@@ -240,10 +249,15 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 		}
 
 		this.shoot = function() {
-			var mountPosition = local.getAbsolutePosition();
-			var shootDirection = local.getParentRotation();
-			projectiles.shoot(mountPosition, shootDirection);
-			sparks.fire(mountPosition, shootDirection);
+			if (reloaded) {
+				var mountPosition = local.getAbsolutePosition();
+				var shootDirection = local.getParentRotation();
+				projectiles.shoot(mountPosition, shootDirection);
+				sparks.fire(mountPosition, shootDirection);
+
+				reloaded = false;
+				timeAccu.enabled = true;
+			}
 		}
 
 		this.updatePosition = function(shipPosition, shipRotation) {
@@ -252,6 +266,7 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 		this.updateState = function(time) {
 			sparks.update(time);
+			timeAccu.add(time.delta);
 		}
 
 		this.draw = function(graphics, camera) {
@@ -348,16 +363,18 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 
 	function Ship() {
 
+		var that = this;
+
 		this.body = new Primitives.Triangle();
 		this.body.setSizes(30, 15);
 
-		var center = new DebugDot();
+		var pivot = new DebugDot();
 
 		this.linearPhysics = new Physics.Linear();
 		this.linearPhysics.drag = 0.5;
-		var baseAngularSpeed = 270;
 		var baseLinearForce = 120;
 		this.angularPhysics = new Physics.Angular();
+		var baseAngularSpeed = 270;
 
 		var propulsion = new Propulsion();
 		var cannon = new Cannon();
@@ -380,20 +397,15 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			this.setEnabled(true);
 		}
 
-		this.update = function(input, time) {
-			if (!enabled)
-				return;
-
-			var keys = input.getKeys();
-			
+		var updateMovement = function(keys, time) {
 			// rotation movement
 			var angularVelocity = 0;
 			if (keys.getKey(keyMap.LEFT).isDown() || keys.getKey(keyMap.A).isDown())
 				angularVelocity -= baseAngularSpeed;
 			if (keys.getKey(keyMap.RIGHT).isDown() || keys.getKey(keyMap.D).isDown())
 				angularVelocity += baseAngularSpeed;
-			this.angularPhysics.velocity = angularVelocity;
-			this.angularPhysics.update(time.delta);
+			that.angularPhysics.velocity = angularVelocity;
+			that.angularPhysics.update(time.delta);
 			
 			// linear movement
 			var accelerating = false;
@@ -402,19 +414,33 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 				accelerating = true;
 				force.x = baseLinearForce;
 			}
-			force.setAngle(Math.radians(this.angularPhysics.rotation));
-			this.linearPhysics.force = force;
-			this.linearPhysics.update(time.delta);	
+			force.setAngle(Math.radians(that.angularPhysics.rotation));
+			that.linearPhysics.force = force;
+			that.linearPhysics.update(time.delta);	
 
-			// shooting
-			cannon.updatePosition(this.linearPhysics.position, this.angularPhysics.rotation);
+			return accelerating;
+		}
+
+		var updateShooting = function(keys, time) {
+			cannon.updatePosition(that.linearPhysics.position, that.angularPhysics.rotation);
 			cannon.updateState(time);
-			if(keys.getKey(keyMap.SPACE).isPressed()) 
+			if(keys.getKey(keyMap.SPACE).isDown()) 
 				cannon.shoot();
+		}
 
-			// propulsion
-			propulsion.updatePosition(this.linearPhysics.position, this.angularPhysics.rotation);
+		var updatePropulsion = function(keys, time, accelerating) {
+			propulsion.updatePosition(that.linearPhysics.position, that.angularPhysics.rotation);
 			propulsion.updateState(accelerating, time.delta);
+		}
+
+		this.update = function(input, time) {
+			if (!enabled)
+				return;
+
+			var keys = input.getKeys();
+			var accelerating = updateMovement(keys, time);
+			updateShooting(keys, time);
+			updatePropulsion(keys, time, accelerating);
 		}
 		
 		this.draw = function(graphics, camera) {
@@ -428,7 +454,7 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color) {
 			propulsion.draw(graphics, camera, this.linearPhysics.position, rotation);
 			cannon.draw(graphics, camera);
 
-			center.drawDebug(graphics, camera, this.linearPhysics.position);
+			pivot.drawDebug(graphics, camera, this.linearPhysics.position);
 		}
 	}
 	

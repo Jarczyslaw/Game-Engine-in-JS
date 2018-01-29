@@ -23,6 +23,11 @@ define(function() {
             pointOfViewY = positionY;
         }
 
+        this.moveBy = function(positionX, positionY) {
+            pointOfViewOffsetX -= positionX;
+            pointOfViewOffsetY -= positionY;
+        }
+
         this.moveTo = function(positionX, positionY) {
             pointOfViewOffsetX = -positionX;
             pointOfViewOffsetY = -positionY;

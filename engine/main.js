@@ -1,5 +1,5 @@
 // if sceneToLoad is not defined, load default scene
-var scene = 'asteroids';
+var scene = 'multifile';
 if (typeof sceneToLoad !== 'undefined')
 	scene = sceneToLoad;
 

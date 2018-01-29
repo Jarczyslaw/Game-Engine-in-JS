@@ -60,15 +60,15 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 	
 		var that = this;
 
-		var TextSquares = [];
+		var textSquares = [];
 		var gap = 100;
 		var offset = 0;
 
 		var len = 50;
 
-		var player = new TextSquare(20, 0, 0, Color.red());
+		var player = new TextSquare(20, -20, 0, Color.red());
 		player.drawPosition = false;
-		var player2 = new TextSquare(20, 0, 0, Color.blue());
+		var player2 = new TextSquare(20, 20, 0, Color.blue());
 		player2.drawPosition = false;
 		var playerSpeed = 150;
 
@@ -80,7 +80,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 			for (let j = -len;j < len;j++)
 			{
 				var newRect = new TextSquare(5, offset + i * gap, j * gap, Color.white());
-				TextSquares.push(newRect);
+				textSquares.push(newRect);
 			}
 		}
 
@@ -101,7 +101,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 			if (keys.getKey(keyMap.RIGHT).isDown())
 				player.position.x += time.delta * playerSpeed;
 
-			camera.moveTo(player.position.x + 50, player.position.y);
+			camera.moveTo(player.position.x, player.position.y);
 
 			// check mouse input and selected pixel color
 			var mouse = input.getMouse();
@@ -127,7 +127,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 		}
 		
 		this.render = function(graphics, camera) {
-			TextSquares.forEach(function(rect, index) {
+			textSquares.forEach(function(rect, index) {
 				if (camera.checkVisibility(rect.position.x, rect.position.y, 100)) {
 					graphics.resetTransformToCamera(camera);
 					rect.draw(graphics);

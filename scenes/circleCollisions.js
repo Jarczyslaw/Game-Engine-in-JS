@@ -7,6 +7,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collis
         var hitCirclePosition = new Vector(0, 0);
 
         var line = new Primitives.Line();
+        line.width = 3;
         var lineStart = new Vector(700, 500);
         var lineEnd = new Vector(600, 100);
         var d = new Vector(0, 0); // projection
