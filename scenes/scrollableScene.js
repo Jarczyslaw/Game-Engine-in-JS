@@ -86,6 +86,11 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 
 		this.start = function(gameStatus, camera, input) {
 			camera.setPointOfViewToCenter();
+
+			var keys = input.getKeys();
+			var keyCodes = [keyMap.UP, keyMap.DOWN, keyMap.LEFT, keyMap.RIGHT,
+				keyMap.W, keyMap.A, keyMap.S, keyMap.D];
+			keys.addKeys(keyCodes, false);
 		};
 
 		this.update = function(gameStatus, camera, input, time) {

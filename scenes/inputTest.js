@@ -11,12 +11,16 @@ define(['commons/vector'], function(Vector) {
 		
 		var keyStates = [];
 		
-		this.start = function(width, height) {
+		this.start = function(width, height, keys) {
 			this.width = width;
 			this.height = height;
 			
 			pos.x = this.width / 2 - size / 2;
 			pos.y = this.height / 2 - size / 2;	
+
+			var keyCodes = [keyMap.UP, keyMap.DOWN, keyMap.LEFT, keyMap.RIGHT,
+				keyMap.W, keyMap.A, keyMap.S, keyMap.D];
+			keys.addKeys(keyCodes, false);
 		};
 		
 		this.update = function(input, time) {
@@ -173,7 +177,7 @@ define(['commons/vector'], function(Vector) {
 			this.height = camera.getHeight();
 
 			mouseTest.start(this.width, this.height);
-			keyTest.start(this.width, this.height);
+			keyTest.start(this.width, this.height, input.getKeys());
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {

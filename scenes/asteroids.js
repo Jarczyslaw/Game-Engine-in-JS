@@ -467,6 +467,13 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator)
 
 		var screenRepeater = null;
 		var screenDisabler = null;
+
+		var initializeKeys = function(keys) {
+			var keyCodes = [keyMap.UP, keyMap.DOWN, keyMap.LEFT, keyMap.RIGHT,
+				keyMap.W, keyMap.A, keyMap.S, keyMap.D,
+				keyMap.SPACE];
+			keys.addKeys(keyCodes);
+		}
 		
 		this.start = function(gameStatus, camera, input) {
 			camera.setPointOfViewToCenter();
@@ -480,6 +487,7 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator)
 			screenDisabler = new ScreenDisabler(-halfWidth, halfWidth, -halfHeight, halfHeight);
 
 			ship.initialize(projectiles);
+			initializeKeys(input.getKeys());
 		};
 
 		this.update = function(gameStatus, camera, input, time) {

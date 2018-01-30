@@ -49,18 +49,16 @@ define(function() {
 			};
 		}
 		
-		var defaultRepeat = true;
-		
 		var keys = {};
 		
-		this.addKey = function(keyCode, repeating) {
+		this.addKey = function(keyCode, repeating = false) {
 			if (keyCode in keys)
 				throw 'KeyCode ' + keyCode + ' already assigned';
 			else
 				keys[keyCode] = new Key(repeating);
 		}
 
-		this.addKeys = function(keyCodes, repeating) {
+		this.addKeys = function(keyCodes, repeating = false) {
 			for(let i = 0;i < keyCodes.length;i++)
 				this.addKey(keyCodes[i], repeating);
 		}
@@ -85,22 +83,6 @@ define(function() {
 			for(key in keys)
 				keys[key].onFrameClear();
 		}
-		
-		// must be after addKey definition
-		this.addKey(keyMap.UP, defaultRepeat);
-		this.addKey(keyMap.DOWN, defaultRepeat);
-		this.addKey(keyMap.LEFT, defaultRepeat);
-		this.addKey(keyMap.RIGHT, defaultRepeat);
-		
-		this.addKey(keyMap.W, defaultRepeat);
-		this.addKey(keyMap.A, defaultRepeat);
-		this.addKey(keyMap.S, defaultRepeat);
-		this.addKey(keyMap.D, defaultRepeat);
-
-		this.addKey(keyMap.SPACE, false);
-		
-		this.addKey(keyMap.P, false); // press P to pause
-		this.addKey(keyMap.I, false); // press I to toggle status board
 	}
 
 	function MouseInput(canvas) {
@@ -222,6 +204,11 @@ define(function() {
 			keyInput.onFrameClear();
 			mouseInput.onFrameClear();
 		};
+
+		this.addDefaultEngineKeys = function() {
+			keyInput.addKey(keyMap.P, false); // press P to pause
+			keyInput.addKey(keyMap.I, false); // press I to toggle status board
+		}
 	}
 	
 	return Input;

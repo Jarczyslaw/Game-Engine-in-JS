@@ -59,6 +59,12 @@ define(function() {
 		
 		var rects = [];
 		var rectsToAdd = [];
+
+		var initializeInputKeys = function(input) {
+			var keys = input.getKeys();
+			var keyCodes = [keyMap.UP, keyMap.DOWN, keyMap.LEFT, keyMap.RIGHT];
+			keys.addKeys(keyCodes, false);
+		}
 		
 		var addRects = function(cnt, gameScene) {
 			for(let i = 0;i < cnt;i++) {
@@ -90,6 +96,7 @@ define(function() {
 			this.width = camera.getWidth();
 			this.height = camera.getHeight();
 			
+			initializeInputKeys(input);
 			addRects(startCount, this);
 		};
 		

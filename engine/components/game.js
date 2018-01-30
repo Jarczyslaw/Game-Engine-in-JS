@@ -42,6 +42,7 @@ function(Time, Input, Graphics, Camera) {
 		gameStatus.init(graphics.getWidth(), graphics.getHeight());
 
 		this.start = function() {
+			input.addDefaultEngineKeys();
 			time.start();
 			gameScene.start(gameStatus, camera, input);
 			gameLoop();

@@ -654,7 +654,7 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 			camera.setPointOfViewToCenter();
 			// register additional keys
 			var keys = input.getKeys();
-			keys.addKeys([keyMap.Q, keyMap.K, keyMap.M, keyMap.Key0, keyMap.Key1, keyMap.Key2, keyMap.ENTER], false);
+			keys.addKeys([keyMap.Q, keyMap.A, keyMap.K, keyMap.M, keyMap.Key1, keyMap.Key2, keyMap.Key3, keyMap.ENTER], false);
 
 			// initialize all objects
 			board.initialize(this.gameWidth, this.gameHeight);
@@ -711,12 +711,12 @@ function(Vector, Primitives, Physics, Color, TimeAccumulator, Collisions){
 				var previousGameMode = gameMode;
 				if (keys.getKey(keyMap.ENTER).isPressed()) {
 					this.gameStart();
-				} else if (keys.getKey(keyMap.Key0).isPressed()) {
-					gameMode = GameModes.CvC;
 				} else if (keys.getKey(keyMap.Key1).isPressed()) {
 					gameMode = GameModes.PvC;
 				} else if (keys.getKey(keyMap.Key2).isPressed()) {
 					gameMode = GameModes.PvP;
+				} else if (keys.getKey(keyMap.Key3).isPressed()) {
+					gameMode = GameModes.CvC;
 				}	
 				if (gameMode != previousGameMode)
 					playersInfo.updateInfo(gameMode);

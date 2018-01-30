@@ -85,6 +85,8 @@ define(['commons/vector'], function(Vector){
 		this.start = function(gameStatus, camera, input) {
 			this.width = camera.getWidth();
 			this.height = camera.getHeight();
+
+			input.getKeys().addKey(keyMap.UP, false);
 		};
 		
 		this.update = function(gameStatus, camera, input, time) {

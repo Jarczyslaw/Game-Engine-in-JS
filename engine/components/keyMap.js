@@ -9,9 +9,10 @@ define(function() {
 		this.S = 83;
 		this.D = 68;
 
+		this.Z = 90;
 		this.Q = 81;
 		this.E = 69;
-
+		this.C = 67;
 		this.X = 88;
 		
 		this.ENTER = 13;

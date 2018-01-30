@@ -52,9 +52,8 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
 			this.screenHeight = camera.getHeight();
 
 			// register additional keys
-			input.getKeys().addKey(keyMap.Q, false);
-			input.getKeys().addKey(keyMap.E, false);
-			input.getKeys().addKey(keyMap.X, false);
+			var keyCodes = [keyMap.Q, keyMap.W, keyMap.E, keyMap.A, keyMap.S, keyMap.D, keyMap.Z, keyMap.X, keyMap.C];
+			input.getKeys().addKeys(keyCodes, false);
 
 			camera.setPointOfViewToCenter();
             physicsInit();
@@ -69,6 +68,12 @@ define(['commons/physics', 'commons/primitives'], function(Physics, Primitives){
 			if (keys.getKey(keyMap.X).isPressed()) {
 				linearPhysics.stop();
 				angularPhysics.stop();
+			}
+
+			// reset physics
+			if (keys.getKey(keyMap.C).isPressed()) {
+				linearPhysics.reset();
+				angularPhysics.reset();
 			}
 
 			// linear movement

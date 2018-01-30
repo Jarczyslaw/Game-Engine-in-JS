@@ -8,6 +8,7 @@ define(['commons/vector'], function(Vector) {
         var acceleration = 0;
         this.torque = 0;
         this.torqueImpulse = 0;
+
         this.drag = 0;
 
         this.enabled = false;
@@ -19,7 +20,13 @@ define(['commons/vector'], function(Vector) {
         this.stop = function() {
             this.velocity = 0;
             this.torque = 0;
-            this.impulse = 0;
+            this.torqueImpulse = 0;
+        }
+
+        this.reset = function() {
+            this.stop();
+            this.rotation = 0;
+            acceleration = 0;
         }
 
         this.update = function(timeDelta) {
@@ -42,6 +49,7 @@ define(['commons/vector'], function(Vector) {
         var acceleration = Vector.zeros();
         this.force = Vector.zeros();
         this.impulse = Vector.zeros();
+
         this.drag = 0;
 
         // gravity
@@ -57,6 +65,12 @@ define(['commons/vector'], function(Vector) {
             this.velocity.zero();
             this.force.zero();
             this.impulse.zero();
+        }
+
+        this.reset = function() {
+            this.stop();
+            this.position.zero();
+            acceleration.zero();
         }
 
         this.update = function(timeDelta) {

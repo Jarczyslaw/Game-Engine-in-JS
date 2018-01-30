@@ -85,6 +85,12 @@ define(function() {
         return color;
     }
 
+    Color.custom = function(r, g, b, a) {
+        var c = new Color();
+        c.setRGBA(r, g, b, a);
+        return c;
+    }
+
     Color.white = function() {
         return new Color();
     }
