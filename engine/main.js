@@ -1,5 +1,5 @@
 // if sceneToLoad is not defined, load default scene
-var scene = 'asteroids';
+var scene = 'fireworks';
 if (typeof sceneToLoad !== 'undefined')
 	scene = sceneToLoad;
 

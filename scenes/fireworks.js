@@ -1,5 +1,5 @@
-define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/color'], 
-function(Vector, Particles, Pooler, Color) {
+define(['commons/vector', 'commons/particles', 'commons/primitives', 'commons/pooler', 'commons/color'], 
+function(Vector, Particles, Primitives, Pooler, Color) {
 	
 	function Scene() {
 		
@@ -7,19 +7,21 @@ function(Vector, Particles, Pooler, Color) {
 		
 		var visibleObjects = 0;
 		
-		var instantiateParticle = function(particle) {
-			// assume that particle has circular body
-			particle.body.radius = Math.randomInRange(5, 20);
-			particle.body.color = Color.random();
+		var instantiateParticle = function() {
+			var body = new Primitives.Circle();
+			body.radius = Math.randomInRange(5, 20);
+			body.color = Color.random();
+			var newParticle = new Particles.Particle(body);
+			return newParticle;
 		}
 		
-		var pooler = new Pooler(Particles.Particle, instantiateParticle);
+		var pooler = new Pooler();
 		
 		var fireOnClick = function(position) {
 			log.info("fire on click");
 			var particlesToFire = [];
 			for(let i = 0;i < 50;i++) {
-				var p = pooler.get();
+				var p = pooler.get(instantiateParticle);
 				if (p != null)
 					particlesToFire.push(p);
 				else
@@ -42,7 +44,7 @@ function(Vector, Particles, Pooler, Color) {
 		
 		var fireOnKey = function(particle) {
 			log.info("fire on key");
-			var particle = pooler.get();
+			var particle = pooler.get(instantiateParticle);
 				if (particle == null)
 					return;
 			

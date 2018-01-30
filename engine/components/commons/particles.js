@@ -1,8 +1,8 @@
 define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vector, Primitives, Physics) {
 	
-	function Spark() {
+	function Spark(body) {
 
-		Particle.call(this); // 'inherit' from particle
+		Particle.call(this, body); // 'inherit' from particle
 		this.sizeOverLifetime = true;
 		this.lifetime = 1;
 
@@ -39,9 +39,9 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 		}
 	}
 
-	function Particle() {
+	function Particle(body) {
 		
-		this.body = new Primitives.Circle();
+		this.body = body;
 		
 		this.linearPhysics = new Physics.Linear();
 		this.angularPhysics = new Physics.Angular();

@@ -16,11 +16,9 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator)
 		}
 	}
 
-	function SparksContainer(Body) {
+	function SparksContainer() {
 
-		var pool = new Pooler(Particles.Spark, function(spark) {
-			spark.body = new Body();
-		});
+		var pool = new Pooler();
 
 		this.velocityMin = 50;
 		this.velocityMax = 150;
@@ -31,7 +29,13 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator)
 
 		this.emitInDirection = function(position, angleMin, angleMax, count = 20) {
 			for (let i = 0;i < count;i++) {
-				var spark = pool.get();
+				// get spark from pool, create if there is no available one
+				var spark = pool.get(function() {
+					var body = new Primitives.Square();
+					var newSpark = new Particles.Spark(body);
+					return newSpark;
+				});
+
 				var startVelocity = new Vector(Math.randomInRange(this.velocityMin, this.velocityMax), 0);
 				startVelocity.setAngle(Math.randomInRange(angleMin, angleMax));
 				var startRotation = Math.randomInRange(-45, 45);
@@ -65,10 +69,12 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator)
 	function ScreenRepeater(minWidth, maxWidth, minHeight, maxHeight) {
 
 		var repeatValue = function(value, margin, minValue, maxValue) {
-			if (value > maxValue + margin)
-				return minValue - margin;
-			else if (value < minValue - margin)
-				return maxValue + margin;
+			var leftBorder = minValue - margin;
+			var rightBorder = maxValue + margin;
+			if (value > rightBorder)
+				return leftBorder;
+			else if (value < leftBorder)
+				return rightBorder;
 			return value;
 		}
 
@@ -143,10 +149,12 @@ function(Vector, Particles, Pooler, Physics, Primitives, Color, TimeAccumulator)
 
 	function ProjectilesContainer() {
 
-		var pool = new Pooler(Projectile, null);
+		var pool = new Pooler();
 
 		this.shoot = function(shootPosition, shootDirection) {
-			var projectile = pool.get();
+			var projectile = pool.get(function() {
+				return new Projectile();
+			});
 			projectile.shoot(shootPosition, shootDirection);
 			log.info('Projectiles count: ' + pool.count());
 		}

@@ -1,12 +1,12 @@
 define(function() {
 
-	function Pooler(poolableObject, instantiateCallback) {
+	function Pooler() {
 		
 		this.capacity = 0;
 		
 		var objects = [];
 		
-		this.get = function() {
+		this.get = function(poolableObjectInstantiateCallback) {
 			for(let i = 0;i < objects.length;i++) {
 				var obj = objects[i];
 				if(!obj.getEnabled()) {
@@ -25,9 +25,7 @@ define(function() {
 			}
 				
 			if (createNew) {
-				var newObj = new poolableObject();
-				if (instantiateCallback != null)
-					instantiateCallback(newObj); // pass new instantiated object to callback to set its initial parameters
+				var newObj = poolableObjectInstantiateCallback();
 				newObj.setEnabled(true);
 				objects.push(newObj);
 				return newObj;
