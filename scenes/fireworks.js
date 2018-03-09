@@ -45,8 +45,8 @@ function(Vector, Particles, Primitives, Pooler, Color) {
 		var fireOnKey = function(particle) {
 			log.info("fire on key");
 			var particle = pooler.get(instantiateParticle);
-				if (particle == null)
-					return;
+			if (particle == null)
+				return;
 			
 			particle.init(new Vector(that.width / 2, that.height), 0);
 			particle.linearPhysics.gravity = new Vector(0, 300);
