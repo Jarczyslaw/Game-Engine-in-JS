@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title></title>
-		<script data-main="engine/main" src="engine/require.js"></script>
-		<style type="text/css">
-		html, body {
+
+<head>
+	<title></title>
+	<script data-main="engine/main" src="engine/requirejs/require.js"></script>
+	<style type="text/css">
+		html,
+		body {
 			margin: 0px;
 			background-color: #EEEEEE;
 		}
-		
+
 		#container {
 			margin: 0px auto;
 			width: 800px;
 		}
-		
+
 		#log {
 			margin: 0;
 			width: 796px;
@@ -22,25 +24,32 @@
 			overflow: scroll;
 			border: 2px solid #616161;
 		}
-		
+
 		canvas {
 			display: block;
 			margin: 0;
-			
-			image-rendering: optimizeSpeed;             /* Older versions of FF          */
-			image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
-			image-rendering: -webkit-optimize-contrast; /* Safari                        */
-			image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
-			image-rendering: pixelated;                 /* Awesome future-browsers       */
-			-ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+
+			image-rendering: optimizeSpeed;
+			/* Older versions of FF          */
+			image-rendering: -moz-crisp-edges;
+			/* FF 6.0+                       */
+			image-rendering: -webkit-optimize-contrast;
+			/* Safari                        */
+			image-rendering: -o-crisp-edges;
+			/* OS X & Windows Opera (12.02+) */
+			image-rendering: pixelated;
+			/* Awesome future-browsers       */
+			-ms-interpolation-mode: nearest-neighbor;
+			/* IE                            */
 		}
-		</style>
-	</head>
-	<body>
-		<div id="container">
-			<canvas id="game_canvas" width="800" height="600">No canvas support</canvas>
-			<div id="log">
-			</div>
-		</div>
-	</body>
+	</style>
+</head>
+
+<body>
+	<div id="container">
+		<canvas id="game_canvas" width="800" height="600">No canvas support</canvas>
+		<div id="log" />
+	</div>
+</body>
+
 </html>

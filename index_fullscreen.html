@@ -1,35 +1,45 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title></title>
-        <script>
-            window.onload = function() {
-                var canvas = document.getElementById("game_canvas");
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-        </script>
-        <script data-main="engine/main" src="engine/require.js"></script>
-        <style type="text/css">
-            html, body {
-                margin: 0px;
-                background-color: #EEEEEE;
-            }
 
-            canvas {
-                display: block;
-                margin: 0;
-                
-                image-rendering: optimizeSpeed;             /* Older versions of FF          */
-                image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
-                image-rendering: -webkit-optimize-contrast; /* Safari                        */
-                image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
-                image-rendering: pixelated;                 /* Awesome future-browsers       */
-                -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
-            }
-        </style>
-    </head>
-    <body>
-        <canvas id="game_canvas">No canvas support</canvas>
-    </body>
+<head>
+    <title></title>
+    <script>
+        window.onload = function () {
+            var canvas = document.getElementById("game_canvas");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+    </script>
+    <script data-main="engine/main" src="engine/requirejs/require.js"></script>
+    <style type="text/css">
+        html,
+        body {
+            margin: 0px;
+            background-color: #EEEEEE;
+        }
+
+        canvas {
+            display: block;
+            margin: 0;
+
+            image-rendering: optimizeSpeed;
+            /* Older versions of FF          */
+            image-rendering: -moz-crisp-edges;
+            /* FF 6.0+                       */
+            image-rendering: -webkit-optimize-contrast;
+            /* Safari                        */
+            image-rendering: -o-crisp-edges;
+            /* OS X & Windows Opera (12.02+) */
+            image-rendering: pixelated;
+            /* Awesome future-browsers       */
+            -ms-interpolation-mode: nearest-neighbor;
+            /* IE                            */
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="game_canvas">No canvas support</canvas>
+</body>
+
 </html>
