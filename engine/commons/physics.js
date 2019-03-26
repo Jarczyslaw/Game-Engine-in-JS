@@ -1,4 +1,4 @@
-define(['commons/vector'], function(Vector) {
+define(['commons/vector'], function (Vector) {
 
     function Angular() {
 
@@ -13,25 +13,25 @@ define(['commons/vector'], function(Vector) {
 
         this.enabled = false;
 
-        this.getAcceleration = function() {
+        this.getAcceleration = function () {
             return acceleration;
         }
 
-        this.stop = function() {
+        this.stop = function () {
             this.velocity = 0;
             this.torque = 0;
             this.torqueImpulse = 0;
         }
 
-        this.reset = function() {
+        this.reset = function () {
             this.stop();
             this.rotation = 0;
             acceleration = 0;
         }
 
-        this.update = function(timeDelta) {
+        this.update = function (timeDelta) {
             if (this.enabled) {
-                var externalTorques = this.torque + this.torqueImpulse; 
+                var externalTorques = this.torque + this.torqueImpulse;
                 acceleration = (this.velocity * -this.drag) + externalTorques;
                 this.velocity += acceleration * timeDelta;
                 this.rotation += this.velocity * timeDelta;
@@ -57,23 +57,23 @@ define(['commons/vector'], function(Vector) {
 
         this.enabled = false;
 
-        this.getAcceleration = function() {
+        this.getAcceleration = function () {
             return acceleration;
         }
 
-        this.stop = function() {
+        this.stop = function () {
             this.velocity.zero();
             this.force.zero();
             this.impulse.zero();
         }
 
-        this.reset = function() {
+        this.reset = function () {
             this.stop();
             this.position.zero();
             acceleration.zero();
         }
 
-        this.update = function(timeDelta) {
+        this.update = function (timeDelta) {
             if (this.enabled) {
                 var externalForces = this.force.add(this.impulse).add(this.gravity);
                 acceleration = this.velocity.multiply(-this.drag).add(externalForces);
@@ -86,7 +86,7 @@ define(['commons/vector'], function(Vector) {
     }
 
     return {
-        Linear : Linear,
-        Angular : Angular
+        Linear: Linear,
+        Angular: Angular
     };
 })

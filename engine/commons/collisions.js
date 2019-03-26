@@ -1,8 +1,8 @@
-define(['commons/vector'], function(Vector) {
+define(['commons/vector'], function (Vector) {
 
     function Collisions() { }
 
-    Collisions.circleLineCollision = function(circlePosition, circleRadius, lineStart, lineEnd) {
+    Collisions.circleLineCollision = function (circlePosition, circleRadius, lineStart, lineEnd) {
         var d = new Vector(0, 0); // projection
         var hitPoint = new Vector(0, 0);
         var hit = false;
@@ -32,14 +32,14 @@ define(['commons/vector'], function(Vector) {
             hit = true;
             hitPoint = lineEnd;
         }
-            
+
         return {
-            hit : hit,
-            hitPoint : hitPoint
+            hit: hit,
+            hitPoint: hitPoint
         }
     }
 
-    Collisions.circleRectangleCollision = function(circlePosition, circleRadius, rectangleCenter, rectangleWidth, rectangleHeight) {
+    Collisions.circleRectangleCollision = function (circlePosition, circleRadius, rectangleCenter, rectangleWidth, rectangleHeight) {
         var hit = false;
         var c = new Vector(0, 0); // closest point to circle
         var hitPoint = new Vector(0, 0);
@@ -58,14 +58,14 @@ define(['commons/vector'], function(Vector) {
         if (c.substract(circlePosition).magnitude() < circleRadius) {
             hit = true;
             hitPoint = c;
-        } 
+        }
         return {
-            hit : hit,
-            hitPoint : hitPoint
+            hit: hit,
+            hitPoint: hitPoint
         }
     }
 
-    Collisions.circleCircleCollision = function(circle1Position, circle1Radius, circle2Position, circle2Radius) {
+    Collisions.circleCircleCollision = function (circle1Position, circle1Radius, circle2Position, circle2Radius) {
         var hit = false;
         var hitPoint = new Vector(0, 0);
         // get distance between circles
@@ -74,20 +74,20 @@ define(['commons/vector'], function(Vector) {
         if (distance < (circle1Radius + circle2Radius)) { // if distance is lower than sum of radiuses
             hit = true;
             // get collision point
-            if (distance < circle2Radius) 
-                var v = distance; 
+            if (distance < circle2Radius)
+                var v = distance;
             else
                 var v = circle2Radius;
             hitPoint = circle2Position.add(rr.normalize().multiply(v));
         }
-        
+
         return {
-            hit : hit,
-            hitPoint : hitPoint
+            hit: hit,
+            hitPoint: hitPoint
         }
     }
 
-    Collisions.lineIntersection = function(line1Start, line1End, line2Start, line2End) {
+    Collisions.lineIntersection = function (line1Start, line1End, line2Start, line2End) {
         var det, gamma, lambda;
         det = (line1End.x - line1Start.x) * (line2End.y - line2Start.y) - (line2End.x - line2Start.x) * (line1End.y - line1Start.y);
         if (det === 0) {
@@ -97,8 +97,8 @@ define(['commons/vector'], function(Vector) {
             gamma = ((line1Start.y - line1End.y) * (line2End.x - line1Start.x) + (line1End.x - line1Start.x) * (line2End.y - line1Start.y)) / det;
             if ((0 < lambda && lambda < 1) && (0 < gamma && gamma < 1)) // check if line segments intersect
                 return { // return intersection coordinates
-                    x : line1Start.x + lambda * (line1End.x - line1Start.x),
-                    y : line1Start.y + lambda * (line1End.y - line1Start.y)
+                    x: line1Start.x + lambda * (line1End.x - line1Start.x),
+                    y: line1Start.y + lambda * (line1End.y - line1Start.y)
                 }
             else
                 return null;

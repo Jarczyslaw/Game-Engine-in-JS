@@ -1,5 +1,5 @@
-define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primitives, Vector, Color){
-	
+define(['commons/primitives', 'commons/vector', 'commons/color'], function (Primitives, Vector, Color) {
+
 	function TextSquare(size, x, y, color) {
 		this.body = new Primitives.Square();
 		this.body.size = size;
@@ -7,13 +7,13 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 		this.position = new Vector(x, y);
 		this.drawPosition = true;
 
-		this.drawText = function(graphics) {
-			var txt = '['+ this.position.x + ',' + this.position.y + ']';
+		this.drawText = function (graphics) {
+			var txt = '[' + this.position.x + ',' + this.position.y + ']';
 			graphics.text.setTextAlignment('center', 'bottom');
 			graphics.text.setText(txt, 0, -5, 16, 'green');
 		}
 
-		this.draw = function(graphics) {
+		this.draw = function (graphics) {
 			this.body.draw(graphics, this.position, 0);
 			if (this.drawPosition) {
 				this.drawText(graphics);
@@ -25,7 +25,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 
 		var lastCheck = true;
 
-		this.test = function(camera, positionX, positionY, size) {
+		this.test = function (camera, positionX, positionY, size) {
 			var visible = camera.checkVisibility(positionX, positionY, size);
 			if (!lastCheck && visible)
 				log.info('visible!');
@@ -39,15 +39,15 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 
 	function ColorPicker() {
 		var newPixel = false;
-		var pixelPosition = { x : -1, y : -1};
+		var pixelPosition = { x: -1, y: -1 };
 
-		this.setPixelPosition = function(position) {
+		this.setPixelPosition = function (position) {
 			pixelPosition.x = position.x;
 			pixelPosition.y = position.y;
 			newPixel = true;
 		}
 
-		this.getPixel = function(graphics) {
+		this.getPixel = function (graphics) {
 			if (newPixel) {
 				var color = graphics.drawing.getPixel(pixelPosition.x, pixelPosition.y);
 				log.info(color.toText());
@@ -57,7 +57,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 	}
 
 	function Scene() {
-	
+
 		var that = this;
 
 		var textSquares = [];
@@ -75,25 +75,23 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 		var visibilityChecker = new VisibilityChecker();
 		var colorPicker = new ColorPicker();
 
-		for (let i = -len;i < len;i++)
-		{
-			for (let j = -len;j < len;j++)
-			{
+		for (let i = -len; i < len; i++) {
+			for (let j = -len; j < len; j++) {
 				var newRect = new TextSquare(5, offset + i * gap, j * gap, Color.white());
 				textSquares.push(newRect);
 			}
 		}
 
-		this.start = function(gameStatus, camera, input) {
+		this.start = function (gameStatus, camera, input) {
 			camera.setPointOfViewToCenter();
 
 			var keys = input.getKeys();
 			var keyCodes = [keyMap.UP, keyMap.DOWN, keyMap.LEFT, keyMap.RIGHT,
-				keyMap.W, keyMap.A, keyMap.S, keyMap.D];
+			keyMap.W, keyMap.A, keyMap.S, keyMap.D];
 			keys.addKeys(keyCodes, false);
 		};
 
-		this.update = function(gameStatus, camera, input, time) {
+		this.update = function (gameStatus, camera, input, time) {
 			time.scale = 0.5;
 			// move player with camera
 			var keys = input.getKeys();
@@ -130,9 +128,9 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 
 			visibilityChecker.test(camera, player2.position.x, player2.position.y, player2.body.size);
 		}
-		
-		this.render = function(graphics, camera) {
-			textSquares.forEach(function(rect, index) {
+
+		this.render = function (graphics, camera) {
+			textSquares.forEach(function (rect, index) {
 				if (camera.checkVisibility(rect.position.x, rect.position.y, 100)) {
 					graphics.resetTransformToCamera(camera);
 					rect.draw(graphics);
@@ -146,7 +144,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color'], function(Primi
 			colorPicker.getPixel(graphics);
 		}
 	}
-	
+
 	return Scene;
 })
 

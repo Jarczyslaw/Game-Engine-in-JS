@@ -1,7 +1,7 @@
-define(function() {
+define(function () {
 
     function TimeAccumulator() {
-        
+
         this.enabled = false;
 
         var timeAccu = 0;
@@ -10,17 +10,17 @@ define(function() {
         var tickTime = 0;
         var tickEvent = null;
 
-        this.setTickEvent = function(tick, event) {
+        this.setTickEvent = function (tick, event) {
             tickTime = tick;
             timeToTickAccu = tickTime;
             tickEvent = event;
         }
 
-        this.disableTickEvent = function() {
+        this.disableTickEvent = function () {
             tickEvent = null;
         }
 
-        this.add = function(timeDelta) {
+        this.add = function (timeDelta) {
             if (!this.enabled)
                 return;
 
@@ -34,11 +34,11 @@ define(function() {
             }
         }
 
-        this.getTime = function() {
+        this.getTime = function () {
             return timeAccu;
         }
 
-        this.reset = function() {
+        this.reset = function () {
             timeAccu = 0;
             timeToTickAccu = tickTime;
         }

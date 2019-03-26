@@ -1,7 +1,7 @@
-define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collisions'], function(Primitives, Vector, Color, Collisions){
-	
-	function Scene() {
-	
+define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collisions'], function (Primitives, Vector, Color, Collisions) {
+
+    function Scene() {
+
         var hitCircle = new Primitives.Circle();
         hitCircle.radius = 30;
         var hitCirclePosition = new Vector(0, 0);
@@ -23,15 +23,15 @@ define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collis
         var circlePosition = new Vector(500, 500);
         var x = new Vector(0, 0);
 
-		this.start = function(gameStatus, camera, input) {
-			this.gameWidth = gameStatus.getWidth();
-			this.gameHeight = gameStatus.getHeight();
+        this.start = function (gameStatus, camera, input) {
+            this.gameWidth = gameStatus.getWidth();
+            this.gameHeight = gameStatus.getHeight();
 
-			this.screenWidth = camera.getWidth();
-			this.screenHeight = camera.getHeight();
-		};
-		
-		this.update = function(gameStatus, camera, input, time) {
+            this.screenWidth = camera.getWidth();
+            this.screenHeight = camera.getHeight();
+        };
+
+        this.update = function (gameStatus, camera, input, time) {
             var mouse = input.getMouse();
             var mousePosition = mouse.getPosition();
             hitCirclePosition.set(mousePosition.x, mousePosition.y);
@@ -39,7 +39,7 @@ define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collis
             // test with line
             var lineTest = Collisions.circleLineCollision(hitCirclePosition, hitCircle.radius, lineStart, lineEnd);
             if (lineTest.hit)
-                line.color = Color.red();        
+                line.color = Color.red();
             else
                 line.color = Color.white();
             d = lineTest.hitPoint;
@@ -61,9 +61,9 @@ define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collis
             x = circleTest.hitPoint;
         }
 
-		this.render = function(graphics, camera) {
+        this.render = function (graphics, camera) {
             // reset test circle
-			graphics.resetTransformToCamera(camera);
+            graphics.resetTransformToCamera(camera);
             hitCircle.draw(graphics, hitCirclePosition, 0);
             // draw line
             graphics.resetTransformToCamera(camera);
@@ -83,9 +83,9 @@ define(['commons/primitives', 'commons/vector', 'commons/color', 'commons/collis
             // draw circles hit point
             graphics.resetTransformToCamera(camera);
             graphics.drawing.drawCircle(x.x, x.y, 5, 'green');
-		}
-	}
-	
-	return Scene;
+        }
+    }
+
+    return Scene;
 })
 

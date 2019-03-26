@@ -1,16 +1,16 @@
-define(function() {
-	
+define(function () {
+
 	function ConsoleLog() {
 
-		this.info = function(message) {
+		this.info = function (message) {
 			console.log(message);
 		}
 
-		this.error = function(message) {
+		this.error = function (message) {
 			console.error(message);
 		}
 
-		this.clear = function() {
+		this.clear = function () {
 			console.clear();
 		}
 	}
@@ -19,14 +19,14 @@ define(function() {
 
 		var maxCapacity = 1000;
 		var capacity = 0;
-		
+
 		var logContainer = document.getElementById('log');
 
-		var scrollToBottom = function() {
+		var scrollToBottom = function () {
 			logContainer.scrollTop = logContainer.scrollHeight;
 		};
-		
-		var checkCapacity = function() {
+
+		var checkCapacity = function () {
 			capacity++;
 			if (capacity > maxCapacity) {
 				capacity = 0;
@@ -34,17 +34,17 @@ define(function() {
 			}
 		}
 
-		this.info = function(message) {
-			if (logContainer == null) 
+		this.info = function (message) {
+			if (logContainer == null)
 				return;
 
 			logContainer.innerHTML += message + '<br />';
 			checkCapacity();
 			scrollToBottom();
 		};
-		
-		this.error = function(message) {
-			if (logContainer == null) 
+
+		this.error = function (message) {
+			if (logContainer == null)
 				return;
 
 			logContainer.innerHTML += '<span style="color:red;">' + message + '</span><br />';
@@ -52,8 +52,8 @@ define(function() {
 			scrollToBottom();
 		};
 
-		this.clear = function() {
-			if (logContainer == null) 
+		this.clear = function () {
+			if (logContainer == null)
 				return;
 
 			logContainer.innerHTML = '';
@@ -61,31 +61,31 @@ define(function() {
 	}
 
 	function Log() {
-		
+
 		var consoleLog = new ConsoleLog();
 		var divLog = new DivLog();
 
-		var messageHeader = function(object) {
+		var messageHeader = function (object) {
 			var dt = '[' + getDateTime() + ']';
 			if (object == null)
 				return dt + ': ';
 			else
 				return dt + ' ' + object.constructor.name.toUpperCase() + ': ';
 		};
-		
-		this.info = function(message, caller = null) {
+
+		this.info = function (message, caller = null) {
 			var msg = messageHeader(caller) + message;
 			consoleLog.info(msg);
 			divLog.info(msg);
 		}
-		
-		this.error = function(message, caller = null) {
+
+		this.error = function (message, caller = null) {
 			var msg = messageHeader(caller) + message;
 			consoleLog.error(msg);
 			divLog.error(msg);
 		}
-		
-		this.clear = function() {
+
+		this.clear = function () {
 			consoleLog.clear();
 			divLog.clear();
 		}

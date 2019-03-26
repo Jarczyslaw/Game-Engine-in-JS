@@ -1,7 +1,7 @@
-define(function() {
+define(function () {
 
     function Test() {
-        this.test = function() {
+        this.test = function () {
             console.log('test');
         }
     }

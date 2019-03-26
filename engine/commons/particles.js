@@ -1,5 +1,5 @@
-define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vector, Primitives, Physics) {
-	
+define(['commons/vector', 'commons/primitives', 'commons/physics'], function (Vector, Primitives, Physics) {
+
 	function Spark(body) {
 
 		Particle.call(this, body); // 'inherit' from particle
@@ -9,9 +9,9 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 		var startSize = 10;
 		var timeAccu = 0;
 
-		this.emit = function(sparkStartPosition, sparkStartVelocity, 
-				sparkStartRotation, sparkStartRotationSpeed,
-				sparkStartSize, sparkLifetime) {
+		this.emit = function (sparkStartPosition, sparkStartVelocity,
+			sparkStartRotation, sparkStartRotationSpeed,
+			sparkStartSize, sparkLifetime) {
 			timeAccu = 0;
 			this.lifetime = sparkLifetime;
 			startSize = sparkStartSize;
@@ -22,7 +22,7 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 			this.setEnabled(true);
 		}
 
-		this.update = function(time) {
+		this.update = function (time) {
 			if (this.getEnabled()) {
 				var t = timeAccu / this.lifetime;
 				if (this.sizeOverLifetime) {
@@ -40,15 +40,15 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 	}
 
 	function Particle(body) {
-		
+
 		this.body = body;
-		
+
 		this.linearPhysics = new Physics.Linear();
 		this.angularPhysics = new Physics.Angular();
-		
+
 		var enabled = false;
-		
-		this.init = function(position, rotation) {
+
+		this.init = function (position, rotation) {
 			this.linearPhysics.position = position;
 			this.linearPhysics.stop();
 
@@ -56,30 +56,30 @@ define(['commons/vector', 'commons/primitives', 'commons/physics'], function(Vec
 			this.angularPhysics.stop();
 		}
 
-		this.setEnabled = function(newEnabled) {
+		this.setEnabled = function (newEnabled) {
 			enabled = newEnabled;
 			this.linearPhysics.enabled = enabled;
 			this.angularPhysics.enabled = enabled;
 		}
 
-		this.getEnabled = function() {
+		this.getEnabled = function () {
 			return enabled;
 		}
-		
-		this.update = function(time) {
+
+		this.update = function (time) {
 			this.linearPhysics.update(time.delta);
 			this.angularPhysics.update(time.delta);
 		}
-		
-		this.draw = function(graphics) {
+
+		this.draw = function (graphics) {
 			if (enabled) {
 				this.body.draw(graphics, this.linearPhysics.position, Math.radians(this.angularPhysics.rotation));
 			}
 		}
 	}
-	
+
 	return {
-		Particle : Particle,
-		Spark : Spark
+		Particle: Particle,
+		Spark: Spark
 	};
 });

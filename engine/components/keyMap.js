@@ -1,9 +1,9 @@
-define(function() {
-	
+define(function () {
+
 	function KeyMap() {
-		
+
 		var keyNames = {};
-		
+
 		this.W = 87;
 		this.A = 65;
 		this.S = 83;
@@ -14,15 +14,15 @@ define(function() {
 		this.E = 69;
 		this.C = 67;
 		this.X = 88;
-		
+
 		this.ENTER = 13;
 		this.SPACE = 32;
-		
+
 		this.LEFT = 37;
 		this.UP = 38;
 		this.RIGHT = 39;
 		this.DOWN = 40;
-		
+
 		this.I = 73;
 		this.P = 80;
 		this.L = 76;
@@ -34,11 +34,11 @@ define(function() {
 		this.Key2 = 50;
 		this.Key3 = 51;
 
-		for(var key in this) {
+		for (var key in this) {
 			keyNames[this[key]] = key;
 		}
 
-		this.getKeyName = function(keyCode) {
+		this.getKeyName = function (keyCode) {
 			if (keyCode in keyNames)
 				return keyNames[keyCode]
 			else
