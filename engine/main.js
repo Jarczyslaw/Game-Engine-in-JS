@@ -1,4 +1,4 @@
-var scene = 'asteroids';
+var scene = 'scrollableScene';
 if (typeof sceneToLoad !== 'undefined')
 	scene = sceneToLoad;
 
