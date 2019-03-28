@@ -114,7 +114,7 @@ define(function () {
 				}
 				return mousePos;
 			};
-			
+
 			this.mouseDown = function (evt) {
 				pressed = true;
 				down = true;
