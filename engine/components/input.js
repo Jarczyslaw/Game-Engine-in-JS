@@ -163,51 +163,52 @@ define(function () {
 		};
 	}
 
-	function Input(canvas) {
+	class Input {
+		constructor(canvas) {
+			let mouseInput = new MouseInput(canvas);
+			let keyInput = new KeyInput();
 
-		var mouseInput = new MouseInput(canvas);
-		var keyInput = new KeyInput();
+			window.addEventListener('keydown', function (event) {
+				let k = keyInput.getKeys();
+				if (event.keyCode in k)
+					keyInput.getKey(event.keyCode).keyDown();
+			}, false);
 
-		window.addEventListener('keydown', function (event) {
-			var k = keyInput.getKeys();
-			if (event.keyCode in k)
-				keyInput.getKey(event.keyCode).keyDown();
-		}, false);
+			window.addEventListener('keyup', function (event) {
+				let k = keyInput.getKeys();
+				if (event.keyCode in k)
+					keyInput.getKey(event.keyCode).keyUp();
+			}, false);
 
-		window.addEventListener('keyup', function (event) {
-			var k = keyInput.getKeys();
-			if (event.keyCode in k)
-				keyInput.getKey(event.keyCode).keyUp();
-		}, false);
+			window.addEventListener('mousedown', function (event) {
+				mouseInput.mouseDown(event);
+			}, false);
 
-		window.addEventListener('mousedown', function (event) {
-			mouseInput.mouseDown(event);
-		}, false);
+			window.addEventListener('mouseup', function (event) {
+				mouseInput.mouseUp(event);
+			}, false);
 
-		window.addEventListener('mouseup', function (event) {
-			mouseInput.mouseUp(event);
-		}, false);
+			window.addEventListener('mousemove', function (event) {
+				mouseInput.mouseMove(event);
+			}, false);
 
-		window.addEventListener('mousemove', function (event) {
-			mouseInput.mouseMove(event);
-		}, false);
+			this.getMouse = function () {
+				return mouseInput;
+			};
 
-		this.getMouse = function () {
-			return mouseInput;
-		};
+			this.getKeys = function () {
+				return keyInput;
+			};
 
-		this.getKeys = function () {
-			return keyInput;
-		};
+			this.onFrameClear = function () {
+				keyInput.onFrameClear();
+				mouseInput.onFrameClear();
+			};
 
-		this.onFrameClear = function () {
-			keyInput.onFrameClear();
-			mouseInput.onFrameClear();
-		};
-
-		this.addDefaultEngineKeys = function () {
-			keyInput.addKey(keyMap.P, false); // press P to pause
-			keyInput.addKey(keyMap.I, false); // press I to toggle status board
+			this.addDefaultEngineKeys = function () {
+				keyInput.addKey(keyMap.P, false); // press P to pause
+				keyInput.addKey(keyMap.I, false); // press I to toggle status board
+			};
 		}
 	}
 
