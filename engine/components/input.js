@@ -1,21 +1,19 @@
 define(function () {
 
-	function KeyInput(repeat) {
-
-		function Key() {
-
+	class Key {
+		constructor(repeat) {
 			this.repeat = repeat;
-
-			var blocked = false;
-			var pressed = false;
-			var down = false;
-			var up = false;
+			let blocked = false;
+			let pressed = false;
+			let down = false;
+			let up = false;
 
 			this.keyDown = function () {
 				if (this.repeat) {
 					pressed = true;
 					down = true;
-				} else {
+				}
+				else {
 					if (!blocked) {
 						pressed = true;
 						down = true;
@@ -48,119 +46,121 @@ define(function () {
 				up = false;
 			};
 		}
+	}
 
-		var keys = {};
+	class KeyInput {
+		constructor(repeat) {
+			let keys = {};
 
-		this.addKey = function (keyCode, repeating = false) {
-			if (keyCode in keys)
-				throw 'KeyCode ' + keyCode + ' already assigned';
-			else
-				keys[keyCode] = new Key(repeating);
-		}
+			this.addKey = function (keyCode, repeating = false) {
+				if (keyCode in keys)
+					throw 'KeyCode ' + keyCode + ' already assigned';
+				else
+					keys[keyCode] = new Key(repeating);
+			};
 
-		this.addKeys = function (keyCodes, repeating = false) {
-			for (let i = 0; i < keyCodes.length; i++)
-				this.addKey(keyCodes[i], repeating);
-		}
+			this.addKeys = function (keyCodes, repeating = false) {
+				for (let i = 0; i < keyCodes.length; i++)
+					this.addKey(keyCodes[i], repeating);
+			};
 
-		this.getKey = function (keyCode) {
-			if (keyCode in keys)
-				return keys[keyCode];
-			else
-				throw 'KeyCode ' + keyCode + ' not registered';
-		};
+			this.getKey = function (keyCode) {
+				if (keyCode in keys)
+					return keys[keyCode];
+				else
+					throw 'KeyCode ' + keyCode + ' not registered';
+			};
 
-		this.getKeys = function () {
-			return keys;
-		};
+			this.getKeys = function () {
+				return keys;
+			};
 
-		this.setRepeating = function (enabled) {
-			for (key in keys)
-				keys[key].repeat = enabled;
-		}
+			this.setRepeating = function (enabled) {
+				for (let key in keys)
+					keys[key].repeat = enabled;
+			};
 
-		this.onFrameClear = function () {
-			for (key in keys)
-				keys[key].onFrameClear();
+			this.onFrameClear = function () {
+				for (let key in keys)
+					keys[key].onFrameClear();
+			};
 		}
 	}
 
-	function MouseInput(canvas) {
+	class MouseInput {
+		constructor(canvas) {
+			this.canvasClamp = true;
+			let position = { x: -1, y: -1 };
+			let pressed = false;
+			let down = false;
+			let up = false;
+			let that = this;
 
-		var that = this;
-
-		var getMousePosition = function (event) {
-			var rect = canvas.getBoundingClientRect();
-			var mousePos = {
-				x: event.clientX - rect.left,
-				y: event.clientY - rect.top
+			let getMousePosition = function (event) {
+				let rect = canvas.getBoundingClientRect();
+				let mousePos = {
+					x: event.clientX - rect.left,
+					y: event.clientY - rect.top
+				};
+				if (that.canvasClamp) {
+					if (mousePos.x > canvas.width)
+						mousePos.x = canvas.width;
+					else if (mousePos.x < 0)
+						mousePos.x = 0;
+					if (mousePos.y > canvas.height)
+						mousePos.y = canvas.height;
+					else if (mousePos.y < 0)
+						mousePos.y = 0;
+				}
+				return mousePos;
 			};
-			if (that.canvasClamp) {
-				if (mousePos.x > canvas.width)
-					mousePos.x = canvas.width;
-				else if (mousePos.x < 0)
-					mousePos.x = 0;
+			
+			this.mouseDown = function (evt) {
+				pressed = true;
+				down = true;
+				position = getMousePosition(evt);
+				;
+			};
 
-				if (mousePos.y > canvas.height)
-					mousePos.y = canvas.height;
-				else if (mousePos.y < 0)
-					mousePos.y = 0;
-			}
-			return mousePos;
-		};
+			this.mouseMove = function (evt) {
+				position = getMousePosition(evt);
+			};
 
-		this.canvasClamp = true;
+			this.mouseUp = function (evt) {
+				down = false;
+				up = true;
+				position = getMousePosition(evt);
+			};
 
-		var position = { x: -1, y: -1 };
+			this.isPressed = function () {
+				return pressed;
+			};
 
-		var pressed = false;
-		var down = false;
-		var up = false;
+			this.isDown = function () {
+				return pressed || down;
+			};
 
-		this.mouseDown = function (evt) {
-			pressed = true;
-			down = true;
-			position = getMousePosition(evt);;
-		};
+			this.isUp = function () {
+				return up;
+			};
 
-		this.mouseMove = function (evt) {
-			position = getMousePosition(evt);
-		};
+			this.getPosition = function () {
+				return position;
+			};
 
-		this.mouseUp = function (evt) {
-			down = false;
-			up = true;
-			position = getMousePosition(evt);
-		};
+			this.getInGamePosition = function (camera) {
+				var pos = { x: -1, y: -1 };
+				var origin = camera.getOrigin();
+				pos.x = position.x - origin.x;
+				pos.y = position.y - origin.y;
+				return pos;
+			};
 
-		this.isPressed = function () {
-			return pressed;
-		};
-
-		this.isDown = function () {
-			return pressed || down;
-		};
-
-		this.isUp = function () {
-			return up;
-		};
-
-		this.getPosition = function () {
-			return position;
-		};
-
-		this.getInGamePosition = function (camera) {
-			var pos = { x: -1, y: -1 };
-			var origin = camera.getOrigin();
-			pos.x = position.x - origin.x;
-			pos.y = position.y - origin.y;
-			return pos;
+			this.onFrameClear = function () {
+				pressed = false;
+				up = false;
+			};
 		}
-
-		this.onFrameClear = function () {
-			pressed = false;
-			up = false;
-		};
 	}
 
 	class Input {
