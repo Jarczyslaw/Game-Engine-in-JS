@@ -1,4 +1,4 @@
-var scene = 'pong';
+var scene = 'circleCollisions';
 if (typeof sceneToLoad !== 'undefined')
 	scene = sceneToLoad;
 
