@@ -1,122 +1,123 @@
 define(function () {
 
-    function Color() {
+    class Color {
+        constructor() {
+            let r = 255;
+            let g = 255;
+            let b = 255;
+            let a = 255;
+            let textForm;
 
-        var r = 255;
-        var g = 255;
-        var b = 255;
-        var a = 255;
+            let getTextForm = function () {
+                textForm = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a / 255 + ')';
+            };
 
-        var textForm;
+            this.toHex = function () {
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            };
 
-        var getTextForm = function () {
-            textForm = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a / 255 + ')';
-        }
-        getTextForm();
+            this.toText = function () {
+                return textForm;
+            };
 
-        this.toHex = function () {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        }
+            this.setRGBA = function (colorR, colorG, colorB, colorA) {
+                r = colorR;
+                g = colorG;
+                b = colorB;
+                a = colorA;
+                getTextForm();
+            };
 
-        this.toText = function () {
-            return textForm;
-        }
+            this.setRGB = function (colorR, colorG, colorB) {
+                this.setRGBA(colorR, colorG, colorB, a);
+            };
 
-        this.setRGBA = function (colorR, colorG, colorB, colorA) {
-            r = colorR;
-            g = colorG;
-            b = colorB;
-            a = colorA;
+            this.setR = function (colorR) {
+                r = colorR;
+                getTextForm();
+            };
+
+            this.setG = function (colorG) {
+                g = colorG;
+                getTextForm();
+            };
+
+            this.setB = function (colorB) {
+                r = colorB;
+                getTextForm();
+            };
+
+            this.setA = function (colorA) {
+                a = colorA;
+                getTextForm();
+            };
+
+            this.getR = function () {
+                return r;
+            };
+
+            this.getG = function () {
+                return g;
+            };
+
+            this.getB = function () {
+                return b;
+            };
+
+            this.getA = function () {
+                return a;
+            };
+
             getTextForm();
         }
 
-        this.setRGB = function (colorR, colorG, colorB) {
-            this.setRGBA(colorR, colorG, colorB, a);
+        static random(randomAlpha = false) {
+            let color = new Color();
+            let rComp = Math.randomIntInRange(0, 255);
+            let gComp = Math.randomIntInRange(0, 255);
+            let bComp = Math.randomIntInRange(0, 255);
+            if (!randomAlpha)
+                color.setRGB(rComp, gComp, bComp);
+            else {
+                let aComp = Math.randomIntInRange(0, 255);
+                color.setRGBA(rComp, gComp, bComp, aComp);
+            }
+            return color;
         }
 
-        this.setR = function (colorR) {
-            r = colorR;
-            getTextForm();
+        static custom(r, g, b, a) {
+            let c = new Color();
+            c.setRGBA(r, g, b, a);
+            return c;
         }
 
-        this.setG = function (colorG) {
-            g = colorG;
-            getTextForm();
+        static white() {
+            return new Color();
         }
 
-        this.setB = function (colorB) {
-            r = colorB;
-            getTextForm();
+        static black() {
+            let color = new Color();
+            color.setRGB(0, 0, 0);
+            return color;
         }
 
-        this.setA = function (colorA) {
-            a = colorA;
-            getTextForm();
+        static red() {
+            let color = new Color();
+            color.setRGB(255, 0, 0);
+            return color;
         }
 
-        this.getR = function () {
-            return r;
+        static green() {
+            let color = new Color();
+            color.setRGB(0, 255, 0);
+            return color;
         }
 
-        this.getG = function () {
-            return g;
+        static blue() {
+            let color = new Color();
+            color.setRGB(0, 0, 255);
+            return color;
         }
-
-        this.getB = function () {
-            return b;
-        }
-
-        this.getA = function () {
-            return a;
-        }
-    }
-
-    Color.random = function (randomAlpha = false) {
-        var color = new Color();
-        var rComp = Math.randomIntInRange(0, 255);
-        var gComp = Math.randomIntInRange(0, 255);
-        var bComp = Math.randomIntInRange(0, 255);
-        if (!randomAlpha)
-            color.setRGB(rComp, gComp, bComp);
-        else {
-            var aComp = Math.randomIntInRange(0, 255);
-            color.setRGBA(rComp, gComp, bComp, aComp);
-        }
-        return color;
-    }
-
-    Color.custom = function (r, g, b, a) {
-        var c = new Color();
-        c.setRGBA(r, g, b, a);
-        return c;
-    }
-
-    Color.white = function () {
-        return new Color();
-    }
-
-    Color.black = function () {
-        var color = new Color();
-        color.setRGB(0, 0, 0);
-        return color;
-    }
-
-    Color.red = function () {
-        var color = new Color();
-        color.setRGB(255, 0, 0);
-        return color;
-    }
-
-    Color.green = function () {
-        var color = new Color();
-        color.setRGB(0, 255, 0);
-        return color;
-    }
-
-    Color.blue = function () {
-        var color = new Color();
-        color.setRGB(0, 0, 255);
-        return color;
     }
 
     return Color;

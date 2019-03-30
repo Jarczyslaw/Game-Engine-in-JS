@@ -3,16 +3,18 @@ define(['commons/vector', 'commons/particles', 'commons/pooler', 'commons/physic
 
 		var DEBUG = true;
 
-		function DebugDot() {
-			Primitives.Circle.call(this);
-			this.radius = 1;
-			this.color.setRGB(255, 0, 0);
+		class DebugDot extends Primitives.Circle {
+			constructor() {
+				super();
+				this.radius = 1;
+				this.color.setRGB(255, 0, 0);
 
-			this.drawDebug = function (graphics, camera, position) {
-				if (DEBUG) {
-					graphics.resetTransformToCamera(camera);
-					this.draw(graphics, position);
-				}
+				this.drawDebug = function (graphics, camera, position) {
+					if (DEBUG) {
+						graphics.resetTransformToCamera(camera);
+						this.draw(graphics, position);
+					}
+				};
 			}
 		}
 

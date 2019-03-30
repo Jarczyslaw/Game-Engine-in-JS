@@ -1,4 +1,4 @@
-var scene = 'asteroids';
+var scene = 'pong';
 if (typeof sceneToLoad !== 'undefined')
 	scene = sceneToLoad;
 
